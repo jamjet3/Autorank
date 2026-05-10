@@ -8,7 +8,8 @@ import me.armar.plugins.autorank.pathbuilder.Path;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
 import me.armar.plugins.autorank.storage.TimeType;
 import me.armar.plugins.autorank.util.AutorankTools;
-import me.armar.plugins.autorank.util.uuid.UUIDManager;
+
+import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.OfflinePlayer;
@@ -22,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -128,8 +128,9 @@ public class CheckCommand extends AutorankCommand {
             if (args.length >= 2) {
                 isPath = false;
                 boolean isPlayer = false;
-                targetPlayer = this.plugin.getServer().getOfflinePlayer(args[1].trim());
-                if (targetPlayer.hasPlayedBefore()) {
+                Optional<UUID> resolvedUUID = this.plugin.getPlayerLookupService().resolveOnlineOrCached(args[1]);
+                if (resolvedUUID.isPresent()) {
+                    targetPlayer = this.plugin.getServer().getOfflinePlayer(resolvedUUID.get());
                     isPlayer = true;
                 }
 
@@ -184,12 +185,10 @@ public class CheckCommand extends AutorankCommand {
                 targetPlayerName = onlineTargetPlayer.getName();
                 targetUUID = onlineTargetPlayer.getUniqueId();
             } else {
-                try {
-                    targetUUID = UUIDManager.getUUID(targetPlayer.getName()).get();
-                } catch (ExecutionException | InterruptedException var16) {
-                    var16.printStackTrace();
-                }
-
+                // targetPlayer was built from a UUID resolved via PlayerLookupService
+                // (or from the command sender), so its UUID is authoritative — no
+                // Mojang fallback needed here.
+                targetUUID = targetPlayer.getUniqueId();
                 targetPlayerName = targetPlayer.getName();
             }
 

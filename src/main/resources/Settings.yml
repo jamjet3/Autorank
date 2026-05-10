@@ -128,3 +128,28 @@ automatically been assigned: true
 
 show first login date: false
 # Show first login date of player when they log onto the server
+
+bedrock:
+  enabled: true
+  # Master switch for Bedrock/Floodgate-aware player resolution.
+  # When false, Autorank behaves exactly as it did before Bedrock support was added.
+
+  prefix: 'auto'
+  # Bedrock username prefix. Most servers use Floodgate's default '.' prefix.
+  # Set to 'auto' to read the configured prefix from Floodgate at runtime (recommended).
+  # Set to an explicit string ('.', 'BR_', '*', etc.) to override.
+  # Set to '' (empty string) if your Floodgate is configured with no prefix.
+
+  use-floodgate-api: auto
+  # Whether to call into the Floodgate API for resolution help.
+  #   auto   - use it when the Floodgate plugin is installed (recommended)
+  #   always - require Floodgate to be installed; warn if missing
+  #   never  - ignore Floodgate even if installed
+  # The Floodgate API can only resolve currently-online Bedrock players
+  # synchronously; offline-by-username lookup goes through Floodgate's external
+  # XUID service asynchronously and is only used for admin commands.
+
+  skip-mojang-for-prefix: true
+  # When true, Autorank will never call the Mojang API to look up a name that
+  # starts with the configured Bedrock prefix. Mojang has no record of Bedrock
+  # players, so this avoids pointless HTTP calls and rate-limiting.

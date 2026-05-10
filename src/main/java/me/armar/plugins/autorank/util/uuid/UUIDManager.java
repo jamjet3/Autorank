@@ -125,18 +125,28 @@ public class UUIDManager {
             }
 
             if (!playerNamesToSearch.isEmpty()) {
-                UUIDFetcher fetcher = new UUIDFetcher(playerNamesToSearch);
-                playerName = null;
-
-                try {
-                    Map<String, UUID> response = fetcher.call();
-                    cachedData.putAll(response);
-                } catch (Exception var7) {
-                    if (var7 instanceof IOException) {
-                        Bukkit.getLogger().warning("Tried to contact Mojang page for UUID lookup but failed.");
+                List<String> mojangCandidates = new ArrayList<>();
+                PlayerLookupService lookup = plugin != null ? plugin.getPlayerLookupService() : null;
+                for (String candidate : playerNamesToSearch) {
+                    if (lookup != null && lookup.shouldSkipMojangFor(candidate)) {
+                        continue;
                     }
+                    mojangCandidates.add(candidate);
+                }
 
-                    var7.printStackTrace();
+                if (!mojangCandidates.isEmpty()) {
+                    UUIDFetcher fetcher = new UUIDFetcher(mojangCandidates);
+
+                    try {
+                        Map<String, UUID> response = fetcher.call();
+                        cachedData.putAll(response);
+                    } catch (Exception var7) {
+                        if (var7 instanceof IOException) {
+                            Bukkit.getLogger().warning("Tried to contact Mojang page for UUID lookup but failed.");
+                        }
+
+                        var7.printStackTrace();
+                    }
                 }
             }
 

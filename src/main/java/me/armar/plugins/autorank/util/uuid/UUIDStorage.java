@@ -135,12 +135,13 @@ public class UUIDStorage {
     protected CompletableFuture<UUID> getUUID(String playerName) {
         return CompletableFuture.supplyAsync(() -> {
             UUID uuid = this.getStoredUUID(playerName);
-            if (uuid != null) {
-                return uuid;
-            } else {
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
-                return offlinePlayer.getName() == null ? offlinePlayer.getUniqueId() : null;
-            }
+            return uuid;
+            // Previously fell back to Bukkit.getOfflinePlayer(String), which
+            // returns a *synthetic* UUID derived from the name when the player
+            // is unknown to the server. That silently corrupted cached data,
+            // especially for Bedrock/Floodgate players whose real UUID is
+            // different from the synthetic. Cache misses now return null and
+            // upstream callers handle the fallback via PlayerLookupService.
         });
     }
 
