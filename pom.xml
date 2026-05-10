@@ -172,13 +172,7 @@
             <version>2.7.2</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.ow2.cmi/cmi -->
-        <dependency>
-            <groupId>com.zrips</groupId>
-            <artifactId>CMI-API</artifactId>
-            <version>8.7.8.2</version>
-            <scope>provided</scope>
-        </dependency>
+        <!-- CMI-API removed: not used on Pinecraft Equestrian; CMIHook stubbed -->
         <dependency>
             <groupId>me.staartvin</groupId>
             <artifactId>statz</artifactId>
@@ -191,12 +185,7 @@
             <version>1.2-STABLE</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>us.eunoians</groupId>
-            <artifactId>McRPG</artifactId>
-            <version>1.4.0.0-BETA</version>
-            <scope>provided</scope>
-        </dependency>
+        <!-- McRPG removed: not used on Pinecraft Equestrian; McRPGHook stubbed -->
         <!-- https://github.com/PlaceholderAPI/PlaceholderAPI/wiki/Hook-into-PlaceholderAPI#first-steps -->
         <dependency>
             <groupId>me.clip</groupId>
@@ -260,20 +249,7 @@
             <version>0.98.2.2</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://github.com/LMBishop/Quests -->
-        <dependency>
-            <groupId>com.leonardobishop</groupId>
-            <artifactId>quests</artifactId>
-            <version>3.9.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- https://jitpack.io/#PikaMug/Quests -->
-        <dependency>
-            <groupId>com.github.PikaMug</groupId>
-            <artifactId>Quests</artifactId>
-            <version>4.8.3</version>
-            <scope>provided</scope>
-        </dependency>
+        <!-- LMBishop Quests + PikaMug Quests removed: not used on Pinecraft Equestrian; both Quests hooks stubbed -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>

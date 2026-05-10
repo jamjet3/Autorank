@@ -1,75 +1,29 @@
 package me.armar.plugins.utils.pluginlibrary.hooks;
 
-import com.leonardobishop.quests.bukkit.BukkitQuestsPlugin;
-import com.leonardobishop.quests.common.player.QPlayer;
-import com.leonardobishop.quests.common.player.questprogressfile.QuestProgress;
-import com.leonardobishop.quests.common.player.questprogressfile.QuestProgressFile;
-import com.leonardobishop.quests.common.plugin.Quests;
-import com.leonardobishop.quests.common.quest.Quest;
-import me.armar.plugins.utils.pluginlibrary.Library;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-
-import java.util.List;
 import java.util.UUID;
 
+// Stubbed: LMBishop Quests not used on Pinecraft Equestrian and JAR not available locally.
 public class QuestsAlternative extends LibraryHook {
-    public boolean isHooked() {
-        return isPluginAvailable(Library.QUESTS_ALTERNATIVE);
-    }
-    private Quests quests;
     public QuestsAlternative() {
     }
 
-    public boolean hook() {
-        if (!isPluginAvailable(Library.QUESTS_ALTERNATIVE)) {
-            return false;
-        } else {
-            Plugin plugin = this.getServer().getPluginManager().getPlugin(Library.QUESTS_ALTERNATIVE.getInternalPluginName());
-            if (!(plugin instanceof Quests)) {
-                return false;
-            } else {
-                this.quests = (Quests)plugin;
-                return this.quests != null;
-            }
-        }
+    public boolean isHooked() {
+        return false;
     }
 
+    public boolean hook() {
+        return false;
+    }
 
     public int getNumberOfCompletedQuests(UUID uuid) {
-        BukkitQuestsPlugin questsPlugin = (BukkitQuestsPlugin) Bukkit.getPluginManager().getPlugin("Quests");
-        if (!this.isHooked()) {
-            return -1;
-        } else {
-            QPlayer playerData = questsPlugin.getPlayerManager().getPlayer(uuid);
-            final List<Quest> listCompleted = playerData.getQuestProgressFile().getAllQuestsFromProgress(QuestProgressFile.QuestsProgressFilter.COMPLETED);
-            return listCompleted.size();
-        }
+        return -1;
     }
 
     public int getNumberOfActiveQuests(UUID uuid) {
-        BukkitQuestsPlugin questsPlugin = (BukkitQuestsPlugin) Bukkit.getPluginManager().getPlugin("Quests");
-        if (!this.isHooked()) {
-            return -1;
-        } else {
-            QPlayer playerData = questsPlugin.getPlayerManager().getPlayer(uuid);
-            return playerData.getQuestProgressFile().getStartedQuests().size();
-        }
+        return -1;
     }
 
     public boolean isQuestCompleted(UUID uuid, String questName) {
-        BukkitQuestsPlugin questsPlugin = (BukkitQuestsPlugin) Bukkit.getPluginManager().getPlugin("Quests");
-        if (!this.isHooked()) {
-            return false;
-        } else {
-            Quest questData = questsPlugin.getQuestManager().getQuestById(questName);
-            if (questData == null){
-                return false;
-            }
-            QPlayer playerData = questsPlugin.getPlayerManager().getPlayer(uuid);
-            QuestProgress progress = playerData.getQuestProgressFile().getQuestProgress(questData);
-            return progress.isCompleted();
-        }
-        }
-
+        return false;
+    }
 }
