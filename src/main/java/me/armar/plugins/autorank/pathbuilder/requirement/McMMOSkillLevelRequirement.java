@@ -2,6 +2,7 @@ package me.armar.plugins.autorank.pathbuilder.requirement;
 
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.McMMOHook;
 import org.bukkit.entity.Player;
 
@@ -14,7 +15,7 @@ public class McMMOSkillLevelRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        return !this.skillName.equals("all") && !this.skillName.equals("none") ? Lang.MCMMO_SKILL_LEVEL_REQUIREMENT.getConfigValue(this.skillLevel + "", this.skillName) : Lang.MCMMO_SKILL_LEVEL_REQUIREMENT.getConfigValue(this.skillLevel + "", "all skills");
+        return !this.skillName.equals("all") && !this.skillName.equals("none") ? Lang.MCMMO_SKILL_LEVEL_REQUIREMENT.getConfigValue("" + this.skillLevel, this.skillName) : Lang.MCMMO_SKILL_LEVEL_REQUIREMENT.getConfigValue("" + this.skillLevel, "all skills");
     }
 
     public String getProgressString(Player player) {

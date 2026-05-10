@@ -14,7 +14,8 @@ public class WorldRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(Player player) {
-        return player.getWorld().getName() + "/" + this.worldName;
+        String var10000 = player.getWorld().getName();
+        return var10000 + "/" + this.worldName;
     }
 
     public boolean meetsRequirement(Player player) {

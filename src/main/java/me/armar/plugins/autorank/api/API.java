@@ -1,5 +1,9 @@
 package me.armar.plugins.autorank.api;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.addons.AddOnManager;
 import me.armar.plugins.autorank.api.services.RequirementManager;
@@ -7,14 +11,9 @@ import me.armar.plugins.autorank.api.services.RequirementService;
 import me.armar.plugins.autorank.api.services.ResultManager;
 import me.armar.plugins.autorank.api.services.ResultService;
 import me.armar.plugins.autorank.pathbuilder.Path;
-import me.armar.plugins.autorank.storage.PlayTimeStorageProvider;
 import me.armar.plugins.autorank.storage.TimeType;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider.StorageType;
 import org.bukkit.plugin.ServicePriority;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class API {
     private final Autorank plugin;
@@ -32,7 +31,7 @@ public class API {
     }
 
     public CompletableFuture<Integer> getGlobalPlayTime(UUID uuid) {
-        return !this.plugin.getPlayTimeStorageManager().isStorageTypeActive(PlayTimeStorageProvider.StorageType.DATABASE) ? CompletableFuture.completedFuture(0) : this.plugin.getPlayTimeStorageManager().getStorageProvider(PlayTimeStorageProvider.StorageType.DATABASE).getPlayerTime(TimeType.TOTAL_TIME, uuid);
+        return !this.plugin.getPlayTimeStorageManager().isStorageTypeActive(StorageType.DATABASE) ? CompletableFuture.completedFuture(0) : this.plugin.getPlayTimeStorageManager().getStorageProvider(StorageType.DATABASE).getPlayerTime(TimeType.TOTAL_TIME, uuid);
     }
 
     public CompletableFuture<Integer> getLocalPlayTime(UUID uuid) {
@@ -62,8 +61,6 @@ public class API {
     }
 
     public Path getPath(String pathName) {
-        return this.plugin.getPathManager().getAllPaths().parallelStream().filter((path) -> {
-            return path.getDisplayName().equalsIgnoreCase(pathName) || path.getInternalName().equalsIgnoreCase(pathName);
-        }).findFirst().orElse(null);
+        return this.plugin.getPathManager().getAllPaths().parallelStream().filter((path) -> path.getDisplayName().equalsIgnoreCase(pathName) || path.getInternalName().equalsIgnoreCase(pathName)).findFirst().orElse(null);
     }
 }

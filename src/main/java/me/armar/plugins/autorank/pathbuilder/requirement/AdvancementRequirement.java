@@ -1,5 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.util.AutorankTools;
 import org.apache.commons.lang.math.NumberUtils;
@@ -7,10 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class AdvancementRequirement extends AbstractRequirement {
     Advancement advancement = null;
@@ -57,16 +56,14 @@ public class AdvancementRequirement extends AbstractRequirement {
     public static Advancement getAdvancement(String name) {
         Iterator it = Bukkit.getServer().advancementIterator();
 
-        Advancement a;
-        do {
-            if (!it.hasNext()) {
-                return null;
+        while(it.hasNext()) {
+            Advancement a = (Advancement)it.next();
+            if (a.getKey().toString().equalsIgnoreCase(name)) {
+                return a;
             }
+        }
 
-            a = (Advancement)it.next();
-        } while(!a.getKey().toString().equalsIgnoreCase(name));
-
-        return a;
+        return null;
     }
 
     public static List<Advancement> getCompletedAdvancements(Player player) {
@@ -96,7 +93,7 @@ public class AdvancementRequirement extends AbstractRequirement {
     public boolean initRequirement(String[] options) {
         String option = options[0].trim();
         if (NumberUtils.isNumber(option)) {
-            this.advancementCount = (int) AutorankTools.stringToDouble(options[0]);
+            this.advancementCount = (int)AutorankTools.stringToDouble(options[0]);
             if (this.advancementCount < 0) {
                 this.registerWarningMessage("No number of advancements provided (or smaller than 0).");
                 return false;

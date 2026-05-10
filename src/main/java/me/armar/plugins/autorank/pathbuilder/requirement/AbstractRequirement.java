@@ -88,11 +88,10 @@ public abstract class AbstractRequirement {
     public boolean isMet(UUID uuid) {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         this.getAutorank().debugMessage("Checking if user '" + uuid + "' meets requirement '" + this.getDescription() + "'.");
-        boolean meetsRequirement;
         if (this.needsOnlinePlayer()) {
             this.getAutorank().debugMessage("User needs to be online for requirement to check.");
             if (offlinePlayer.isOnline()) {
-                meetsRequirement = this.meetsRequirement(offlinePlayer.getPlayer());
+                boolean meetsRequirement = this.meetsRequirement(offlinePlayer.getPlayer());
                 if (meetsRequirement) {
                     this.getAutorank().debugMessage("User is online and meets requirement.");
                 } else {
@@ -106,7 +105,7 @@ public abstract class AbstractRequirement {
             }
         } else {
             this.getAutorank().debugMessage("User does not need to be online");
-            meetsRequirement = this.meetsRequirement(uuid);
+            boolean meetsRequirement = this.meetsRequirement(uuid);
             if (meetsRequirement) {
                 this.getAutorank().debugMessage("User meets requirement");
             } else {
@@ -186,10 +185,10 @@ public abstract class AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return this.isMet(uuid) ? 1.0D : this.getProgressInPercentage(uuid);
+        return this.isMet(uuid) ? (double)1.0F : this.getProgressInPercentage(uuid);
     }
 
     private double getProgressInPercentage(UUID uuid) {
-        return 0.0D;
+        return 0.0F;
     }
 }

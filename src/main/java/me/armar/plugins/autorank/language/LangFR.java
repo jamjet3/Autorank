@@ -138,6 +138,7 @@ public enum LangFR {
     MESSAGE_RESULT("MESSAGE-RESULT", "Vous envoyer le message suivant: {0}"),
     MINUTE_PLURAL("MINUTE-PLURAL", "minutes"),
     MINUTE_SINGULAR("MINUTE-SINGULAR", "minute"),
+    MOBS_KILLED_REQUIREMENT("MOBS-KILLED-REQUIREMENT", "Tuez au moins {0} {1} {2}"),
     MONEY_REQUIREMENT("MONEY-REQUIREMENT", "Avoir au moins {0}"),
     MONEY_RESULT("MONEY-RESULT", "Récompensez-vous avec {0}."),
     MYSQL_IS_NOT_ENABLED("MYSQL-IS-NOT-ENABLED", "<RED>MySQL n'est pas activé!"),
@@ -204,7 +205,7 @@ public enum LangFR {
     PROGRESS_OF_PATHS("PROGRESS-OF-PATHS", "<GREEN>----- <GRAY>[Avancement des chemins pour <GOLD>{0}<GRAY>]<GREEN> -----"),
     PROGRESS_RESET("PROGRESS-RESET", "<YELLOW>Votre progression pour le chemin est réinitialisée."),
     PROGRESS_RESTORED("PROGRESS-RESTORED", "<YELLOW>Votre progression pour le chemin a été restaurée."),
-    QUESTION_MARK("QUESTION-MARK","<DARK_AQUA>?"),
+    QUESTION_MARK("QUESTION-MARK", "<DARK_AQUA>?"),
     QUESTS_ACTIVE_QUESTS_REQUIREMENT("QUESTS-ACTIVE-QUESTS-REQUIREMENT", "Avoir {0} quêtes actives en même temps."),
     QUESTS_COMPLETED_QUESTS_REQUIREMENT("QUESTS-COMPLETED-QUESTS-REQUIREMENT", "Complétez au moins {0} quêtes."),
     QUESTS_COMPLETE_SPECIFIC_QUEST_REQUIREMENT("QUESTS-COMPLETE-SPECIFIC-QUEST-REQUIREMENT", "Terminez la quête '{0}'."),
@@ -259,7 +260,7 @@ public enum LangFR {
     TIME_MONTHLY_REQUIREMENT("TIME-MONTHLY-REQUIREMENT", " Jouez pendant au moins {0} par mois."),
     TIME_REQUIREMENT("TIME-REQUIREMENT", "Jouez au moins {0}"),
     TIME_WEEKLY_REQUIREMENT("TIME-WEEKLY-REQUIREMENT", " Jouez pendant au moins {0} en une semaine."),
-    TOTAL_MOBS_KILLED_REQUIREMENT("TOTAL-MOBS-KILLED-REQUIREMENT", "Tuez au moins {0} {1} {2}"),
+    TOTAL_MOBS_KILLED_REQUIREMENT("TOTAL-MOBS-KILLED-REQUIREMENT", "Tuez au moins {0}"),
     TOTAL_TIME_REQUIREMENT("TOTAL-TIME-REQUIREMENT", "Être avec ce serveur pendant au moins {0} mobs"),
     TOWNY_HAS_NATION_REQUIREMENT("TOWNY-HAS-NATION-REQUIREMENT", "Besoin de faire partie d'une nation."),
     TOWNY_HAS_TOWN_REQUIREMENT("TOWNY-HAS-TOWN-REQUIREMENT", "Besoin de faire partie d'une ville."),
@@ -302,7 +303,6 @@ public enum LangFR {
 
     LangFR(String path, String start) {
         this.path = path;
-
         this.def = start;
     }
 
@@ -311,12 +311,12 @@ public enum LangFR {
     }
 
     public String getConfigValue(Object... args) {
-        String value = (LANGFR.getString(this.getPath(), this.getDefault()));
+        String value = LANGFR.getString(this.getPath(), this.getDefault());
         if (args != null && args.length != 0) {
             if (args[0] == null) {
                 return value;
             } else {
-                for (int i = 0; i < args.length; ++i) {
+                for(int i = 0; i < args.length; ++i) {
                     value = value.replace("{" + i + "}", args[i].toString());
                 }
 

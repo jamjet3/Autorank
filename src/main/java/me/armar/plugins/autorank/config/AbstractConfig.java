@@ -10,9 +10,6 @@ public abstract class AbstractConfig {
     private String fileName;
     private boolean isLoaded = false;
 
-    public AbstractConfig() {
-    }
-
     public void createNewFile() throws InvalidConfigurationException {
         this.configFile = new SimpleYamlConfiguration(this.plugin, this.fileName, this.fileName);
         this.plugin.debugMessage("File loaded (" + this.fileName + ")");
@@ -33,6 +30,7 @@ public abstract class AbstractConfig {
         if (this.configFile != null) {
             this.configFile.saveFile();
         }
+
     }
 
     public boolean loadConfig() {

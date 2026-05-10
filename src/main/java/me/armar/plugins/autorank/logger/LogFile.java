@@ -1,20 +1,21 @@
 package me.armar.plugins.autorank.logger;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogFile {
     DateTimeFormatter timeFormat;
-    private String fileName;
-    private FileWriter fw;
-    private BufferedWriter bw;
+    private final String fileName;
     private PrintWriter pw;
     private boolean fileReady;
 
     public LogFile(String fileName) {
         this.timeFormat = DateTimeFormatter.ISO_LOCAL_TIME;
-        this.fileName = "log-file";
         this.fileReady = false;
         this.fileName = fileName;
     }
@@ -26,18 +27,19 @@ public class LogFile {
     public void loadFile() {
         try {
             File file = new File(this.fileName);
+            FileWriter fw;
             if (file.exists()) {
-                this.fw = new FileWriter(file, true);
+                fw = new FileWriter(file, true);
             } else {
                 if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdirs();
                 }
 
-                this.fw = new FileWriter(file);
+                fw = new FileWriter(file);
             }
 
-            this.bw = new BufferedWriter(this.fw);
-            this.pw = new PrintWriter(this.bw);
+            BufferedWriter bw = new BufferedWriter(fw);
+            this.pw = new PrintWriter(bw);
             this.fileReady = true;
         } catch (IOException var2) {
             var2.printStackTrace();
@@ -46,11 +48,12 @@ public class LogFile {
     }
 
     public void writeToFile(String message) {
-        if (this.isFileReady()) {
-            if (message != null) {
-                this.pw.println("[" + LocalTime.now().format(this.timeFormat) + "]: " + message);
-                this.pw.flush();
-            }
+        if (this.isFileReady() && message != null) {
+            PrintWriter var10000 = this.pw;
+            String var10001 = LocalTime.now().format(this.timeFormat);
+            var10000.println("[" + var10001 + "]: " + message);
+            this.pw.flush();
         }
+
     }
 }

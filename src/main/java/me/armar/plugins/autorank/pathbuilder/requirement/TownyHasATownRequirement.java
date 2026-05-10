@@ -2,6 +2,7 @@ package me.armar.plugins.autorank.pathbuilder.requirement;
 
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.TownyAdvancedHook;
 import org.bukkit.entity.Player;
 
@@ -22,7 +23,8 @@ public class TownyHasATownRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(Player player) {
-        return this.hook.hasTown(player.getName()) + "/" + this.shouldHaveATown;
+        boolean var10000 = this.hook.hasTown(player.getName());
+        return var10000 + "/" + this.shouldHaveATown;
     }
 
     public boolean meetsRequirement(Player player) {

@@ -1,17 +1,14 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.storage.TimeType;
 import me.armar.plugins.autorank.util.AutorankTools;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.Iterator;
-import java.util.UUID;
 
 public class SyncStatsCommand extends AutorankCommand {
     private final Autorank plugin;
@@ -21,31 +18,29 @@ public class SyncStatsCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.syncstats", sender)) {
-            return true;
         } else {
-            int count = 0;
-            Iterator var6 = this.plugin.getPlayTimeStorageManager().getPrimaryStorageProvider().getStoredPlayers(TimeType.TOTAL_TIME).iterator();
+            if (this.hasPermission(this.getPermission(), sender)) {
+                int count = 0;
 
-            while(var6.hasNext()) {
-                UUID uuid = (UUID)var6.next();
-                OfflinePlayer p = this.plugin.getServer().getOfflinePlayer(uuid);
-                int statsPlayTime = this.plugin.getStatisticsManager().getTimePlayed(uuid, null);
-                if (statsPlayTime > 0) {
-                    this.plugin.getPlayTimeStorageManager().setPlayerTime(TimeType.TOTAL_TIME, uuid, statsPlayTime);
-                    ++count;
+                for(UUID uuid : this.plugin.getPlayTimeStorageManager().getPrimaryStorageProvider().getStoredPlayers(TimeType.TOTAL_TIME)) {
+                    this.plugin.getServer().getOfflinePlayer(uuid);
+                    int statsPlayTime = this.plugin.getStatisticsManager().getTimePlayed(uuid, null);
+                    if (statsPlayTime > 0) {
+                        this.plugin.getPlayTimeStorageManager().setPlayerTime(TimeType.TOTAL_TIME, uuid, statsPlayTime);
+                        ++count;
+                    }
+                }
+
+                if (count == 0) {
+                    AutorankTools.sendDeserialize(sender, Lang.COULD_NOT_SYNC.getConfigValue());
+                } else {
+                    AutorankTools.sendDeserialize(sender, Lang.TIME_HAS.getConfigValue());
                 }
             }
 
-            if (count == 0) {
-                AutorankTools.sendDeserialize(sender, Lang.COULD_NOT_SYNC.getConfigValue());
-            } else {
-                AutorankTools.sendDeserialize(sender, Lang.TIME_HAS.getConfigValue());
-            }
             return true;
         }
     }

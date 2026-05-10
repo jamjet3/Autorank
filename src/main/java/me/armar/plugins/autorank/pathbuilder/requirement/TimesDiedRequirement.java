@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class TimesDiedRequirement extends AbstractRequirement {
     int timesDied = -1;
@@ -20,7 +19,8 @@ public class TimesDiedRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.getStatisticsManager().getTimesDied(uuid) + "/" + this.timesDied;
+        int var10000 = this.getStatisticsManager().getTimesDied(uuid);
+        return var10000 + "/" + this.timesDied;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -44,6 +44,6 @@ public class TimesDiedRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.getStatisticsManager().getTimesDied(uuid) / (double)this.timesDied;
+        return (double)this.getStatisticsManager().getTimesDied(uuid) / (double)this.timesDied;
     }
 }

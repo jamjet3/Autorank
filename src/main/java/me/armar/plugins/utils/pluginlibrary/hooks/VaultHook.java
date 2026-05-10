@@ -27,7 +27,7 @@ public class VaultHook extends LibraryHook {
     }
 
     public boolean isHooked() {
-        return perms != null;
+        return isPluginAvailable(Library.VAULT);
     }
 
     public boolean hook() {
@@ -42,36 +42,26 @@ public class VaultHook extends LibraryHook {
     }
 
     private boolean setupEconomy() {
-        if (this.getServer().getPluginManager().getPlugin("Vault") == null) {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
-        } else {
-            RegisteredServiceProvider<Economy> rsp = this.getServer().getServicesManager().getRegistration(Economy.class);
-            if (rsp == null) {
-                return false;
-            } else {
-                econ = rsp.getProvider();
-                return econ != null;
-            }
         }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
     }
 
     private boolean setupChat() {
-        RegisteredServiceProvider<Chat> rsp = this.getServer().getServicesManager().getRegistration(Chat.class);
-        if (rsp == null) {
-            return false;
-        } else {
-            chat = rsp.getProvider();
-            return chat != null;
-        }
+        RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
+        chat = rsp.getProvider();
+        return chat != null;
     }
 
     private boolean setupPermissions() {
-        RegisteredServiceProvider<Permission> rsp = this.getServer().getServicesManager().getRegistration(Permission.class);
-        if (rsp == null) {
-            return false;
-        } else {
-            perms = rsp.getProvider();
-            return perms != null;
-        }
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
     }
 }

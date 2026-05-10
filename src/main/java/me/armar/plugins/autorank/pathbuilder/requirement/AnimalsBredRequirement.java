@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class AnimalsBredRequirement extends AbstractRequirement {
     int animalsBred = -1;
@@ -20,7 +19,8 @@ public class AnimalsBredRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.getStatisticsManager().getAnimalsBred(uuid) + "/" + this.animalsBred;
+        int var10000 = this.getStatisticsManager().getAnimalsBred(uuid);
+        return var10000 + "/" + this.animalsBred;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -44,6 +44,6 @@ public class AnimalsBredRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.getStatisticsManager().getAnimalsBred(uuid) / (double)this.animalsBred;
+        return (double)this.getStatisticsManager().getAnimalsBred(uuid) / (double)this.animalsBred;
     }
 }

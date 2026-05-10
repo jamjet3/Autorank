@@ -1,10 +1,9 @@
 package me.armar.plugins.autorank.playtimes;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.storage.TimeType;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class UpdateTimePlayedTask implements Runnable {
     private final Autorank plugin;
@@ -28,10 +27,8 @@ public class UpdateTimePlayedTask implements Runnable {
                 this.plugin.debugMessage("Player " + player.getName() + " is AFK and so we don't add time.");
             } else {
                 TimeType[] var2 = TimeType.values();
-                int var3 = var2.length;
 
-                for(int var4 = 0; var4 < var3; ++var4) {
-                    TimeType type = var2[var4];
+                for(TimeType type : var2) {
                     this.plugin.getPlayTimeStorageManager().addPlayerTime(type, this.uuid, PlayTimeManager.INTERVAL_MINUTES);
                 }
 
@@ -39,10 +36,10 @@ public class UpdateTimePlayedTask implements Runnable {
                 if (!this.plugin.getSettingsConfig().isAutomaticPathDisabled()) {
                     this.plugin.getPlayerChecker().checkPlayer(player.getUniqueId());
                 }
-
             }
         } else {
             this.plugin.debugMessage("Cancelling update play time of " + this.uuid + " as he's not online.");
         }
+
     }
 }

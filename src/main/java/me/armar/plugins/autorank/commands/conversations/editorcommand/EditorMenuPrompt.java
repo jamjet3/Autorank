@@ -23,8 +23,7 @@ public class EditorMenuPrompt extends FixedSetPrompt {
         super(ACTION_TYPE_ASSIGN_PATH, ACTION_TYPE_COMPLETE_PATH, ACTION_TYPE_UNASSIGN_PATH, ACTION_TYPE_COMPLETE_REQUIREMENT);
     }
 
-    @Nullable
-    protected Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
+    protected @Nullable Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
         conversationContext.setSessionData(KEY_ACTION_TYPE, s.trim());
         Prompt nextPrompt = END_OF_CONVERSATION;
         if (s.trim().equalsIgnoreCase(ACTION_TYPE_ASSIGN_PATH)) {
@@ -40,9 +39,9 @@ public class EditorMenuPrompt extends FixedSetPrompt {
         return nextPrompt;
     }
 
-    @NotNull
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
+    public @NotNull String getPromptText(@NotNull ConversationContext conversationContext) {
         conversationContext.setSessionData(KEY_ACTION_TYPE, null);
-        return ChatColor.GOLD + Lang.NCC_WHAT_TYPE.getConfigValue() + ChatColor.LIGHT_PURPLE + this.formatFixedSet();
+        ChatColor var10000 = ChatColor.GOLD;
+        return var10000 + Lang.NCC_WHAT_TYPE.getConfigValue(new Object[0]) + ChatColor.LIGHT_PURPLE + this.formatFixedSet();
     }
 }

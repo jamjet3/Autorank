@@ -6,7 +6,7 @@ import me.armar.plugins.utils.pluginlibrary.hooks.VaultHook;
 import org.bukkit.entity.Player;
 
 public class MoneyRequirement extends AbstractRequirement {
-    double minMoney = -1.0D;
+    double minMoney = -1.0F;
 
     public MoneyRequirement() {
     }
@@ -17,7 +17,11 @@ public class MoneyRequirement extends AbstractRequirement {
             currencyName = VaultHook.getEconomy().currencyNamePlural().trim();
         }
 
-        String lang = Lang.MONEY_REQUIREMENT.getConfigValue(this.minMoney + " " + currencyName);
+        Lang var10000 = Lang.MONEY_REQUIREMENT;
+        Object[] var10001 = new Object[1];
+        long var10004 = Math.round(this.minMoney);
+        var10001[0] = var10004 + " " + currencyName;
+        String lang = var10000.getConfigValue(var10001);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -26,7 +30,7 @@ public class MoneyRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(Player player) {
-        double money = 0.0D;
+        double money = 0.0F;
         String currencyName = "";
         if (this.getAutorank().getDependencyManager().isAvailable(Library.VAULT)) {
             money = VaultHook.getEconomy().getBalance(player.getPlayer());
@@ -54,7 +58,7 @@ public class MoneyRequirement extends AbstractRequirement {
             return false;
         }
 
-        if (this.minMoney < 0.0D) {
+        if (this.minMoney < (double)0.0F) {
             this.registerWarningMessage("No number is provided or smaller than 0.");
             return false;
         } else {

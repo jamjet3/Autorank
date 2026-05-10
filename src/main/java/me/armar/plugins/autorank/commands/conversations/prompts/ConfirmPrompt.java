@@ -1,6 +1,8 @@
 package me.armar.plugins.autorank.commands.conversations.prompts;
 
 import io.reactivex.annotations.NonNull;
+import java.util.Arrays;
+import java.util.List;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.ChatColor;
 import org.bukkit.conversations.ConversationContext;
@@ -8,9 +10,6 @@ import org.bukkit.conversations.FixedSetPrompt;
 import org.bukkit.conversations.Prompt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class ConfirmPrompt extends FixedSetPrompt {
     private String message;
@@ -22,7 +21,8 @@ public class ConfirmPrompt extends FixedSetPrompt {
 
     public ConfirmPrompt(String message, @NonNull Prompt confirmPrompt, @NonNull Prompt denyPrompt, ConfirmPromptCallback callback) {
         super("yes", "confirm", "allow", "no", "deny", "disallow");
-        this.message = ChatColor.GOLD + Lang.NCC_ARE_YOU_SURE_PERFORM.getConfigValue() + ChatColor.GREEN + "yes" + ChatColor.GOLD + " or " + ChatColor.RED + "no" + ChatColor.GOLD + ".";
+        ChatColor var10001 = ChatColor.GOLD;
+        this.message = var10001 + Lang.NCC_ARE_YOU_SURE_PERFORM.getConfigValue(new Object[0]) + ChatColor.GREEN + "yes" + ChatColor.GOLD + " or " + ChatColor.RED + "no" + ChatColor.GOLD + ".";
         this.denyWords = Arrays.asList("no", "deny", "disallow");
         if (message != null) {
             this.message = message;
@@ -55,11 +55,8 @@ public class ConfirmPrompt extends FixedSetPrompt {
         this(message, null, null, callback);
     }
 
-    @Nullable
-    protected Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
-        if (confirmWords.stream().anyMatch((confirmWord) -> {
-            return confirmWord.equalsIgnoreCase(s);
-        })) {
+    protected @Nullable Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
+        if (confirmWords.stream().anyMatch((confirmWord) -> confirmWord.equalsIgnoreCase(s))) {
             if (this.callback != null) {
                 this.callback.promptConfirmed();
             }
@@ -74,8 +71,7 @@ public class ConfirmPrompt extends FixedSetPrompt {
         }
     }
 
-    @NotNull
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
+    public @NotNull String getPromptText(@NotNull ConversationContext conversationContext) {
         return this.message;
     }
 

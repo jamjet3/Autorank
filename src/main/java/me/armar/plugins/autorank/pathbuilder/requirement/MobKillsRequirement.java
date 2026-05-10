@@ -1,9 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.entity.EntityType;
-
-import java.util.UUID;
 
 public class MobKillsRequirement extends AbstractRequirement {
     private String mobType = null;
@@ -16,7 +15,12 @@ public class MobKillsRequirement extends AbstractRequirement {
     public String getDescription() {
         String desc = "";
         if (this.mobType != null && !this.mobType.trim().equals("")) {
-            desc = Lang.TOTAL_MOBS_KILLED_REQUIREMENT.getConfigValue(this.totalMobsKilled, this.mobType.toLowerCase().replace("_", " ") + "(s)", this.mobDisplayName);
+            Lang var10000 = Lang.MOBS_KILLED_REQUIREMENT;
+            Object[] var10001 = new Object[]{this.totalMobsKilled, null, null};
+            String var10004 = this.mobType.toLowerCase();
+            var10001[1] = var10004.replace("_", " ") + "(s)";
+            var10001[2] = this.mobDisplayName;
+            desc = var10000.getConfigValue(var10001);
         } else {
             desc = Lang.TOTAL_MOBS_KILLED_REQUIREMENT.getConfigValue(this.totalMobsKilled);
         }
@@ -85,7 +89,7 @@ public class MobKillsRequirement extends AbstractRequirement {
         }
 
         if (options.length > 2) {
-            mobDisplayName = options[2];
+            this.mobDisplayName = options[2];
         }
 
         if (this.totalMobsKilled < 0) {
@@ -110,6 +114,6 @@ public class MobKillsRequirement extends AbstractRequirement {
             killed = this.getStatisticsManager().getMobsKilled(uuid, this.getWorld(), type);
         }
 
-        return (double) killed / (double)this.totalMobsKilled;
+        return (double)killed / (double)this.totalMobsKilled;
     }
 }

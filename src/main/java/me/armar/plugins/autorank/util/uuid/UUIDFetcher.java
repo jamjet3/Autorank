@@ -1,23 +1,22 @@
 package me.armar.plugins.autorank.util.uuid;
 
 import com.google.common.collect.ImmutableList;
-import org.bukkit.Bukkit;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import static org.bukkit.Bukkit.getLogger;
-
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class UUIDFetcher implements Callable<Map<String, UUID>> {
-    private static final String PROFILE_URL = "https://api.mojang.com/profiles/minecraft";
-    private static final double PROFILES_PER_REQUEST = 100.0D;
     private final JSONParser jsonParser;
     private final List<String> names;
     private final boolean rateLimiting;
@@ -33,30 +32,9 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
         return connection;
     }
 
-    public static UUID fromBytes(byte[] array) {
-        if (array.length != 16) {
-            throw new IllegalArgumentException("Illegal byte array length: " + array.length);
-        } else {
-            ByteBuffer byteBuffer = ByteBuffer.wrap(array);
-            long mostSignificant = byteBuffer.getLong();
-            long leastSignificant = byteBuffer.getLong();
-            return new UUID(mostSignificant, leastSignificant);
-        }
-    }
-
     private static UUID getUUID(String id) {
-        return UUID.fromString(id.substring(0, 8) + "-" + id.substring(8, 12) + "-" + id.substring(12, 16) + "-" + id.substring(16, 20) + "-" + id.substring(20, 32));
-    }
-
-    public static UUID getUUIDOf(String name) throws Exception {
-        return (new UUIDFetcher(Collections.singletonList(name))).call().get(name);
-    }
-
-    public static byte[] toBytes(UUID uuid) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[16]);
-        byteBuffer.putLong(uuid.getMostSignificantBits());
-        byteBuffer.putLong(uuid.getLeastSignificantBits());
-        return byteBuffer.array();
+        String var10000 = id.substring(0, 8);
+        return UUID.fromString(var10000 + "-" + id.substring(8, 12) + "-" + id.substring(12, 16) + "-" + id.substring(16, 20) + "-" + id.substring(20, 32));
     }
 
     private static void writeBody(HttpURLConnection connection, String body) throws Exception {
@@ -78,7 +56,7 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
 
     public Map<String, UUID> call() throws Exception {
         Map<String, UUID> uuidMap = new HashMap();
-        int requests = (int)Math.ceil((double)this.names.size() / 100.0D);
+        int requests = (int)Math.ceil((double)this.names.size() / (double)100.0F);
 
         for(int i = 0; i < requests; ++i) {
             HttpURLConnection connection = createConnection();
@@ -89,14 +67,13 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
             try {
                 array = (JSONArray)this.jsonParser.parse(new InputStreamReader(connection.getInputStream()));
             } catch (Exception var13) {
-                getLogger().info("[Autorank] Could not fetch UUID of player '" + this.names.get(i) + "'!");
+                Logger var10000 = Bukkit.getLogger();
+                Object var10001 = this.names.get(i);
+                var10000.info("[Autorank] Could not fetch UUID of player '" + var10001 + "'!");
                 continue;
             }
 
-            Iterator var7 = array.iterator();
-
-            while(var7.hasNext()) {
-                Object profile = var7.next();
+            for(Object profile : array) {
                 JSONObject jsonProfile = (JSONObject)profile;
                 String id = (String)jsonProfile.get("id");
                 String name = (String)jsonProfile.get("name");

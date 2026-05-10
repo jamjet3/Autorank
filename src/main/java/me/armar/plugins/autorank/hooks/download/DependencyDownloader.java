@@ -1,14 +1,19 @@
 package me.armar.plugins.autorank.hooks.download;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import me.armar.plugins.autorank.Autorank;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class DependencyDownloader {
     private final Autorank plugin;
@@ -31,16 +36,13 @@ public class DependencyDownloader {
                 OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
                 byte[] buffer = new byte[1024];
 
-                while(true) {
-                    int numRead;
-                    if ((numRead = in.read(buffer)) == -1) {
-                        in.close();
-                        out.close();
-                        break;
-                    }
-
+                int numRead;
+                while((numRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, numRead);
                 }
+
+                in.close();
+                out.close();
             } catch (FileNotFoundException var10) {
                 Bukkit.getConsoleSender().sendMessage("[Autorank] " + ChatColor.RED + "The dependency " + ChatColor.AQUA + name + ChatColor.RED + " could not be downloaded!");
                 return;
@@ -53,6 +55,7 @@ public class DependencyDownloader {
             Bukkit.getConsoleSender().sendMessage("[Autorank] " + ChatColor.GREEN + "The dependency " + ChatColor.AQUA + name + ChatColor.GREEN + " was successfully downloaded!");
             this.hasLoaded = true;
         }
+
     }
 
     public Autorank getPlugin() {
@@ -66,7 +69,7 @@ public class DependencyDownloader {
     private void loadPlugin(File file) {
         try {
             Bukkit.getPluginManager().loadPlugin(file);
-        } catch (InvalidPluginException | InvalidDescriptionException var3) {
+        } catch (InvalidDescriptionException | InvalidPluginException var3) {
             var3.printStackTrace();
         }
 

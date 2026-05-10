@@ -1,5 +1,9 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -7,16 +11,11 @@ import me.armar.plugins.autorank.pathbuilder.Path;
 import me.armar.plugins.autorank.storage.TimeType;
 import me.armar.plugins.autorank.util.AutorankTools;
 import me.armar.plugins.autorank.util.uuid.UUIDManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class InfoCommand extends AutorankCommand {
     private final Autorank plugin;
@@ -26,12 +25,11 @@ public class InfoCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        var mm = MiniMessage.miniMessage();
-        if (!(sender instanceof Player)){
+        MiniMessage mm = MiniMessage.miniMessage();
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (args.length < 2) {
+        } else if (args.length < 2) {
             AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
             return true;
         } else {
@@ -56,7 +54,7 @@ public class InfoCommand extends AutorankCommand {
 
                     try {
                         playerName = UUIDManager.getPlayerName(uuid).get();
-                    } catch (ExecutionException | InterruptedException var18) {
+                    } catch (InterruptedException | ExecutionException var18) {
                         var18.printStackTrace();
                     }
 
@@ -72,15 +70,15 @@ public class InfoCommand extends AutorankCommand {
                     try {
                         localTotalTime = this.plugin.getPlayTimeManager().getLocalPlayTime(TimeType.TOTAL_TIME, uuid).get();
                         globalTotalTime = this.plugin.getPlayTimeManager().getGlobalPlayTime(TimeType.TOTAL_TIME, uuid).get();
-                    } catch (ExecutionException | InterruptedException var17) {
+                    } catch (InterruptedException | ExecutionException var17) {
                         var17.printStackTrace();
                     }
 
                     StringBuilder activePathsString = new StringBuilder();
 
                     for(int i = 0; i < activePaths.size(); ++i) {
-                        long pathProgress = Math.round(activePaths.get(i).getProgress(uuid) * 100.0D);
-                        String progressStringx = null;
+                        long pathProgress = Math.round(activePaths.get(i).getProgress(uuid) * (double)100.0F);
+                        String progressStringx;
                         if (pathProgress <= 35L) {
                             progressStringx = "<RED> " + pathProgress;
                         } else if (pathProgress <= 70L) {
@@ -111,15 +109,24 @@ public class InfoCommand extends AutorankCommand {
                         }
                     }
 
-                    Component active = mm.deserialize(Lang.ACTIVE.getConfigValue(activePaths.size(),(activePathsString.length() == 0 ? Lang.NONE.getConfigValue() : activePathsString.toString())))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.COMPLETED.getConfigValue(completedPaths.size(), (completedPathsString.length() == 0 ? Lang.NONE.getConfigValue() : completedPathsString.toString())) ))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.IS_EXEMPTED_LEADERBOARD.getConfigValue() + (isExemptedFromLeaderboard ? "<GREEN>" : "<RED>") + isExemptedFromLeaderboard))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.IS_EXEMPTED_CHECKING.getConfigValue() + (isExemptedFromAutomaticChecking ? "<GREEN>" : "<RED>") + isExemptedFromAutomaticChecking))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.IS_EXEMPTED_OBTAINING.getConfigValue() + (isExemptedFromTimeAddition ? "<GREEN>" : "<RED>") + isExemptedFromTimeAddition))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.LOCAL.getConfigValue((localTotalTime <= 0 ? Lang.NONE.getConfigValue() : AutorankTools.timeToString(localTotalTime, TimeUnit.MINUTES)))))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.GLOBAL.getConfigValue((globalTotalTime <= 0 ? Lang.NONE.getConfigValue() : AutorankTools.timeToString(globalTotalTime, TimeUnit.MINUTES)))));
-                    plugin.adventure().player((Player) sender).sendMessage(active);
+                    Component var10000 = mm.deserialize(Lang.ACTIVE.getConfigValue(activePaths.size(), activePathsString.isEmpty() ? Lang.NONE.getConfigValue() : activePathsString.toString()));
+                    String var10002 = Lang.COMPLETED.getConfigValue(completedPaths.size(), completedPathsString.isEmpty() ? Lang.NONE.getConfigValue() : completedPathsString.toString());
+                    var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var10002));
+                    var10002 = Lang.IS_EXEMPTED_LEADERBOARD.getConfigValue();
+                    var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var10002 + (isExemptedFromLeaderboard ? "<GREEN>" : "<RED>") + isExemptedFromLeaderboard));
+                    var10002 = Lang.IS_EXEMPTED_CHECKING.getConfigValue();
+                    var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var10002 + (isExemptedFromAutomaticChecking ? "<GREEN>" : "<RED>") + isExemptedFromAutomaticChecking));
+                    var10002 = Lang.IS_EXEMPTED_OBTAINING.getConfigValue();
+                    var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var10002 + (isExemptedFromTimeAddition ? "<GREEN>" : "<RED>") + isExemptedFromTimeAddition));
+                    Lang var31 = Lang.LOCAL;
+                    Object[] var10003 = new Object[]{localTotalTime <= 0 ? Lang.NONE.getConfigValue() : AutorankTools.timeToString(localTotalTime, TimeUnit.MINUTES)};
+                    var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var31.getConfigValue(var10003)));
+                    var31 = Lang.GLOBAL;
+                    var10003 = new Object[]{globalTotalTime <= 0 ? Lang.NONE.getConfigValue() : AutorankTools.timeToString(globalTotalTime, TimeUnit.MINUTES)};
+                    Component active = var10000.append(mm.deserialize("<NEWLINE>" + var31.getConfigValue(var10003)));
+                    this.plugin.adventure().player((Player)sender).sendMessage(active);
                 }
+
             });
             this.runCommandTask(task);
             return true;
@@ -138,4 +145,3 @@ public class InfoCommand extends AutorankCommand {
         return "/ar info <player>";
     }
 }
-

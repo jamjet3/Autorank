@@ -11,7 +11,7 @@ public class DateTimeFormatterHook {
     /*Java Program to demonstrate how to use LocalDate, LocalTime, and
     LocalDateTime in Java 8.*/
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
 
         // Formatting dates in Java 8
         LocalDateTime now = LocalDateTime.now();

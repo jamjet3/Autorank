@@ -1,41 +1,41 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import com.archyx.aureliumskills.stats.Stats;
+import dev.aurelium.auraskills.api.stat.Stats;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
-import me.armar.plugins.utils.pluginlibrary.hooks.AureliumSkillsHook;
+import me.armar.plugins.utils.pluginlibrary.hooks.AuraSkillsHook;
+import org.bukkit.entity.Player;
 
 import java.util.Locale;
-import java.util.UUID;
 
-public class AureliumSkillsStatRequirement extends AbstractRequirement {
-    private AureliumSkillsHook handler = null;
-    private double requiredLevel = -1.0D;
+public class AuraSkillsStatRequirement extends AbstractRequirement {
+    private AuraSkillsHook handler = null;
+    private double requiredLevel = -1.0F;
     private String stat = "HEALTH";
 
-    public AureliumSkillsStatRequirement() {
+    public AuraSkillsStatRequirement() {
     }
 
     public String getDescription() {
-        return Lang.AURELIUM_SKILLS_STAT_REQUIREMENT.getConfigValue(this.requiredLevel, this.stat);
+        return Lang.AURA_SKILLS_STAT_REQUIREMENT.getConfigValue(this.requiredLevel, this.stat);
     }
 
-    public String getProgressString(UUID uuid) {
-        double var10000 = this.handler.getStatLevel(uuid, this.stat);
+    public String getProgressString(Player player) {
+        double var10000 = this.handler.getStatLevel(player, this.stat);
         return var10000 + "/" + this.requiredLevel;
     }
 
-    protected boolean meetsRequirement(UUID uuid) {
+    protected boolean meetsRequirement(Player player) {
         if (!this.handler.isHooked()) {
             return false;
         } else {
-            return this.handler.getStatLevel(uuid, this.stat) >= this.requiredLevel;
+            return this.handler.getStatLevel(player, this.stat) >= this.requiredLevel;
         }
     }
 
     public boolean initRequirement(String[] options) {
-        this.addDependency(Library.AURELIUM_SKILLS);
-        this.handler = (AureliumSkillsHook)this.getDependencyManager().getLibraryHook(Library.AURELIUM_SKILLS).orElse(null);
+        this.addDependency(Library.AURA_SKILLS);
+        this.handler = (AuraSkillsHook)this.getDependencyManager().getLibraryHook(Library.AURA_SKILLS).orElse(null);
         if (options.length > 0) {
             try {
                 this.requiredLevel = Double.parseDouble(options[1]);
@@ -52,7 +52,7 @@ public class AureliumSkillsStatRequirement extends AbstractRequirement {
             }
         }
 
-        if (this.requiredLevel < 0.0D) {
+        if (this.requiredLevel < (double)0.0F) {
             this.registerWarningMessage("No number is provided or smaller than 0.");
             return false;
         } else {
@@ -60,7 +60,7 @@ public class AureliumSkillsStatRequirement extends AbstractRequirement {
         }
     }
 
-    public double getProgressPercentage(UUID uuid) {
-        return this.handler.getStatLevel(uuid, this.stat) / this.requiredLevel;
+    public double getProgressPercentage(Player player) {
+        return this.handler.getStatLevel(player, this.stat) / this.requiredLevel;
     }
 }

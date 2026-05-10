@@ -1,11 +1,10 @@
 package me.armar.plugins.autorank.permissions.handlers;
 
+import java.util.Collection;
+import java.util.Collections;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.permissions.PermissionsHandler;
 import org.bukkit.entity.Player;
-
-import java.util.Collection;
-import java.util.Collections;
 
 public class DummyPermissionsHandler extends PermissionsHandler {
     public DummyPermissionsHandler(Autorank plugin) {

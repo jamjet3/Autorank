@@ -1,5 +1,6 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.conversations.AutorankConversation;
 import me.armar.plugins.autorank.commands.conversations.editorcommand.EditorMenuPrompt;
@@ -19,8 +20,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 public class EditorCommand extends AutorankCommand {
     private final Autorank plugin;
 
@@ -29,55 +28,50 @@ public class EditorCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.editor", sender)) {
-            return true;
         } else {
-            AutorankConversation conversation = AutorankConversation.fromFirstPrompt(new SelectPlayerPrompt());
-            conversation.afterConversationEnded((callback) -> {
-                String actionType = callback.getStorageString(EditorMenuPrompt.KEY_ACTION_TYPE);
-                UUID uuid = (UUID)callback.getStorageObject(SelectPlayerPrompt.KEY_UUID);
-                String playerName = callback.getStorageString(SelectPlayerPrompt.KEY_PLAYERNAME);
-                if (actionType != null && !callback.isEndedByKeyword()) {
-                    if (actionType.equals(EditorMenuPrompt.ACTION_TYPE_ASSIGN_PATH)) {
-                        boolean assignedByForce = callback.getStorageBoolean(AssignPathByForcePrompt.KEY_ASSIGN_PATH_BY_FORCE);
-                        if (!this.hasPermission(assignedByForce ? "autorank.editor.path.assign.force" : "autorank.editor.path.assign", sender)) {
-                            return;
-                        }
+            if (this.hasPermission(this.getPermission(), sender)) {
+                AutorankConversation conversation = AutorankConversation.fromFirstPrompt(new SelectPlayerPrompt());
+                conversation.afterConversationEnded((callback) -> {
+                    String actionType = callback.getStorageString(EditorMenuPrompt.KEY_ACTION_TYPE);
+                    UUID uuid = (UUID)callback.getStorageObject(SelectPlayerPrompt.KEY_UUID);
+                    String playerName = callback.getStorageString(SelectPlayerPrompt.KEY_PLAYERNAME);
+                    if (actionType != null && !callback.isEndedByKeyword()) {
+                        if (actionType.equals(EditorMenuPrompt.ACTION_TYPE_ASSIGN_PATH)) {
+                            boolean assignedByForce = callback.getStorageBoolean(AssignPathByForcePrompt.KEY_ASSIGN_PATH_BY_FORCE);
+                            if (!this.hasPermission(assignedByForce ? "autorank.editor.path.assign.force" : "autorank.editor.path.assign", sender)) {
+                                return;
+                            }
 
-                        String pathToAssign = callback.getStorageString(AssignPathPrompt.KEY_PATH_TO_BE_ASSIGNED);
-                        if (pathToAssign == null) {
-                            return;
-                        }
+                            String pathToAssign = callback.getStorageString(AssignPathPrompt.KEY_PATH_TO_BE_ASSIGNED);
+                            if (pathToAssign == null) {
+                                return;
+                            }
 
-                        Path pathx = this.plugin.getPathManager().findPathByInternalName(pathToAssign, false);
-                        if (pathx == null) {
-                            return;
-                        }
+                            Path pathx = this.plugin.getPathManager().findPathByInternalName(pathToAssign, false);
+                            if (pathx == null) {
+                                return;
+                            }
 
-                        try {
-                            this.plugin.getPathManager().assignPath(pathx, uuid, assignedByForce);
-                            AutorankTools.sendDeserialize(sender, Lang.ASSIGNED.getConfigValue(playerName, pathx.getDisplayName()));
-                        } catch (IllegalArgumentException var10) {
-                            AutorankTools.sendDeserialize(sender, Lang.COULD_NOT_ASSIGN.getConfigValue(playerName, pathx.getDisplayName()));
-                        }
-                    } else {
-                        String pathOfRequirement;
-                        Path path;
-                        if (actionType.equals(EditorMenuPrompt.ACTION_TYPE_UNASSIGN_PATH)) {
+                            try {
+                                this.plugin.getPathManager().assignPath(pathx, uuid, assignedByForce);
+                                AutorankTools.sendDeserialize(sender, Lang.ASSIGNED.getConfigValue(playerName, pathx.getDisplayName()));
+                            } catch (IllegalArgumentException var10) {
+                                AutorankTools.sendDeserialize(sender, Lang.COULD_NOT_ASSIGN.getConfigValue(playerName, pathx.getDisplayName()));
+                            }
+                        } else if (actionType.equals(EditorMenuPrompt.ACTION_TYPE_UNASSIGN_PATH)) {
                             if (!this.hasPermission("autorank.editor.path.unassign", sender)) {
                                 return;
                             }
 
-                            pathOfRequirement = callback.getStorageString(UnAssignPathPrompt.KEY_PATH_TO_BE_UNASSIGNED);
+                            String pathOfRequirement = callback.getStorageString(UnAssignPathPrompt.KEY_PATH_TO_BE_UNASSIGNED);
                             if (pathOfRequirement == null) {
                                 return;
                             }
 
-                            path = this.plugin.getPathManager().findPathByInternalName(pathOfRequirement, false);
+                            Path path = this.plugin.getPathManager().findPathByInternalName(pathOfRequirement, false);
                             if (path == null) {
                                 return;
                             }
@@ -89,12 +83,12 @@ public class EditorCommand extends AutorankCommand {
                                 return;
                             }
 
-                            pathOfRequirement = callback.getStorageString(CompletePathPrompt.KEY_PATH_TO_BE_COMPLETED);
+                            String pathOfRequirement = callback.getStorageString(CompletePathPrompt.KEY_PATH_TO_BE_COMPLETED);
                             if (pathOfRequirement == null) {
                                 return;
                             }
 
-                            path = this.plugin.getPathManager().findPathByInternalName(pathOfRequirement, false);
+                            Path path = this.plugin.getPathManager().findPathByInternalName(pathOfRequirement, false);
                             if (path == null) {
                                 return;
                             }
@@ -106,12 +100,12 @@ public class EditorCommand extends AutorankCommand {
                                 return;
                             }
 
-                            pathOfRequirement = callback.getStorageString(CompleteRequirementPrompt.KEY_PATH_OF_REQUIREMENT);
+                            String pathOfRequirement = callback.getStorageString(CompleteRequirementPrompt.KEY_PATH_OF_REQUIREMENT);
                             if (pathOfRequirement == null) {
                                 return;
                             }
 
-                            path = this.plugin.getPathManager().findPathByInternalName(pathOfRequirement, false);
+                            Path path = this.plugin.getPathManager().findPathByInternalName(pathOfRequirement, false);
                             if (path == null) {
                                 return;
                             }
@@ -131,11 +125,10 @@ public class EditorCommand extends AutorankCommand {
                         }
                     }
 
-                }
-            });
-            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                conversation.startConversationAsSender(sender);
-            });
+                });
+                this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> conversation.startConversationAsSender(sender));
+            }
+
             return true;
         }
     }
@@ -145,7 +138,7 @@ public class EditorCommand extends AutorankCommand {
     }
 
     public String getPermission() {
-        return "";
+        return "autorank.editor";
     }
 
     public String getUsage() {

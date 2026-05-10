@@ -1,11 +1,9 @@
 package me.armar.plugins.autorank.addons;
 
+import java.util.HashMap;
+import java.util.Set;
 import me.armar.plugins.autorank.Autorank;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 
 public class AddOnManager {
     private final HashMap<String, JavaPlugin> loadedAddons = new HashMap();
@@ -32,6 +30,7 @@ public class AddOnManager {
             this.loadedAddons.put(addonName, addon);
             this.plugin.getLogger().info("Loaded addon " + addonName);
         }
+
     }
 
     public void unloadAddon(String addonName) {
@@ -39,13 +38,11 @@ public class AddOnManager {
             this.loadedAddons.remove(addonName);
             this.plugin.getLogger().info("Unloaded addon " + addonName);
         }
+
     }
 
     public void unloadAllAddons() {
-        Iterator var1 = this.loadedAddons.keySet().iterator();
-
-        while(var1.hasNext()) {
-            String addon = (String)var1.next();
+        for(String addon : this.loadedAddons.keySet()) {
             this.unloadAddon(addon);
         }
 

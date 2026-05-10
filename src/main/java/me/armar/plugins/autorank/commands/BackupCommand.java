@@ -18,34 +18,32 @@ public class BackupCommand extends AutorankCommand {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         boolean backupAll = true;
         String fileToBackup = null;
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission(this.getPermission(), sender)) {
-            return true;
         } else {
-            if (args.length >= 2) {
-                backupAll = false;
-                fileToBackup = args[1].toLowerCase();
-            }
-
-            if (fileToBackup != null && !fileToBackup.equals("playerdata") && !fileToBackup.equals("storage")) {
-                AutorankTools.sendDeserialize(sender, Lang.INVALID_STORAGE_FILE.getConfigValue());
-                return true;
-            } else {
-                if (backupAll || fileToBackup.equals("playerdata")) {
-                    this.plugin.getBackupManager().backupDataFolders("playerdata");
-                    AutorankTools.sendDeserialize(sender, Lang.SUCCESSFULLY_CREATED_PLAYERDATA.getConfigValue());
+            if (this.hasPermission(this.getPermission(), sender)) {
+                if (args.length >= 2) {
+                    backupAll = false;
+                    fileToBackup = args[1].toLowerCase();
                 }
 
-                if (backupAll || fileToBackup.equals("storage")) {
-                    this.plugin.getBackupManager().backupDataFolders("storage");
-                    AutorankTools.sendDeserialize(sender, Lang.SUCCESSFULLY_CREATED_STORAGE.getConfigValue());
-                }
+                if (fileToBackup != null && !fileToBackup.equals("playerdata") && !fileToBackup.equals("storage")) {
+                    AutorankTools.sendDeserialize(sender, Lang.INVALID_STORAGE_FILE.getConfigValue());
+                } else {
+                    if (backupAll || fileToBackup.equals("playerdata")) {
+                        this.plugin.getBackupManager().backupDataFolders("playerdata");
+                        AutorankTools.sendDeserialize(sender, Lang.SUCCESSFULLY_CREATED_PLAYERDATA.getConfigValue());
+                    }
 
-                return true;
+                    if (backupAll || fileToBackup.equals("storage")) {
+                        this.plugin.getBackupManager().backupDataFolders("storage");
+                        AutorankTools.sendDeserialize(sender, Lang.SUCCESSFULLY_CREATED_STORAGE.getConfigValue());
+                    }
+                }
             }
+
+            return true;
         }
     }
 

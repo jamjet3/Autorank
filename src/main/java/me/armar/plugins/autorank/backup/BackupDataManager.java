@@ -1,12 +1,11 @@
 package me.armar.plugins.autorank.backup;
 
-import me.armar.plugins.autorank.Autorank;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
+import me.armar.plugins.autorank.Autorank;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class BackupDataManager {
     private FileConfiguration backupConfig;
@@ -59,7 +58,7 @@ public class BackupDataManager {
             } catch (IOException var2) {
                 this.plugin.getLogger().log(Level.SEVERE, "Could not save config to " + this.backupConfigFile, var2);
             }
-
         }
+
     }
 }

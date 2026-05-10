@@ -4,14 +4,14 @@ import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.util.AutorankTools;
 import org.bukkit.entity.Player;
 
-public class   ExpRequirement extends AbstractRequirement {
+public class ExpRequirement extends AbstractRequirement {
     int minExp = -1;
 
     public ExpRequirement() {
     }
 
     public String getDescription() {
-        String lang = Lang.EXP_REQUIREMENT.getConfigValue(this.minExp + "");
+        String lang = Lang.EXP_REQUIREMENT.getConfigValue("" + this.minExp);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -34,7 +34,7 @@ public class   ExpRequirement extends AbstractRequirement {
     }
 
     public boolean initRequirement(String[] options) {
-        this.minExp = (int) AutorankTools.stringToDouble(options[0]);
+        this.minExp = (int)AutorankTools.stringToDouble(options[0]);
         if (this.minExp < 0) {
             this.registerWarningMessage("No number is provided or smaller than 0.");
             return false;

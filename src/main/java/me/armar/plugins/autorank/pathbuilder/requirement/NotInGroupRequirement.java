@@ -3,9 +3,6 @@ package me.armar.plugins.autorank.pathbuilder.requirement;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 public class NotInGroupRequirement extends AbstractRequirement {
     String group = null;
 
@@ -17,34 +14,23 @@ public class NotInGroupRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(Player player) {
-        Collection<String> groups = this.getAutorank().getPermPlugHandler().getPermissionPlugin().getPlayerGroups(player);
-        Iterator var3 = groups.iterator();
-
-        String groupString;
-        do {
-            if (!var3.hasNext()) {
-                return "you're not in the group";
+        for(String groupString : this.getAutorank().getPermPlugHandler().getPermissionPlugin().getPlayerGroups(player)) {
+            if (groupString.equalsIgnoreCase(this.group)) {
+                return "you're in the group!";
             }
+        }
 
-            groupString = (String)var3.next();
-        } while(!groupString.equalsIgnoreCase(this.group));
-
-        return "you're in the group!";
+        return "you're not in the group";
     }
 
     public boolean meetsRequirement(Player player) {
-        Iterator var2 = this.getAutorank().getPermPlugHandler().getPermissionPlugin().getPlayerGroups(player).iterator();
-
-        String groupString;
-        do {
-            if (!var2.hasNext()) {
-                return true;
+        for(String groupString : this.getAutorank().getPermPlugHandler().getPermissionPlugin().getPlayerGroups(player)) {
+            if (groupString.equalsIgnoreCase(this.group)) {
+                return false;
             }
+        }
 
-            groupString = (String)var2.next();
-        } while(!groupString.equalsIgnoreCase(this.group));
-
-        return false;
+        return true;
     }
 
     public boolean initRequirement(String[] options) {
@@ -64,4 +50,3 @@ public class NotInGroupRequirement extends AbstractRequirement {
         return true;
     }
 }
-

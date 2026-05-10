@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class PlayerKillsRequirement extends AbstractRequirement {
     int totalPlayersKilled = -1;
@@ -11,7 +10,7 @@ public class PlayerKillsRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String lang = Lang.PLAYER_KILLS_REQUIREMENT.getConfigValue(this.totalPlayersKilled + "");
+        String lang = Lang.PLAYER_KILLS_REQUIREMENT.getConfigValue("" + this.totalPlayersKilled);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -46,6 +45,6 @@ public class PlayerKillsRequirement extends AbstractRequirement {
 
     public double getProgressPercentage(UUID uuid) {
         int killed = this.getStatisticsManager().getPlayersKilled(uuid, this.getWorld());
-        return (double) killed / (double)this.totalPlayersKilled;
+        return (double)killed / (double)this.totalPlayersKilled;
     }
 }

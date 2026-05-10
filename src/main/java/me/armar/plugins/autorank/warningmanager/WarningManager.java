@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.warningmanager;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.Map;
 import me.armar.plugins.autorank.Autorank;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -21,10 +20,8 @@ public class WarningManager {
     private String findHighestPriorityWarning() {
         String highestWarning = null;
         int highestPriority = 0;
-        Iterator var3 = this.warnings.entrySet().iterator();
 
-        while(var3.hasNext()) {
-            Entry<String, Integer> entry = (Entry)var3.next();
+        for(Map.Entry<String, Integer> entry : this.warnings.entrySet()) {
             if (entry.getValue() > highestPriority) {
                 highestPriority = entry.getValue();
                 highestWarning = entry.getKey();
@@ -62,17 +59,16 @@ public class WarningManager {
     }
 
     public void sendWarnings(CommandSender sender) {
-        Entry warning;
-        String priorityString;
-        for(Iterator var2 = this.getWarnings().entrySet().iterator(); var2.hasNext(); sender.sendMessage(String.format(ChatColor.DARK_AQUA + "<Autorank warning> " + ChatColor.RED + "(%s priority): " + ChatColor.GREEN + "%s ", priorityString, warning.getKey()))) {
-            warning = (Entry)var2.next();
-            priorityString = "Low";
+        for(Map.Entry warning : this.getWarnings().entrySet()) {
+            String priorityString = "Low";
             int warningValue = (Integer)warning.getValue();
             if (warningValue > 3 && warningValue < 7) {
                 priorityString = "Medium";
             } else if (warningValue > 6) {
                 priorityString = "High";
             }
+
+            sender.sendMessage(String.format(ChatColor.DARK_AQUA + "<Autorank warning> " + ChatColor.RED + "(%s priority): " + ChatColor.GREEN + "%s ", priorityString, warning.getKey()));
         }
 
     }

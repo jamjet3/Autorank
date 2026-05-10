@@ -1,5 +1,7 @@
 package me.armar.plugins.autorank.hooks;
 
+import java.util.HashMap;
+import java.util.Optional;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.hooks.quests.Quests;
 import me.armar.plugins.autorank.hooks.quests.QuestsAlternative;
@@ -12,12 +14,8 @@ import me.armar.plugins.utils.pluginlibrary.hooks.QuestsHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.afkmanager.AFKManager;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Optional;
-
 public class DependencyManager {
-    private final HashMap<DependencyManager.AutorankDependency, DependencyHandler> handlers = new HashMap();
+    private final HashMap<AutorankDependency, DependencyHandler> handlers = new HashMap();
     private final Autorank plugin;
     private PluginLibrary pluginLibrary;
 
@@ -27,7 +25,7 @@ public class DependencyManager {
         this.loadPluginLibrary();
     }
 
-    public DependencyHandler getDependency(DependencyManager.AutorankDependency dep) {
+    public DependencyHandler getDependency(AutorankDependency dep) {
         if (!this.handlers.containsKey(dep)) {
             throw new IllegalArgumentException("Unknown AutorankDependency '" + dep.toString() + "'");
         } else {
@@ -39,11 +37,7 @@ public class DependencyManager {
         if (!this.plugin.getSettingsConfig().useAFKIntegration()) {
             return false;
         } else {
-            Library[] var2 = Library.values();
-            int var3 = var2.length;
-
-            for(int var4 = 0; var4 < var3; ++var4) {
-                Library library = var2[var4];
+            for(Library library : Library.values()) {
                 Optional<LibraryHook> optional = this.getLibraryHook(library);
                 if (optional.isPresent()) {
                     LibraryHook libraryHook = optional.get();
@@ -64,10 +58,7 @@ public class DependencyManager {
             this.plugin.getLogger().info("Searching dependencies...");
         }
 
-        Iterator var1 = this.handlers.values().iterator();
-
-        while(var1.hasNext()) {
-            DependencyHandler depHandler = (DependencyHandler)var1.next();
+        for(DependencyHandler depHandler : this.handlers.values()) {
             depHandler.setup(this.plugin.getSettingsConfig().useAdvancedDependencyLogs());
         }
 
@@ -85,10 +76,10 @@ public class DependencyManager {
         this.plugin.getPermPlugHandler().searchPermPlugin();
     }
 
-    public boolean isAvailable(DependencyManager.AutorankDependency dep) {
-        DependencyHandler handler = this.getDependency(dep);
-        return handler != null && handler.isAvailable();
-    }
+//    public boolean isAvailable(AutorankDependency dep) {
+//        DependencyHandler handler = this.getDependency(dep);
+//        return handler != null && handler.isAvailable();
+//    }
 
     public Optional<LibraryHook> getLibraryHook(Library library) {
         if (library == null) {
@@ -105,9 +96,7 @@ public class DependencyManager {
             return false;
         } else {
             Optional<LibraryHook> hook = this.getLibraryHook(library);
-            return hook.filter((libraryHook) -> {
-                return LibraryHook.isPluginAvailable(library) && libraryHook.isHooked();
-            }).isPresent();
+            return hook.filter((libraryHook) -> LibraryHook.isPluginAvailable(library) && libraryHook.isHooked()).isPresent();
         }
     }
 
@@ -121,14 +110,13 @@ public class DependencyManager {
     }
 
     public Optional<QuestsPlugin> getQuestsPlugin() {
-        Optional questsPlugin;
         if (this.isAvailable(Library.QUESTS)) {
-            questsPlugin = PluginLibrary.getLibrary(Library.QUESTS);
+            Optional questsPlugin = PluginLibrary.getLibrary(Library.QUESTS);
             if (questsPlugin.isPresent()) {
                 return Optional.of(new Quests((QuestsHook)questsPlugin.get()));
             }
         } else if (this.isAvailable(Library.QUESTS_ALTERNATIVE)) {
-            questsPlugin = PluginLibrary.getLibrary(Library.QUESTS_ALTERNATIVE);
+            Optional questsPlugin = PluginLibrary.getLibrary(Library.QUESTS_ALTERNATIVE);
             if (questsPlugin.isPresent()) {
                 return Optional.of(new QuestsAlternative((me.armar.plugins.utils.pluginlibrary.hooks.QuestsAlternative)questsPlugin.get()));
             }
@@ -147,4 +135,3 @@ public class DependencyManager {
         }
     }
 }
-

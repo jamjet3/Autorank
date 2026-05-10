@@ -1,10 +1,13 @@
 package me.armar.plugins.autorank.statsmanager.query.parameter;
 
 import io.reactivex.annotations.NonNull;
-import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.*;
-import org.apache.commons.lang.Validate;
-
 import java.lang.reflect.InvocationTargetException;
+import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.BlockTypeParameter;
+import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.FoodTypeParameter;
+import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.MobTypeParameter;
+import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.MovementTypeParameter;
+import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.WorldTypeParameter;
+import org.apache.commons.lang.Validate;
 
 public enum ParameterType {
     WORLD(WorldTypeParameter.class),
@@ -21,17 +24,13 @@ public enum ParameterType {
 
     public static ParameterType getParameterType(@NonNull String key) {
         Validate.notNull(key);
-        ParameterType[] var1 = values();
-        int var2 = var1.length;
 
-        for(int var3 = 0; var3 < var2; ++var3) {
-            ParameterType type = var1[var3];
-
+        for(ParameterType type : values()) {
             try {
                 if (type.getMatchingParameter().getDeclaredConstructor(String.class).newInstance("").getKey().equalsIgnoreCase(key)) {
                     return type;
                 }
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException var6) {
+            } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException var6) {
                 var6.printStackTrace();
             }
         }
@@ -47,7 +46,7 @@ public enum ParameterType {
     public String getKey() {
         try {
             return this.getMatchingParameter().getDeclaredConstructor(String.class).newInstance("").getKey();
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException var2) {
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException var2) {
             var2.printStackTrace();
             return null;
         }

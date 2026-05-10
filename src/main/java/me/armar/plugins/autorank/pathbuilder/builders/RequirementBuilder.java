@@ -8,6 +8,7 @@ import me.armar.plugins.autorank.util.AutorankTools;
 import me.armar.plugins.utils.pluginlibrary.Library;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.ConsoleCommandSender;
 
 import java.util.*;
 
@@ -89,21 +90,22 @@ public class RequirementBuilder {
         } else {
             String dependencyNotFoundMessage = "Requirement '%s' relies on a third-party plugin being installed, but that plugin is not installed!";
 
-            String resultType;
             try {
                 if (!this.requirement.initRequirement(options)) {
                     String primaryErrorMessage = "unknown error (check wiki)";
-                    if (this.requirement.getErrorMessages().size() > 0) {
+                    if (!this.requirement.getErrorMessages().isEmpty()) {
                         primaryErrorMessage = this.requirement.getErrorMessages().get(0);
                     }
 
                     String invalidRequirementMessage = "Could not set up requirement '%s' of %s! Autorank reported the following error: '%s'";
-                    resultType = String.format(invalidRequirementMessage, this.originalPathString, this.pathName, primaryErrorMessage);
+                    String resultType = String.format(invalidRequirementMessage, this.originalPathString, this.pathName, primaryErrorMessage);
                     Autorank.getInstance().getServer().getConsoleSender().sendMessage(ChatColor.RED + resultType);
                     Autorank.getInstance().getWarningManager().registerWarning(resultType, 10);
                 }
-            } catch (NoClassDefFoundError var9) {
-                Autorank.getInstance().getServer().getConsoleSender().sendMessage(ChatColor.RED + String.format(dependencyNotFoundMessage, this.requirementType));
+            } catch (NoClassDefFoundError var10) {
+                ConsoleCommandSender var10000 = Autorank.getInstance().getServer().getConsoleSender();
+                ChatColor var10001 = ChatColor.RED;
+                var10000.sendMessage(var10001 + String.format(dependencyNotFoundMessage, this.requirementType));
                 Autorank.getInstance().getWarningManager().registerWarning(String.format(dependencyNotFoundMessage, this.requirementType), 10);
                 return this;
             }
@@ -111,10 +113,9 @@ public class RequirementBuilder {
             this.requirement.setOptional(Autorank.getInstance().getPathsConfig().isOptionalRequirement(this.pathName, this.requirementType, this.isPreRequisite));
             this.requirement.setPreRequisite(this.isPreRequisite);
             List<AbstractResult> abstractResultList = new ArrayList();
-            Iterator var11 = Autorank.getInstance().getPathsConfig().getResultsOfRequirement(this.pathName, this.requirementType, this.isPreRequisite).iterator();
 
-            while(var11.hasNext()) {
-                resultType = (String)var11.next();
+            for(Object o : Autorank.getInstance().getPathsConfig().getResultsOfRequirement(this.pathName, this.requirementType, this.isPreRequisite)) {
+                String resultType = (String)o;
                 AbstractResult abstractResult = ResultBuilder.createResult(this.pathName, resultType, Autorank.getInstance().getPathsConfig().getResultOfRequirement(this.pathName, this.requirementType, resultType, this.isPreRequisite));
                 if (abstractResult != null) {
                     abstractResultList.add(abstractResult);
@@ -138,23 +139,21 @@ public class RequirementBuilder {
 
                 DependencyManager dependencyManager = Autorank.getInstance().getDependencyManager();
                 List<Library> missingDependencies = new ArrayList();
-                Iterator var7 = this.requirement.getDependencies().iterator();
 
-                while(var7.hasNext()) {
-                    Library dependency = (Library)var7.next();
+                for(Library dependency : this.requirement.getDependencies()) {
                     if (!dependencyManager.isAvailable(dependency)) {
                         missingDependencies.add(dependency);
                     }
                 }
 
-                if (missingDependencies.size() > 0 && missingDependencies.size() == this.requirement.getDependencies().size()) {
+                if (!missingDependencies.isEmpty() && missingDependencies.size() == this.requirement.getDependencies().size()) {
                     Autorank.getInstance().getLogger().severe(String.format("Requirement '%s' relies on '%s' being installed, but that plugin is not installed!", this.requirementType, missingDependencies.get(0).getHumanPluginName()));
                     Autorank.getInstance().getWarningManager().registerWarning(String.format("Requirement '%s' relies on '%s' being installed, but that plugin is not installed!", this.requirementType, missingDependencies.get(0).getHumanPluginName()), 10);
-                    return this;
                 } else {
                     this.isValid = true;
-                    return this;
                 }
+
+                return this;
             }
         }
     }

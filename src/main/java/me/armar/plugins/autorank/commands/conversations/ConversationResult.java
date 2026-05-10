@@ -1,15 +1,14 @@
 package me.armar.plugins.autorank.commands.conversations;
 
-import org.bukkit.conversations.Conversable;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.conversations.Conversable;
 
 public class ConversationResult {
     private final boolean endedSuccessfully;
     private final Conversable conversable;
     private boolean endedByKeyword;
-    private Map<Object, Object> conversationStorage = new HashMap();
+    private Map<Object, Object> conversationStorage = new HashMap<>();
 
     public ConversationResult(boolean endResult, Conversable conversable) {
         this.endedSuccessfully = endResult;
@@ -39,7 +38,7 @@ public class ConversationResult {
 
     public boolean getStorageBoolean(Object key) {
         Object object = this.getStorageObject(key);
-        return object != null && (Boolean) object;
+        return object != null && (Boolean)object;
     }
 
     public Integer getStorageInteger(Object key) {

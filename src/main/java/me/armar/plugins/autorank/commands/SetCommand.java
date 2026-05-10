@@ -1,5 +1,8 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -10,10 +13,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 public class SetCommand extends AutorankCommand {
     private final Autorank plugin;
 
@@ -22,47 +21,46 @@ public class SetCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (args.length < 3) {
-            AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else {
-            int value = AutorankTools.readTimeInput(args, 2);
-            if (value >= 0) {
-                if (!this.hasPermission("autorank.set", sender)) {
-                    return true;
-                }
-
-                CompletableFuture<Void> task = UUIDManager.getUUID(args[1]).thenAccept((uuid) -> {
-                    if (uuid == null) {
-                        AutorankTools.sendDeserialize(sender, Lang.UNKNOWN_PLAYER.getConfigValue(args[1]));
-                    } else {
-                        String playerName = args[1];
-
-                        try {
-                            playerName = UUIDManager.getPlayerName(uuid).get();
-                        } catch (ExecutionException | InterruptedException var9) {
-                            var9.printStackTrace();
-                        }
-
-                        this.plugin.getPlayTimeStorageManager().setPlayerTime(uuid, value);
-                        int newPlayerTime = 0;
-
-                        try {
-                            newPlayerTime = this.plugin.getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, uuid).get();
-                        } catch (ExecutionException | InterruptedException var8) {
-                            var8.printStackTrace();
-                        }
-
-                        AutorankTools.sendDeserialize(sender, Lang.PLAYTIME_CHANGED.getConfigValue(playerName, AutorankTools.timeToString(newPlayerTime, TimeUnit.MINUTES)));
-                    }
-                });
-                this.runCommandTask(task);
-            } else {
+            if (args.length < 3) {
                 AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
+            } else {
+                int value = AutorankTools.readTimeInput(args, 2);
+                if (value >= 0) {
+                    CompletableFuture<Void> task = UUIDManager.getUUID(args[1]).thenAccept((uuid) -> {
+                        if (uuid == null) {
+                            AutorankTools.sendDeserialize(sender, Lang.UNKNOWN_PLAYER.getConfigValue(args[1]));
+                        } else {
+                            String playerName = args[1];
+
+                            try {
+                                playerName = UUIDManager.getPlayerName(uuid).get();
+                            } catch (InterruptedException | ExecutionException var9) {
+                                var9.printStackTrace();
+                            }
+
+                            this.plugin.getPlayTimeStorageManager().setPlayerTime(uuid, value);
+                            int newPlayerTime = 0;
+
+                            try {
+                                newPlayerTime = this.plugin.getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, uuid).get();
+                            } catch (InterruptedException | ExecutionException var8) {
+                                var8.printStackTrace();
+                            }
+
+                            AutorankTools.sendDeserialize(sender, Lang.PLAYTIME_CHANGED.getConfigValue(playerName, AutorankTools.timeToString(newPlayerTime, TimeUnit.MINUTES)));
+                        }
+
+                    });
+                    this.runCommandTask(task);
+                } else {
+                    AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
+                }
             }
 
             return true;

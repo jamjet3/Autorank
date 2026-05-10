@@ -32,7 +32,7 @@ public class LocationRequirement extends AbstractRequirement {
         int pY = playerLoc.getBlockY();
         int pZ = playerLoc.getBlockZ();
         String plurOrSing = "meter";
-        int distance = (int)Math.sqrt(Math.pow(pX - this.xLocation, 2.0D) + Math.pow(pY - this.yLocation, 2.0D) + Math.pow(pZ - this.zLocation, 2.0D));
+        int distance = (int)Math.sqrt(Math.pow(pX - this.xLocation, 2.0F) + Math.pow(pY - this.yLocation, 2.0F) + Math.pow(pZ - this.zLocation, 2.0F));
         if (distance > 1) {
             plurOrSing = "meters";
         } else {

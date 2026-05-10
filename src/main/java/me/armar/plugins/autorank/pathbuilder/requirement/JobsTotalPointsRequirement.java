@@ -1,10 +1,10 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
 import me.armar.plugins.utils.pluginlibrary.hooks.JobsHook;
-
-import java.util.UUID;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 
 public class JobsTotalPointsRequirement extends AbstractRequirement {
     private JobsHook jobsHandler;
@@ -23,7 +23,7 @@ public class JobsTotalPointsRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        double points = 0.0D;
+        double points = 0.0F;
         if (this.jobsHandler != null && !this.jobsHandler.isHooked()) {
             points = this.jobsHandler.getTotalPoints(uuid);
         }
@@ -33,11 +33,11 @@ public class JobsTotalPointsRequirement extends AbstractRequirement {
 
     protected boolean meetsRequirement(UUID uuid) {
         this.addDependency(Library.JOBS);
-        double points = -1.0D;
+        double points = -1.0F;
         if (this.jobsHandler != null && this.jobsHandler.isHooked()) {
             points = this.jobsHandler.getTotalPoints(uuid);
         } else {
-            points = -1.0D;
+            points = -1.0F;
         }
 
         return points >= (double)this.totalPoints;
@@ -65,7 +65,7 @@ public class JobsTotalPointsRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        double points = 0.0D;
+        double points = 0.0F;
         if (this.jobsHandler != null && !this.jobsHandler.isHooked()) {
             points = this.jobsHandler.getTotalPoints(uuid);
         }

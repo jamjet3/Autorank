@@ -5,7 +5,6 @@ import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.debugger.Debugger;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.util.AutorankTools;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,25 +17,26 @@ public class DebugCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        var mm = MiniMessage.miniMessage();
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.debug", sender)) {
-            return true;
         } else {
-            Debugger.debuggerEnabled = !Debugger.debuggerEnabled;
-            if (Debugger.debuggerEnabled) {
-                AutorankTools.sendDeserialize(sender, Lang.DEBUG_MODE.getConfigValue() + Lang.ENABLED.getConfigValue());
-            } else {
-                AutorankTools.sendDeserialize(sender, Lang.DEBUG_MODE.getConfigValue() + Lang.DISABLED.getConfigValue());
+            if (this.hasPermission(this.getPermission(), sender)) {
+                Debugger.debuggerEnabled = !Debugger.debuggerEnabled;
+                if (Debugger.debuggerEnabled) {
+                    String var10001 = Lang.DEBUG_MODE.getConfigValue();
+                    AutorankTools.sendDeserialize(sender, var10001 + Lang.ENABLED.getConfigValue());
+                } else {
+                    String var5 = Lang.DEBUG_MODE.getConfigValue();
+                    AutorankTools.sendDeserialize(sender, var5 + Lang.DISABLED.getConfigValue());
+                }
+
+                this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                    String fileName = this.plugin.getDebugger().createDebugFile();
+                    AutorankTools.sendDeserialize(sender, Lang.DEBUG_FILE.getConfigValue(fileName));
+                });
             }
 
-            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                String fileName = this.plugin.getDebugger().createDebugFile();
-                AutorankTools.sendDeserialize(sender, Lang.DEBUG_FILE.getConfigValue(fileName));
-            });
             return true;
         }
     }

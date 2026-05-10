@@ -18,7 +18,7 @@ public abstract class StatisticParameter {
     public static StatisticParameter createInstance(ParameterType parameterType, String value) {
         try {
             return parameterType.getMatchingParameter().getDeclaredConstructor(String.class).newInstance(value);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException var3) {
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException var3) {
             var3.printStackTrace();
             return null;
         }
@@ -41,11 +41,7 @@ public abstract class StatisticParameter {
     }
 
     public ParameterType getParameterType() {
-        ParameterType[] var1 = ParameterType.values();
-        int var2 = var1.length;
-
-        for(int var3 = 0; var3 < var2; ++var3) {
-            ParameterType type = var1[var3];
+        for(ParameterType type : ParameterType.values()) {
             if (type.getMatchingParameter().isAssignableFrom(this.getClass())) {
                 return type;
             }

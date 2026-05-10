@@ -1,13 +1,12 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-import me.armar.plugins.autorank.storage.PlayTimeStorageProvider.StorageType;
-import me.armar.plugins.autorank.storage.TimeType;
-import me.armar.plugins.autorank.util.AutorankTools;
-
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import me.armar.plugins.autorank.language.Lang;
+import me.armar.plugins.autorank.storage.TimeType;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider.StorageType;
+import me.armar.plugins.autorank.util.AutorankTools;
 
 public class GlobalTimeRequirement extends AbstractRequirement {
     private int globalTime = -1;
@@ -24,11 +23,12 @@ public class GlobalTimeRequirement extends AbstractRequirement {
 
         try {
             playTime = this.getAutorank().getPlayTimeManager().getGlobalPlayTime(TimeType.TOTAL_TIME, uuid).get();
-        } catch (ExecutionException | InterruptedException var4) {
+        } catch (InterruptedException | ExecutionException var4) {
             var4.printStackTrace();
         }
 
-        return AutorankTools.timeToString(playTime, TimeUnit.MINUTES) + "/" + AutorankTools.timeToString(this.globalTime, TimeUnit.MINUTES);
+        String var10000 = AutorankTools.timeToString(playTime, TimeUnit.MINUTES);
+        return var10000 + "/" + AutorankTools.timeToString(this.globalTime, TimeUnit.MINUTES);
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -36,7 +36,7 @@ public class GlobalTimeRequirement extends AbstractRequirement {
 
         try {
             playTime = this.getAutorank().getPlayTimeManager().getGlobalPlayTime(TimeType.TOTAL_TIME, uuid).get();
-        } catch (ExecutionException | InterruptedException var4) {
+        } catch (InterruptedException | ExecutionException var4) {
             var4.printStackTrace();
         }
 
@@ -61,10 +61,10 @@ public class GlobalTimeRequirement extends AbstractRequirement {
 
         try {
             playTime = this.getAutorank().getPlayTimeManager().getGlobalPlayTime(TimeType.TOTAL_TIME, uuid).get();
-        } catch (ExecutionException | InterruptedException var4) {
+        } catch (InterruptedException | ExecutionException var4) {
             var4.printStackTrace();
         }
 
-        return (double) playTime / (double)this.globalTime;
+        return (double)playTime / (double)this.globalTime;
     }
 }

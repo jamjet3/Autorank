@@ -1,8 +1,10 @@
 package me.armar.plugins.autorank.pathbuilder.result;
 
+import java.util.Objects;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class TeleportResult extends AbstractResult {
@@ -24,7 +26,8 @@ public class TeleportResult extends AbstractResult {
         if (this.hasCustomDescription()) {
             return this.getCustomDescription();
         } else {
-            String locationString = this.location.getBlockX() + ", " + this.location.getBlockY() + ", " + this.location.getBlockZ() + " on " + this.location.getWorld().getName();
+            int var10000 = this.location.getBlockX();
+            String locationString = var10000 + ", " + this.location.getBlockY() + ", " + this.location.getBlockZ() + " on " + Objects.requireNonNull(this.location.getWorld()).getName();
             return Lang.TELEPORT_RESULT.getConfigValue(locationString);
         }
     }
@@ -39,7 +42,7 @@ public class TeleportResult extends AbstractResult {
                 this.location = new Location(Bukkit.getServer().getWorld(options[3]), Integer.parseInt(options[0]), Integer.parseInt(options[1]), Integer.parseInt(options[2]));
             }
 
-            return this.location != null;
+            return true;
         }
     }
 }

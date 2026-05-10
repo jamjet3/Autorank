@@ -16,19 +16,19 @@ public class ReloadCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.reload", sender)) {
-            return true;
         } else {
-            this.plugin.getWarningManager().clearWarnings();
-            this.plugin.getPathsConfig().reloadConfig();
-            this.plugin.getSettingsConfig().reloadConfig();
-            this.plugin.getPathManager().initialiseFromConfigs();
-            this.plugin.getLanguageHandler().reloadConfig();
-            AutorankTools.sendDeserialize(sender, Lang.AUTORANK_RELOADED.getConfigValue());
+            if (this.hasPermission(this.getPermission(), sender)) {
+                this.plugin.getWarningManager().clearWarnings();
+                this.plugin.getPathsConfig().reloadConfig();
+                this.plugin.getSettingsConfig().reloadConfig();
+                this.plugin.getPathManager().initialiseFromConfigs();
+                this.plugin.getLanguageHandler().reloadLangConfig();
+                AutorankTools.sendDeserialize(sender, Lang.AUTORANK_RELOADED.getConfigValue());
+            }
+
             return true;
         }
     }

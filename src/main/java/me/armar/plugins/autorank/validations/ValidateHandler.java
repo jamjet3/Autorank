@@ -1,16 +1,14 @@
 package me.armar.plugins.autorank.validations;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.config.SettingsConfig;
 import me.armar.plugins.autorank.pathbuilder.Path;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
 import me.armar.plugins.autorank.pathbuilder.requirement.AbstractRequirement;
 import me.armar.plugins.autorank.pathbuilder.requirement.InGroupRequirement;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 public class ValidateHandler {
     private final Autorank plugin;
@@ -29,75 +27,45 @@ public class ValidateHandler {
         List<Path> paths = this.plugin.getPathManager().getAllPaths();
         List<String> permGroups = new ArrayList();
         Collection<String> vaultGroups = this.plugin.getPermPlugHandler().getPermissionPlugin().getGroups();
-        Iterator var4 = paths.iterator();
 
-        Iterator var7;
-        while(var4.hasNext()) {
-            Path path = (Path)var4.next();
+        for(Path path : paths) {
             List<CompositeRequirement> holders = new ArrayList();
             holders.addAll(path.getPrerequisites());
             holders.addAll(path.getRequirements());
-            var7 = holders.iterator();
 
-            label73:
-            while(var7.hasNext()) {
-                CompositeRequirement reqHolder = (CompositeRequirement)var7.next();
-                Iterator var9 = reqHolder.getRequirements().iterator();
-
-                while(true) {
-                    String requirementName;
-                    do {
-                        do {
-                            AbstractRequirement req;
-                            do {
-                                if (!var9.hasNext()) {
-                                    continue label73;
+            for(CompositeRequirement reqHolder : holders) {
+                for(AbstractRequirement req : reqHolder.getRequirements()) {
+                    if (req instanceof InGroupRequirement) {
+                        String requirementName = this.plugin.getPathsConfig().getRequirementName(path.getInternalName(), req.getId(), reqHolder.isPrerequisite());
+                        if (requirementName != null && requirementName.toLowerCase().contains("in group")) {
+                            for(String[] option : this.plugin.getPathsConfig().getRequirementOptions(path.getInternalName(), requirementName, reqHolder.isPrerequisite())) {
+                                if (option.length > 0) {
+                                    permGroups.add(option[0]);
                                 }
-
-                                req = (AbstractRequirement)var9.next();
-                            } while(!(req instanceof InGroupRequirement));
-
-                            requirementName = this.plugin.getPathsConfig().getRequirementName(path.getInternalName(), req.getId(), reqHolder.isPrerequisite());
-                        } while(requirementName == null);
-                    } while(!requirementName.toLowerCase().contains("in group"));
-
-                    List<String[]> options = this.plugin.getPathsConfig().getRequirementOptions(path.getInternalName(), requirementName, reqHolder.isPrerequisite());
-                    Iterator var13 = options.iterator();
-
-                    while(var13.hasNext()) {
-                        String[] option = (String[])var13.next();
-                        if (option.length > 0) {
-                            permGroups.add(option[0]);
+                            }
                         }
                     }
                 }
             }
         }
 
-        var4 = permGroups.iterator();
+        for(String group : permGroups) {
+            boolean found = false;
 
-        String group;
-        boolean found;
-        do {
-            if (!var4.hasNext()) {
-                return true;
-            }
-
-            group = (String)var4.next();
-            found = false;
-            var7 = vaultGroups.iterator();
-
-            while(var7.hasNext()) {
-                String vaultGroup = (String)var7.next();
+            for(String vaultGroup : vaultGroups) {
                 if (group.equalsIgnoreCase(vaultGroup)) {
                     found = true;
                     break;
                 }
             }
-        } while(found);
 
-        this.plugin.getWarningManager().registerWarning("You used the '" + group + "' group, but it was not recognized in your permission plugin!", 10);
-        return false;
+            if (!found) {
+                this.plugin.getWarningManager().registerWarning("You used the '" + group + "' group, but it was not recognized in your permission plugin!", 10);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public boolean validateSettingsConfig() {

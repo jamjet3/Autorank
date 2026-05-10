@@ -1,9 +1,8 @@
 package me.armar.plugins.autorank.statsmanager;
 
+import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-
-import java.util.UUID;
 
 public abstract class StatsPlugin {
     public StatsPlugin() {

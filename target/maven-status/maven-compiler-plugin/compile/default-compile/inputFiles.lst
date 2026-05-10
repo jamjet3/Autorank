@@ -11,6 +11,7 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\FoodWrapper.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\McMMOHook.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\storage\mysql\MySQLStorageProvider.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\LoginCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\updater\UpdateHandler.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\GriefPreventionRemainingBlocksRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\manager\AutorankCommand.java
@@ -35,7 +36,9 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\tasks\TaskManager.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\TownyAdvancedHook.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\LibraryHook.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\listeners\AFKListener.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\statsmanager\query\parameter\implementation\WorldTypeParameter.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\AuraSkillsHook.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\permissions\PermissionsHandler.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\InGroupRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\FoodEatenRequirement.java
@@ -50,7 +53,6 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\EssentialsGeoIPRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\api\services\RequirementManager.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\config\ConfigUpdater.java
-C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\ArchiveCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\HelpCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\util\uuid\UUIDManager.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\permissions\handlers\GroupManagerHandler.java
@@ -58,6 +60,7 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\MigrateCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\api\services\ResultManager.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\statsmanager\handlers\vanilla\VanillaHandler.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AuraSkillsXPRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\afkmanager\AFKManager.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\placeholders\AutorankPlaceholder.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\hooks\DependencyHandler.java
@@ -72,10 +75,12 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\conversations\prompts\ConfirmPrompt.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\LastLoginLoginRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\events\PlayerVotedEvent.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AuraSkillsStatRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\statsmanager\query\parameter\implementation\BlockTypeParameter.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\CheckCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\migration\MigrationablePlugin.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\BlocksBrokenWrapper.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\language\LangFR.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\McMMOSkillLevelRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\storage\PlayTimeStorageProvider.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\GriefPreventionHook.java
@@ -90,11 +95,11 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\util\AutorankTools.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\BlocksPlacedRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\TimesShearedRequirement.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AuraSkillsSkillRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\statsmanager\handlers\StatzHandler.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\config\DefaultBehaviorOption.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\util\Util.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\playtimes\UpdateTimePlayedTask.java
-C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\AureliumSkillsHook.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\builders\PathBuilder.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\conversations\editorcommand\SelectPlayerPrompt.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\util\uuid\NameFetcher.java
@@ -106,7 +111,6 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\TotalVotesRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\playerdata\global\CachedPlayerData.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\PermissionRequirement.java
-C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AureliumSkillsSkillRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\RemoveCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\config\PathsConfig.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\hooks\download\SpigetFile.java
@@ -118,6 +122,7 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\conversations\editorcommand\completepath\CompletePathPrompt.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\migration\implementations\VanillaMigration.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\JobsHook.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\language\LangGE.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\QuestsCompletedQuestsRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\ResetCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\FactionsXPowerRequirement.java
@@ -171,7 +176,6 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\McRPGHook.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\playerdata\PlayerData.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\NotInGroupRequirement.java
-C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AureliumSkillsXPRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\ItemsEnchantedRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\ItemWrapper.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\playtimes\PlayTimeManager.java
@@ -194,7 +198,6 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\leaderboard\AutorankLeaderboard.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\AddCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\conversations\editorcommand\EditorMenuPrompt.java
-C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AureliumSkillsStatRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\permissions\PermissionsPluginManager.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\utils\pluginlibrary\hooks\LastLoginAPIHook.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\language\LanguageHandler.java
@@ -216,13 +219,13 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\TownyIsKingRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\result\MoneyResult.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\TownyNumberOfTownBlocksRequirement.java
-C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AureliumSkillsManaRequirement.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\ExpRangeRequirement.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\BroadcastCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\GriefPreventionClaimedBlocksRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\statsmanager\query\parameter\ParameterType.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\TownyHasANationRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\ReloadCommand.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\TotalTimeRequirement.java
-C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\util\AudienceProvider.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\language\Lang.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\warningmanager\WarningManager.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\debugger\Debugger.java
@@ -249,6 +252,7 @@ C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\TimeDailyRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\api\events\RequirementCompleteEvent.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\PlaceholderapiIntegerRequirement.java
+C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\requirement\AuraSkillsManaRequirement.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\pathbuilder\result\CommandResult.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\commands\conversations\ConversationResult.java
 C:\Users\Ironic_8b49\Documents\Minecraft\Plugins\Autorank_II - Refactor\src\main\java\me\armar\plugins\autorank\permissions\handlers\PowerfulPermsHandler.java

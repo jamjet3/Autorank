@@ -11,7 +11,7 @@ public class GamemodeRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String lang = Lang.GAMEMODE_REQUIREMENT.getConfigValue(this.gameMode + "");
+        String lang = Lang.GAMEMODE_REQUIREMENT.getConfigValue("" + this.gameMode);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -20,7 +20,8 @@ public class GamemodeRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(Player player) {
-        return player.getGameMode().getValue() + "/" + this.gameMode;
+        int var10000 = player.getGameMode().getValue();
+        return var10000 + "/" + this.gameMode;
     }
 
     protected boolean meetsRequirement(Player player) {
@@ -33,7 +34,7 @@ public class GamemodeRequirement extends AbstractRequirement {
 
     public boolean initRequirement(String[] options) {
         if (options.length > 0) {
-            this.gameMode = (int) AutorankTools.stringToDouble(options[0]);
+            this.gameMode = (int)AutorankTools.stringToDouble(options[0]);
         }
 
         if (this.gameMode < 0) {

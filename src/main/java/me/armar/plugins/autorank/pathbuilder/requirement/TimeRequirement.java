@@ -1,12 +1,11 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-import me.armar.plugins.autorank.storage.TimeType;
-import me.armar.plugins.autorank.util.AutorankTools;
-
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import me.armar.plugins.autorank.language.Lang;
+import me.armar.plugins.autorank.storage.TimeType;
+import me.armar.plugins.autorank.util.AutorankTools;
 
 public class TimeRequirement extends AbstractRequirement {
     int timeNeeded = -1;
@@ -23,11 +22,12 @@ public class TimeRequirement extends AbstractRequirement {
 
         try {
             playtime = this.getAutorank().getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, uuid).get();
-        } catch (ExecutionException | InterruptedException var4) {
+        } catch (InterruptedException | ExecutionException var4) {
             var4.printStackTrace();
         }
 
-        return AutorankTools.timeToString(playtime, TimeUnit.MINUTES) + "/" + AutorankTools.timeToString(this.timeNeeded, TimeUnit.MINUTES);
+        String var10000 = AutorankTools.timeToString(playtime, TimeUnit.MINUTES);
+        return var10000 + "/" + AutorankTools.timeToString(this.timeNeeded, TimeUnit.MINUTES);
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -35,7 +35,7 @@ public class TimeRequirement extends AbstractRequirement {
 
         try {
             playTime = this.getAutorank().getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, uuid).get();
-        } catch (ExecutionException | InterruptedException var4) {
+        } catch (InterruptedException | ExecutionException var4) {
             var4.printStackTrace();
         }
 
@@ -60,10 +60,10 @@ public class TimeRequirement extends AbstractRequirement {
 
         try {
             playtime = this.getAutorank().getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, uuid).get();
-        } catch (ExecutionException | InterruptedException var4) {
+        } catch (InterruptedException | ExecutionException var4) {
             var4.printStackTrace();
         }
 
-        return (double) playtime / (double)this.timeNeeded;
+        return (double)playtime / (double)this.timeNeeded;
     }
 }

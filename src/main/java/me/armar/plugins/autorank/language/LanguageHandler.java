@@ -1,18 +1,17 @@
 package me.armar.plugins.autorank.language;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
 import me.armar.plugins.autorank.Autorank;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-
 public class LanguageHandler {
-    private FileConfiguration languageConfig;
+    private FileConfiguration langConfig;
     private FileConfiguration langGEConfig;
     private FileConfiguration langFRConfig;
-    private File languageConfigFile;
+    private File langConfigFile;
     private File langGEConfigFile;
     private File langFRConfigFile;
     private final Autorank plugin;
@@ -21,22 +20,23 @@ public class LanguageHandler {
         this.plugin = plugin;
     }
 
-    public void createNewFile() {
-        this.reloadConfig();
+    public void createNewLangFile() {
         this.saveConfig();
-        Lang.setFile(this.languageConfig);
+        this.reloadLangConfig();
+        Lang.setFile(this.langConfig);
         this.loadConfig();
         this.plugin.debugMessage("Language file loaded (lang.yml)");
     }
 
-    public void createNewlangFRFile() {
+    public void createNewLangFRFile() {
         this.reloadLangFRConfig();
         this.saveLangFRConfig();
         LangFR.setFile(this.langFRConfig);
         this.loadLangFRConfig();
         this.plugin.debugMessage("Language file loaded (langFR.yml)");
     }
-    public void createNewlangGEFile() {
+
+    public void createNewLangGEFile() {
         this.reloadLangGEConfig();
         this.saveLangGEConfig();
         LangGE.setFile(this.langGEConfig);
@@ -45,12 +45,13 @@ public class LanguageHandler {
     }
 
     public FileConfiguration getConfig() {
-        if (this.languageConfig == null) {
-            this.reloadConfig();
+        if (this.langConfig == null) {
+            this.reloadLangConfig();
         }
 
-        return this.languageConfig;
+        return this.langConfig;
     }
+
     public FileConfiguration getLangFRConfig() {
         if (this.langFRConfig == null) {
             this.reloadLangFRConfig();
@@ -58,6 +59,7 @@ public class LanguageHandler {
 
         return this.langFRConfig;
     }
+
     public FileConfiguration getLangGEConfig() {
         if (this.langGEConfig == null) {
             this.reloadLangGEConfig();
@@ -67,26 +69,20 @@ public class LanguageHandler {
     }
 
     public void loadConfig() {
-        this.languageConfig.options().header("Language file");
-        Lang[] var1 = Lang.values();
-        int var2 = var1.length;
+        this.langConfig.options().header("Language file");
 
-        for(int var3 = 0; var3 < var2; ++var3) {
-            Lang value = var1[var3];
-            this.languageConfig.addDefault(value.getPath(), value.getDefault());
+        for(Lang value : Lang.values()) {
+            this.langConfig.addDefault(value.getPath(), value.getDefault());
         }
 
-        this.languageConfig.options().copyDefaults(true);
+        this.langConfig.options().copyDefaults(true);
         this.saveConfig();
     }
 
     public void loadLangFRConfig() {
         this.langFRConfig.options().header("French Language file");
-        LangFR[] var1 = LangFR.values();
-        int var2 = var1.length;
 
-        for(int var3 = 0; var3 < var2; ++var3) {
-            LangFR value = var1[var3];
+        for(LangFR value : LangFR.values()) {
             this.langFRConfig.addDefault(value.getPath(), value.getDefault());
         }
 
@@ -96,11 +92,8 @@ public class LanguageHandler {
 
     public void loadLangGEConfig() {
         this.langGEConfig.options().header("German Language file");
-        LangGE[] var1 = LangGE.values();
-        int var2 = var1.length;
 
-        for(int var3 = 0; var3 < var2; ++var3) {
-            LangGE value = var1[var3];
+        for(LangGE value : LangGE.values()) {
             this.langGEConfig.addDefault(value.getPath(), value.getDefault());
         }
 
@@ -108,12 +101,12 @@ public class LanguageHandler {
         this.saveLangGEConfig();
     }
 
-    public void reloadConfig() {
-        if (this.languageConfigFile == null) {
-            this.languageConfigFile = new File(this.plugin.getDataFolder() + "/lang", "lang.yml");
+    public void reloadLangConfig() {
+        if (this.langConfigFile == null) {
+            this.langConfigFile = new File(this.plugin.getDataFolder() + "/lang", "lang.yml");
         }
 
-        this.languageConfig = YamlConfiguration.loadConfiguration(this.languageConfigFile);
+        this.langConfig = YamlConfiguration.loadConfiguration(this.langConfigFile);
     }
 
     public void reloadLangFRConfig() {
@@ -139,8 +132,8 @@ public class LanguageHandler {
             } catch (IOException var2) {
                 this.plugin.getLogger().log(Level.SEVERE, "Could not save config to " + this.langFRConfigFile, var2);
             }
-
         }
+
     }
 
     public void saveLangGEConfig() {
@@ -150,18 +143,18 @@ public class LanguageHandler {
             } catch (IOException var2) {
                 this.plugin.getLogger().log(Level.SEVERE, "Could not save config to " + this.langGEConfigFile, var2);
             }
-
         }
+
     }
 
     public void saveConfig() {
-        if (this.languageConfig != null && this.languageConfigFile != null) {
+        if (this.langConfig != null && this.langConfigFile != null) {
             try {
-                this.getConfig().save(this.languageConfigFile);
+                this.getConfig().save(this.langConfigFile);
             } catch (IOException var2) {
-                this.plugin.getLogger().log(Level.SEVERE, "Could not save config to " + this.languageConfigFile, var2);
+                this.plugin.getLogger().log(Level.SEVERE, "Could not save config to " + this.langConfigFile, var2);
             }
-
         }
+
     }
 }

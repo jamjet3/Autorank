@@ -5,27 +5,21 @@ import me.armar.plugins.autorank.Autorank;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import me.armar.plugins.autorank.Autorank;
 
 public class SettingsConfig extends AbstractConfig {
     public String getMySQLSetting(SettingsConfig.MySQLSettings option) {
-        switch(option) {
-            case HOSTNAME:
-                return this.getConfig().getString("sql.hostname");
-            case USERNAME:
-                return this.getConfig().getString("sql.username");
-            case PASSWORD:
-                return this.getConfig().getString("sql.password");
-            case DATABASE:
-                return this.getConfig().getString("sql.database");
-            case TABLE_PREFIX:
-                return this.getConfig().getString("sql.table prefix", "");
-            case SERVER_NAME:
-                return this.getConfig().getString("sql.server name", "").replace("%ip%", this.getPlugin().getServer().getIp()).replace("%port%", this.getPlugin().getServer().getPort() + "").replace("%name%", this.getPlugin().getServer().getName());
-            case USESSL:
-                return String.valueOf(this.getConfig().getBoolean("sql.usessl", false));
-            default:
-                throw new IllegalArgumentException(option + " is not a valid MySQL settings option");
-        }
+        return switch (option) {
+            case HOSTNAME -> this.getConfig().getString("sql.hostname");
+            case USERNAME -> this.getConfig().getString("sql.username");
+            case PASSWORD -> this.getConfig().getString("sql.password");
+            case DATABASE -> this.getConfig().getString("sql.database");
+            case TABLE_PREFIX -> this.getConfig().getString("sql.table prefix", "");
+            case SERVER_NAME ->
+                    this.getConfig().getString("sql.server name", "").replace("%ip%", this.getPlugin().getServer().getIp()).replace("%port%", this.getPlugin().getServer().getPort() + "").replace("%name%", this.getPlugin().getServer().getName());
+            case USESSL -> String.valueOf(this.getConfig().getBoolean("sql.usessl", false));
+            default -> throw new IllegalArgumentException(option + " is not a valid MySQL settings option");
+        };
     }
 
     public SettingsConfig(Autorank instance) {

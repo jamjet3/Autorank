@@ -1,9 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.Material;
-
-import java.util.UUID;
 
 public class ItemThrownRequirement extends AbstractRequirement {
     int numberofThrows = -1;
@@ -22,7 +21,8 @@ public class ItemThrownRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.getStatisticsManager().getItemThrown(uuid, this.itemThrown) + "/" + this.numberofThrows;
+        int var10000 = this.getStatisticsManager().getItemThrown(uuid, this.itemThrown);
+        return var10000 + "/" + this.numberofThrows;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -47,6 +47,6 @@ public class ItemThrownRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.getStatisticsManager().getItemThrown(uuid, this.itemThrown) / (double)this.numberofThrows;
+        return (double)this.getStatisticsManager().getItemThrown(uuid, this.itemThrown) / (double)this.numberofThrows;
     }
 }

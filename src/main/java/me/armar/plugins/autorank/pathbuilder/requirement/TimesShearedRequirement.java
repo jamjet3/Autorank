@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class TimesShearedRequirement extends AbstractRequirement {
     int timesShorn = -1;
@@ -11,7 +10,7 @@ public class TimesShearedRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String lang = Lang.TIMES_SHEARED_REQUIREMENT.getConfigValue(this.timesShorn + "");
+        String lang = Lang.TIMES_SHEARED_REQUIREMENT.getConfigValue("" + this.timesShorn);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -45,6 +44,6 @@ public class TimesShearedRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.getStatisticsManager().getSheepShorn(uuid, this.getWorld()) / (double)this.timesShorn;
+        return (double)this.getStatisticsManager().getSheepShorn(uuid, this.getWorld()) / (double)this.timesShorn;
     }
 }

@@ -1,15 +1,14 @@
 package me.armar.plugins.autorank.backup;
 
 import com.google.common.io.Files;
-import me.armar.plugins.autorank.Autorank;
-import org.bukkit.ChatColor;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import me.armar.plugins.autorank.Autorank;
+import org.bukkit.ChatColor;
 
 public class BackupManager {
     public static final DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -23,14 +22,16 @@ public class BackupManager {
     }
 
     public void backupFile(String sourceFileName, String storePath) {
-        String folderPath = this.plugin.getDataFolder().getAbsolutePath() + File.separator;
+        String var10000 = this.plugin.getDataFolder().getAbsolutePath();
+        String folderPath = var10000 + File.separator;
         File sourceFile = new File(folderPath + sourceFileName);
         File copyFile = null;
         String dateFormatForFiles = dateFormat.format(new Date());
         if (storePath == null) {
             copyFile = new File(folderPath + sourceFileName.replace(".yml", "") + "-backup-" + dateFormatForFiles + ".yml");
         } else {
-            copyFile = new File(storePath.replace(".yml", "") + "-backup-" + dateFormatForFiles + ".yml");
+            String var10002 = storePath.replace(".yml", "");
+            copyFile = new File(var10002 + "-backup-" + dateFormatForFiles + ".yml");
         }
 
         copyFile.getParentFile().mkdirs();
@@ -51,7 +52,9 @@ public class BackupManager {
             this.backupDataManager.getConfig().set("storage", System.currentTimeMillis());
         } else if (dataType.equalsIgnoreCase("playerdata")) {
             this.plugin.debugMessage(ChatColor.GREEN + "Making a backup of PlayerData file!");
-            this.plugin.getBackupManager().backupFile("/playerdata/PlayerData.yml", this.plugin.getDataFolder().getAbsolutePath() + File.separator + "backups" + File.separator + "PlayerData.yml");
+            BackupManager var10000 = this.plugin.getBackupManager();
+            String var10002 = this.plugin.getDataFolder().getAbsolutePath();
+            var10000.backupFile("/playerdata/PlayerData.yml", var10002 + File.separator + "backups" + File.separator + "PlayerData.yml");
             this.backupDataManager.getConfig().set("playerdata", System.currentTimeMillis());
         }
 

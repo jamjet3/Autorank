@@ -1,5 +1,8 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -9,10 +12,6 @@ import me.armar.plugins.autorank.util.uuid.UUIDManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class RemoveCommand extends AutorankCommand {
     private final Autorank plugin;
@@ -25,7 +24,6 @@ public class RemoveCommand extends AutorankCommand {
         if (!(sender instanceof Player)) {
             if (args.length < 3) {
                 AutorankTools.consoleDeserialize(Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
-                return true;
             } else {
                 CompletableFuture<Void> task = UUIDManager.getUUID(args[1]).thenAccept((uuid) -> {
                     if (uuid == null) {
@@ -38,10 +36,10 @@ public class RemoveCommand extends AutorankCommand {
                             int newPlayerTime = 0;
 
                             try {
-                                TimeUnit.SECONDS.sleep((long) .2);
+                                TimeUnit.SECONDS.sleep(0L);
                                 playerName = UUIDManager.getPlayerName(uuid).get();
                                 newPlayerTime = this.plugin.getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, uuid).get();
-                            } catch (ExecutionException | InterruptedException var8) {
+                            } catch (InterruptedException | ExecutionException var8) {
                                 var8.printStackTrace();
                             }
 
@@ -49,14 +47,14 @@ public class RemoveCommand extends AutorankCommand {
                         } else {
                             AutorankTools.consoleDeserialize(Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
                         }
-
                     }
+
                 });
                 this.runCommandTask(task);
-                return true;
             }
-        }
-        if (!this.hasPermission("autorank.remove", sender)) {
+
+            return true;
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else if (args.length < 3) {
             AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
@@ -73,20 +71,19 @@ public class RemoveCommand extends AutorankCommand {
                         int newPlayerTime = 0;
 
                         try {
-                            TimeUnit.SECONDS.sleep((long) .2);
+                            TimeUnit.SECONDS.sleep(0L);
                             playerName = UUIDManager.getPlayerName(uuid).get();
                             newPlayerTime = this.plugin.getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, uuid).get();
-                        } catch (ExecutionException | InterruptedException var8) {
+                        } catch (InterruptedException | ExecutionException var8) {
                             var8.printStackTrace();
                         }
-
 
                         AutorankTools.sendDeserialize(sender, Lang.PLAYTIME_CHANGED.getConfigValue(playerName, AutorankTools.timeToString(newPlayerTime, TimeUnit.MINUTES)));
                     } else {
                         AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
                     }
-
                 }
+
             });
             this.runCommandTask(task);
             return true;

@@ -12,7 +12,7 @@ public class ExpRangeRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String lang = Lang.EXP_RANGE_REQUIREMENT.getConfigValue(this.minExp + "", this.maxExp + " ");
+        String lang = Lang.EXP_RANGE_REQUIREMENT.getConfigValue("" + this.minExp, this.maxExp + " ");
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -31,17 +31,17 @@ public class ExpRangeRequirement extends AbstractRequirement {
         } else {
             int expLevel = player.getLevel();
             return expLevel >= this.minExp && expLevel <= this.maxExp;
-            }
         }
+    }
 
     public boolean initRequirement(String[] options) {
-        this.minExp = (int) AutorankTools.stringToDouble(options[0]);
-        this.maxExp = (int) AutorankTools.stringToDouble(options[1]);
-        if (this.minExp < 0 || this.maxExp < 0) {
+        this.minExp = (int)AutorankTools.stringToDouble(options[0]);
+        this.maxExp = (int)AutorankTools.stringToDouble(options[1]);
+        if (this.minExp >= 0 && this.maxExp >= 0) {
+            return true;
+        } else {
             this.registerWarningMessage("No number is provided or smaller than 0.");
             return false;
-        } else {
-            return true;
         }
     }
 

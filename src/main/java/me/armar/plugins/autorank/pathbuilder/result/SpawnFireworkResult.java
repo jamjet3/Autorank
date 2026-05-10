@@ -1,10 +1,12 @@
 package me.armar.plugins.autorank.pathbuilder.result;
 
+import java.util.Objects;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
-import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -12,12 +14,13 @@ import org.bukkit.inventory.meta.FireworkMeta;
 
 public class SpawnFireworkResult extends AbstractResult {
     private Color colour;
-    private Location location;
+    private final Location location;
     private int power;
     private String target;
-    private Type type;
+    private FireworkEffect.Type type;
 
-    public SpawnFireworkResult() {
+    public SpawnFireworkResult(Location location) {
+        this.location = location;
         this.colour = Color.ORANGE;
         this.power = 1;
         this.target = "player";
@@ -30,7 +33,7 @@ public class SpawnFireworkResult extends AbstractResult {
         } else {
             Location loc = this.target.equals("player") ? player.getLocation() : player.getWorld().getSpawnLocation();
             this.getAutorank().getServer().getScheduler().runTask(this.getAutorank(), () -> {
-                Firework fw = (Firework)loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
+                Firework fw = (Firework) Objects.requireNonNull(loc.getWorld()).spawnEntity(loc, EntityType.FIREWORK);
                 FireworkMeta fwm = fw.getFireworkMeta();
                 FireworkEffect effect = FireworkEffect.builder().withColor(this.colour).with(this.type).build();
                 fwm.addEffect(effect);

@@ -1,10 +1,9 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.hooks.quests.QuestsPlugin;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
-
-import java.util.UUID;
 
 public class QuestsCompleteSpecificQuestRequirement extends AbstractRequirement {
     private QuestsPlugin handler = null;
@@ -18,7 +17,8 @@ public class QuestsCompleteSpecificQuestRequirement extends AbstractRequirement 
     }
 
     public String getProgressString(UUID uuid) {
-        return this.handler.hasCompletedQuest(uuid, this.questName) + "";
+        boolean var10000 = this.handler.hasCompletedQuest(uuid, this.questName);
+        return "" + var10000;
     }
 
     protected boolean meetsRequirement(UUID uuid) {

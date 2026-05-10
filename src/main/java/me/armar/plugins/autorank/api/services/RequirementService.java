@@ -1,12 +1,11 @@
 package me.armar.plugins.autorank.api.services;
 
-import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.pathbuilder.builders.RequirementBuilder;
-import me.armar.plugins.autorank.pathbuilder.requirement.AbstractRequirement;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import me.armar.plugins.autorank.Autorank;
+import me.armar.plugins.autorank.pathbuilder.builders.RequirementBuilder;
+import me.armar.plugins.autorank.pathbuilder.requirement.AbstractRequirement;
 
 public class RequirementService implements RequirementManager {
     private final Autorank plugin;

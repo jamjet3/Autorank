@@ -1,19 +1,18 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.PlaceholderAPIHook;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 public class PlaceholderapiIntegerRequirement extends AbstractRequirement {
     private int placeholderInt = -1;
     private String placeholderVal = "null";
     private String placeholderDef = "null";
-
     private PlaceholderAPIHook handler = null;
 
     public PlaceholderapiIntegerRequirement() {
@@ -25,10 +24,9 @@ public class PlaceholderapiIntegerRequirement extends AbstractRequirement {
 
     public String getProgressString(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        String placeholderValue = PlaceholderAPI.setPlaceholders(player, placeholderVal);
+        String placeholderValue = PlaceholderAPI.setPlaceholders(player, this.placeholderVal);
         return placeholderValue + "/" + this.placeholderInt;
     }
-
 
     public boolean meetsRequirement(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
@@ -38,7 +36,7 @@ public class PlaceholderapiIntegerRequirement extends AbstractRequirement {
 
     public boolean initRequirement(String[] options) {
         this.addDependency(Library.PLACEHOLDERAPI);
-        this.handler = (PlaceholderAPIHook) this.getAutorank().getDependencyManager().getLibraryHook(Library.PLACEHOLDERAPI).orElse(null);
+        this.handler = (PlaceholderAPIHook)this.getAutorank().getDependencyManager().getLibraryHook(Library.PLACEHOLDERAPI).orElse(null);
 
         try {
             this.placeholderInt = Integer.parseInt(options[0]);
@@ -68,7 +66,7 @@ public class PlaceholderapiIntegerRequirement extends AbstractRequirement {
 
     public double getProgressPercentage(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        Integer placeholderValue = Integer.valueOf(PlaceholderAPI.setPlaceholders(player, placeholderVal));
-        return (double) placeholderValue / (double) this.placeholderInt;
+        Integer placeholderValue = Integer.valueOf(PlaceholderAPI.setPlaceholders(player, this.placeholderVal));
+        return (double)placeholderValue / (double)this.placeholderInt;
     }
 }

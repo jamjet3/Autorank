@@ -1,10 +1,10 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.QuestsHook;
-
-import java.util.UUID;
 
 public class QuestsQuestPointsRequirement extends AbstractRequirement {
     private QuestsHook handler = null;
@@ -18,7 +18,8 @@ public class QuestsQuestPointsRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.handler.getQuestsPoints(uuid) + "/" + this.questPoints;
+        int var10000 = this.handler.getQuestsPoints(uuid);
+        return var10000 + "/" + this.questPoints;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -50,6 +51,6 @@ public class QuestsQuestPointsRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.handler.getQuestsPoints(uuid) / (double)this.questPoints;
+        return (double)this.handler.getQuestsPoints(uuid) / (double)this.questPoints;
     }
 }

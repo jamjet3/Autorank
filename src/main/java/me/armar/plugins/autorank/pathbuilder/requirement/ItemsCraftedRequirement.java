@@ -1,9 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.Material;
-
-import java.util.UUID;
 
 public class ItemsCraftedRequirement extends AbstractRequirement {
     int timesCrafted = -1;
@@ -22,7 +21,8 @@ public class ItemsCraftedRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.getStatisticsManager().getItemsCrafted(uuid, this.getWorld(), this.itemCrafted) + "/" + this.timesCrafted;
+        int var10000 = this.getStatisticsManager().getItemsCrafted(uuid, this.getWorld(), this.itemCrafted);
+        return var10000 + "/" + this.timesCrafted;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -60,6 +60,6 @@ public class ItemsCraftedRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.getStatisticsManager().getItemsCrafted(uuid, this.getWorld(), this.itemCrafted) / (double)this.timesCrafted;
+        return (double)this.getStatisticsManager().getItemsCrafted(uuid, this.getWorld(), this.itemCrafted) / (double)this.timesCrafted;
     }
 }

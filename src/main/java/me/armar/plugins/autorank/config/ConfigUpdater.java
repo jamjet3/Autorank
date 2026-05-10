@@ -1,5 +1,15 @@
 package me.armar.plugins.autorank.config;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -7,81 +17,60 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
-
 public class ConfigUpdater {
-    public ConfigUpdater() {
-    }
-
     public static void update(Plugin plugin, String resourceName, File toUpdate, List<String> ignoredSections) throws IOException {
-        BufferedReader newReader = new BufferedReader(new InputStreamReader(plugin.getResource(resourceName), StandardCharsets.UTF_8));
+        BufferedReader newReader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(plugin.getResource(resourceName)), StandardCharsets.UTF_8));
         List<String> newLines = newReader.lines().collect(Collectors.toList());
         newReader.close();
         FileConfiguration oldConfig = YamlConfiguration.loadConfiguration(toUpdate);
-        FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(resourceName)));
+        FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource(resourceName))));
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(toUpdate), StandardCharsets.UTF_8));
-        List<String> ignoredSectionsArrayList = new ArrayList(ignoredSections);
-        ignoredSectionsArrayList.removeIf((ignoredSection) -> {
-            return !newConfig.isConfigurationSection(ignoredSection);
-        });
+        List<String> ignoredSectionsArrayList = new ArrayList<>(ignoredSections);
+        ignoredSectionsArrayList.removeIf((ignoredSection) -> !newConfig.isConfigurationSection(ignoredSection));
         Yaml yaml = new Yaml();
         Map<String, String> comments = parseComments(newLines, ignoredSectionsArrayList, oldConfig, yaml);
         write(newConfig, oldConfig, comments, ignoredSectionsArrayList, writer, yaml);
     }
 
     private static void write(FileConfiguration newConfig, FileConfiguration oldConfig, Map<String, String> comments, List<String> ignoredSections, BufferedWriter writer, Yaml yaml) throws IOException {
-        Iterator var6 = newConfig.getKeys(true).iterator();
+        label45:
+        for(String key : newConfig.getKeys(true)) {
+            String[] keys = key.split("\\.");
+            String actualKey = keys[keys.length - 1];
+            String comment = comments.remove(key);
+            StringBuilder prefixBuilder = new StringBuilder();
+            int indents = keys.length - 1;
+            appendPrefixSpaces(prefixBuilder, indents);
+            String prefixSpaces = prefixBuilder.toString();
+            if (comment != null) {
+                writer.write(comment);
+            }
 
-        while(true) {
-            while(true) {
-                label39:
-                while(var6.hasNext()) {
-                    String key = (String)var6.next();
-                    String[] keys = key.split("\\.");
-                    String actualKey = keys[keys.length - 1];
-                    String comment = comments.remove(key);
-                    StringBuilder prefixBuilder = new StringBuilder();
-                    int indents = keys.length - 1;
-                    appendPrefixSpaces(prefixBuilder, indents);
-                    String prefixSpaces = prefixBuilder.toString();
-                    if (comment != null) {
-                        writer.write(comment);
-                    }
-
-                    Iterator var14 = ignoredSections.iterator();
-
-                    while(var14.hasNext()) {
-                        String ignoredSection = (String)var14.next();
-                        if (key.startsWith(ignoredSection)) {
-                            continue label39;
-                        }
-                    }
-
-                    Object newObj = newConfig.get(key);
-                    Object oldObj = oldConfig.get(key);
-                    if (newObj instanceof ConfigurationSection && oldObj instanceof ConfigurationSection) {
-                        writeSection(writer, actualKey, prefixSpaces, (ConfigurationSection)oldObj);
-                    } else if (newObj instanceof ConfigurationSection) {
-                        writeSection(writer, actualKey, prefixSpaces, (ConfigurationSection)newObj);
-                    } else if (oldObj != null) {
-                        write(oldObj, actualKey, prefixSpaces, yaml, writer);
-                    } else {
-                        write(newObj, actualKey, prefixSpaces, yaml, writer);
-                    }
+            for(String ignoredSection : ignoredSections) {
+                if (key.startsWith(ignoredSection)) {
+                    continue label45;
                 }
+            }
 
-                String danglingComments = comments.get(null);
-                if (danglingComments != null) {
-                    writer.write(danglingComments);
-                }
-
-                writer.close();
-                return;
+            Object newObj = newConfig.get(key);
+            Object oldObj = oldConfig.get(key);
+            if (newObj instanceof ConfigurationSection && oldObj instanceof ConfigurationSection) {
+                writeSection(writer, actualKey, prefixSpaces, (ConfigurationSection)oldObj);
+            } else if (newObj instanceof ConfigurationSection) {
+                writeSection(writer, actualKey, prefixSpaces, (ConfigurationSection)newObj);
+            } else if (oldObj != null) {
+                write(oldObj, actualKey, prefixSpaces, yaml, writer);
+            } else {
+                write(newObj, actualKey, prefixSpaces, yaml, writer);
             }
         }
+
+        String danglingComments = comments.get(null);
+        if (danglingComments != null) {
+            writer.write(danglingComments);
+        }
+
+        writer.close();
     }
 
     private static void write(Object obj, String actualKey, String prefixSpaces, Yaml yaml, BufferedWriter writer) throws IOException {
@@ -147,68 +136,54 @@ public class ConfigUpdater {
     }
 
     private static Map<String, String> parseComments(List<String> lines, List<String> ignoredSections, FileConfiguration oldConfig, Yaml yaml) {
-        Map<String, String> comments = new HashMap();
+        Map<String, String> comments = new HashMap<>();
         StringBuilder builder = new StringBuilder();
         StringBuilder keyBuilder = new StringBuilder();
         int lastLineIndentCount = 0;
-        Iterator var8 = lines.iterator();
 
-        while(true) {
-            while(true) {
-                label42:
-                while(true) {
-                    String line;
-                    do {
-                        if (!var8.hasNext()) {
-                            if (builder.length() > 0) {
-                                comments.put(null, builder.toString());
+        label51:
+        for(String line : lines) {
+            if (line == null || !line.trim().startsWith("-")) {
+                if (line != null && !line.trim().isEmpty() && !line.trim().startsWith("#")) {
+                    lastLineIndentCount = setFullKey(keyBuilder, line, lastLineIndentCount);
+
+                    for(String ignoredSection : ignoredSections) {
+                        if (keyBuilder.toString().equals(ignoredSection)) {
+                            Object value = oldConfig.get(keyBuilder.toString());
+                            if (value instanceof ConfigurationSection) {
+                                appendSection(builder, (ConfigurationSection)value, new StringBuilder(getPrefixSpaces(lastLineIndentCount)), yaml);
                             }
-
-                            return comments;
+                            continue label51;
                         }
-
-                        line = (String)var8.next();
-                    } while(line != null && line.trim().startsWith("-"));
-
-                    if (line != null && !line.trim().equals("") && !line.trim().startsWith("#")) {
-                        lastLineIndentCount = setFullKey(keyBuilder, line, lastLineIndentCount);
-                        Iterator var10 = ignoredSections.iterator();
-
-                        while(var10.hasNext()) {
-                            String ignoredSection = (String)var10.next();
-                            if (keyBuilder.toString().equals(ignoredSection)) {
-                                Object value = oldConfig.get(keyBuilder.toString());
-                                if (value instanceof ConfigurationSection) {
-                                    appendSection(builder, (ConfigurationSection)value, new StringBuilder(getPrefixSpaces(lastLineIndentCount)), yaml);
-                                }
-                                continue label42;
-                            }
-                        }
-
-                        if (keyBuilder.length() > 0) {
-                            comments.put(keyBuilder.toString(), builder.toString());
-                            builder.setLength(0);
-                        }
-                    } else {
-                        builder.append(line).append("\n");
                     }
+
+                    if (!keyBuilder.isEmpty()) {
+                        comments.put(keyBuilder.toString(), builder.toString());
+                        builder.setLength(0);
+                    }
+                } else {
+                    builder.append(line).append("\n");
                 }
             }
         }
+
+        if (!builder.isEmpty()) {
+            comments.put(null, builder.toString());
+        }
+
+        return comments;
     }
 
     private static void appendSection(StringBuilder builder, ConfigurationSection section, StringBuilder prefixSpaces, Yaml yaml) {
-        builder.append(prefixSpaces).append(getKeyFromFullKey(section.getCurrentPath())).append(":");
+        builder.append(prefixSpaces).append(getKeyFromFullKey(Objects.requireNonNull(section.getCurrentPath()))).append(":");
         Set<String> keys = section.getKeys(false);
         if (keys.isEmpty()) {
             builder.append(" {}\n");
         } else {
             builder.append("\n");
             prefixSpaces.append("  ");
-            Iterator var5 = keys.iterator();
 
-            while(var5.hasNext()) {
-                String key = (String)var5.next();
+            for(String key : keys) {
                 Object value = section.get(key);
                 String actualKey = getKeyFromFullKey(key);
                 if (value instanceof ConfigurationSection) {
@@ -220,17 +195,14 @@ public class ConfigUpdater {
                     builder.append(prefixSpaces).append(actualKey).append(": ").append(yaml.dump(value));
                 }
             }
-
         }
+
     }
 
     private static int countIndents(String s) {
         int spaces = 0;
-        char[] var2 = s.toCharArray();
-        int var3 = var2.length;
 
-        for(int var4 = 0; var4 < var3; ++var4) {
-            char c = var2[var4];
+        for(char c : s.toCharArray()) {
             if (c != ' ') {
                 break;
             }
@@ -250,6 +222,7 @@ public class ConfigUpdater {
             temp = temp.substring(0, temp.length() - keys[keys.length - 1].length() - 1);
             keyBuilder.setLength(temp.length());
         }
+
     }
 
     private static String getKeyFromFullKey(String fullKey) {
@@ -260,11 +233,11 @@ public class ConfigUpdater {
     private static int setFullKey(StringBuilder keyBuilder, String configLine, int lastLineIndentCount) {
         int currentIndents = countIndents(configLine);
         String key = configLine.trim().split(":")[0];
-        if (keyBuilder.length() == 0) {
+        if (keyBuilder.isEmpty()) {
             keyBuilder.append(key);
         } else if (currentIndents == lastLineIndentCount) {
             removeLastKey(keyBuilder);
-            if (keyBuilder.length() > 0) {
+            if (!keyBuilder.isEmpty()) {
                 keyBuilder.append(".");
             }
 
@@ -278,7 +251,7 @@ public class ConfigUpdater {
                 removeLastKey(keyBuilder);
             }
 
-            if (keyBuilder.length() > 0) {
+            if (!keyBuilder.isEmpty()) {
                 keyBuilder.append(".");
             }
 
@@ -289,13 +262,8 @@ public class ConfigUpdater {
     }
 
     private static String getPrefixSpaces(int indents) {
-        StringBuilder builder = new StringBuilder();
 
-        for(int i = 0; i < indents; ++i) {
-            builder.append("  ");
-        }
-
-        return builder.toString();
+        return "  ".repeat(Math.max(0, indents));
     }
 
     private static void appendPrefixSpaces(StringBuilder builder, int indents) {

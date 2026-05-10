@@ -1,20 +1,52 @@
 package me.armar.plugins.autorank.commands.manager;
 
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.commands.*;
+import me.armar.plugins.autorank.commands.AddCommand;
+import me.armar.plugins.autorank.commands.BackupCommand;
+import me.armar.plugins.autorank.commands.BroadcastCommand;
+import me.armar.plugins.autorank.commands.CheckCommand;
+import me.armar.plugins.autorank.commands.ChooseCommand;
+import me.armar.plugins.autorank.commands.CompleteCommand;
+import me.armar.plugins.autorank.commands.DeactivateCommand;
+import me.armar.plugins.autorank.commands.DebugCommand;
+import me.armar.plugins.autorank.commands.EditorCommand;
+import me.armar.plugins.autorank.commands.ForceCheckCommand;
+import me.armar.plugins.autorank.commands.GlobalAddCommand;
+import me.armar.plugins.autorank.commands.GlobalCheckCommand;
+import me.armar.plugins.autorank.commands.GlobalSetCommand;
+import me.armar.plugins.autorank.commands.HelpCommand;
+import me.armar.plugins.autorank.commands.HooksCommand;
+import me.armar.plugins.autorank.commands.ImportCommand;
+import me.armar.plugins.autorank.commands.InfoCommand;
+import me.armar.plugins.autorank.commands.LeaderboardCommand;
+import me.armar.plugins.autorank.commands.LoginCommand;
+import me.armar.plugins.autorank.commands.MigrateCommand;
+import me.armar.plugins.autorank.commands.ReloadCommand;
+import me.armar.plugins.autorank.commands.RemoveCommand;
+import me.armar.plugins.autorank.commands.ResetCommand;
+import me.armar.plugins.autorank.commands.SetCommand;
+import me.armar.plugins.autorank.commands.SyncCommand;
+import me.armar.plugins.autorank.commands.SyncStatsCommand;
+import me.armar.plugins.autorank.commands.TimesCommand;
+import me.armar.plugins.autorank.commands.TrackCommand;
+import me.armar.plugins.autorank.commands.ViewCommand;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.util.AutorankTools;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
-
-import java.util.*;
-import java.util.Map.Entry;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class CommandsManager implements TabExecutor {
     private final Autorank plugin;
@@ -23,35 +55,34 @@ public class CommandsManager implements TabExecutor {
     public CommandsManager(Autorank plugin) {
         this.plugin = plugin;
         this.registeredCommands.put(List.of("add"), new AddCommand(plugin));
-        this.registeredCommands.put(List.of("help"), new HelpCommand(plugin));
-        this.registeredCommands.put(List.of("set"), new SetCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("leaderboard", "leaderboards", "top"), new LeaderboardCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("remove", "rem"), new RemoveCommand(plugin));
+        this.registeredCommands.put(List.of("backup"), new BackupCommand(plugin));
+        this.registeredCommands.put(List.of("broadcast"), new BroadcastCommand());
+        this.registeredCommands.put(List.of("check"), new CheckCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("choose", "activate"), new ChooseCommand(plugin));
+        this.registeredCommands.put(List.of("complete"), new CompleteCommand(plugin));
+        this.registeredCommands.put(List.of("deactivate"), new DeactivateCommand(plugin));
         this.registeredCommands.put(List.of("debug"), new DebugCommand(plugin));
+        this.registeredCommands.put(List.of("editor"), new EditorCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("fcheck", "forcecheck"), new ForceCheckCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("gadd", "globaladd"), new GlobalAddCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("gcheck", "globalcheck"), new GlobalCheckCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("gset", "globalset"), new GlobalSetCommand(plugin));
+        this.registeredCommands.put(List.of("help"), new HelpCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("hooks", "hook"), new HooksCommand(plugin));
+        this.registeredCommands.put(List.of("import"), new ImportCommand(plugin));
+        this.registeredCommands.put(List.of("info"), new InfoCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("leaderboard", "leaderboards", "top"), new LeaderboardCommand(plugin));
+        this.registeredCommands.put(List.of("login"), new LoginCommand());
+        this.registeredCommands.put(List.of("migrate"), new MigrateCommand(plugin));
+        this.registeredCommands.put(List.of("reload"), new ReloadCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("remove", "rem"), new RemoveCommand(plugin));
+        this.registeredCommands.put(List.of("reset"), new ResetCommand(plugin));
+        this.registeredCommands.put(List.of("set"), new SetCommand(plugin));
         this.registeredCommands.put(List.of("sync"), new SyncCommand(plugin));
         this.registeredCommands.put(List.of("syncstats"), new SyncStatsCommand(plugin));
-        this.registeredCommands.put(List.of("reload"), new ReloadCommand(plugin));
-        this.registeredCommands.put(List.of("import"), new ImportCommand(plugin));
-        this.registeredCommands.put(List.of("complete"), new CompleteCommand(plugin));
-        this.registeredCommands.put(List.of("check"), new CheckCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("archive", "arch"), new ArchiveCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("gcheck", "globalcheck"), new GlobalCheckCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("fcheck", "forcecheck"), new ForceCheckCommand(plugin));
-        this.registeredCommands.put(List.of("convert"), new ConvertCommand(plugin));
-        this.registeredCommands.put(List.of("track"), new TrackCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("gset", "globalset"), new GlobalSetCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("hooks", "hook"), new HooksCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("gadd", "globaladd"), new GlobalAddCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("view", "preview"), new ViewCommand(plugin));
-        this.registeredCommands.put(Arrays.asList("choose", "activate"), new ChooseCommand(plugin));
-        this.registeredCommands.put(List.of("deactivate"), new DeactivateCommand(plugin));
         this.registeredCommands.put(Arrays.asList("times", "time"), new TimesCommand(plugin));
-        this.registeredCommands.put(List.of("reset"), new ResetCommand(plugin));
-        this.registeredCommands.put(List.of("backup"), new BackupCommand(plugin));
-        this.registeredCommands.put(List.of("info"), new InfoCommand(plugin));
-        this.registeredCommands.put(List.of("editor"), new EditorCommand(plugin));
-        this.registeredCommands.put(List.of("migrate"), new MigrateCommand(plugin));
-        this.registeredCommands.put(List.of("broadcast"), new BroadcastCommand(plugin));
+        this.registeredCommands.put(List.of("track"), new TrackCommand(plugin));
+        this.registeredCommands.put(Arrays.asList("view", "preview"), new ViewCommand(plugin));
     }
 
     public Map<List<String>, AutorankCommand> getRegisteredCommands() {
@@ -59,44 +90,36 @@ public class CommandsManager implements TabExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        var mm = MiniMessage.miniMessage();
-        if (sender.hasPermission("autorank.noabout")) {
-            return true;
-        }
+        MiniMessage mm = MiniMessage.miniMessage();
         if (args.length == 0) {
-            Component about = mm.deserialize(Lang.ABOUT_LINE.getConfigValue())
-                    .append(mm.deserialize( "<NEWLINE>" + Lang.DEVELOPED.getConfigValue(this.plugin.getDescription().getAuthors())))
-                    .append(mm.deserialize("<NEWLINE>" + Lang.VERSION.getConfigValue(this.plugin.getDescription().getVersion())))
-                    .append(mm.deserialize("<NEWLINE>" + Lang.LIST_OF_COMMANDS.getConfigValue()));
-            plugin.adventure().player((Player) sender).sendMessage(about);
-            return true;
+            Component var10000 = mm.deserialize(Lang.ABOUT_LINE.getConfigValue());
+            Lang var10002 = Lang.DEVELOPED;
+            Object[] var10003 = new Object[]{this.plugin.getDescription().getAuthors()};
+            var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var10002.getConfigValue(var10003)));
+            var10002 = Lang.VERSION;
+            var10003 = new Object[]{this.plugin.getDescription().getVersion()};
+            var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var10002.getConfigValue(var10003)));
+            var10002 = Lang.LIST_OF_COMMANDS;
+            Component about = var10000.append(mm.deserialize("<NEWLINE>" + var10002.getConfigValue()));
+            this.plugin.adventure().player((Player)sender).sendMessage(about);
         } else {
             String action = args[0];
             List<String> suggestions = new ArrayList();
             List<String> bestSuggestions = new ArrayList();
-            Iterator var8 = this.registeredCommands.entrySet().iterator();
 
-            while (var8.hasNext()) {
-                Entry<List<String>, AutorankCommand> entry = (Entry) var8.next();
+            for(Map.Entry<List<String>, AutorankCommand> entry : this.registeredCommands.entrySet()) {
                 String suggestion = AutorankTools.findClosestSuggestion(action, entry.getKey());
-                if (suggestion != null) {
-                    suggestions.add(suggestion);
-                }
+                suggestions.add(suggestion);
 
-                Iterator var11 = ((List) entry.getKey()).iterator();
-
-                while (var11.hasNext()) {
-                    String actionString = (String) var11.next();
+                for(Object o : entry.getKey()) {
+                    String actionString = (String)o;
                     if (actionString.equalsIgnoreCase(action)) {
                         return entry.getValue().onCommand(sender, cmd, label, args);
                     }
                 }
             }
 
-            var8 = suggestions.iterator();
-
-            while (var8.hasNext()) {
-                String suggestion = (String) var8.next();
+            for(String suggestion : suggestions) {
                 String[] split = suggestion.split(";");
                 int editDistance = Integer.parseInt(split[1]);
                 if (editDistance <= 2) {
@@ -105,148 +128,72 @@ public class CommandsManager implements TabExecutor {
             }
 
             Component list_of_command = mm.deserialize(Lang.COMMAND_NOT_RECOGNISED.getConfigValue());
-            plugin.adventure().player((Player) sender).sendMessage(list_of_command);
+            this.plugin.adventure().player((Player)sender).sendMessage(list_of_command);
             if (!bestSuggestions.isEmpty()) {
-                Component did_you = mm.deserialize(Lang.DID_YOU.getConfigValue())
-                        .append(mm.deserialize(Lang.AR.getConfigValue())
-                                .append(mm.deserialize(AutorankTools.seperateList(bestSuggestions, Lang.OR.getConfigValue()))
-                                        .hoverEvent(HoverEvent.showText(mm.deserialize(Lang.THESE_ARE.getConfigValue())
-                                                .append(mm.deserialize(Lang.QUESTION_MARK.getConfigValue()))))));
-                if (sender instanceof Player p) {
-                    plugin.adventure().player(p).sendMessage(did_you);
-                } else {
-                    Component did_you2 = mm.deserialize(Lang.DID_YOU.getConfigValue())
-                            .append(mm.deserialize(Lang.AR.getConfigValue())
-                                    .append(mm.deserialize(AutorankTools.seperateList(bestSuggestions, Lang.OR.getConfigValue())))
-                                    .append(mm.deserialize(Lang.QUESTION_MARK.getConfigValue())));
-                    plugin.adventure().player((Player) sender).sendMessage(did_you2);
-                }
+                Component did_you = mm.deserialize(Lang.DID_YOU.getConfigValue()).append(mm.deserialize(Lang.AR.getConfigValue()).append(mm.deserialize(Objects.requireNonNull(AutorankTools.seperateList(bestSuggestions, Lang.OR.getConfigValue()))).hoverEvent(HoverEvent.showText(mm.deserialize(Lang.THESE_ARE.getConfigValue()).append(mm.deserialize(Lang.QUESTION_MARK.getConfigValue()))))));
+                this.plugin.adventure().player((Player)sender).sendMessage(did_you);
             }
 
             Component list_of_command2 = mm.deserialize(Lang.LIST_OF_COMMANDS.getConfigValue());
-            plugin.adventure().player((Player) sender).sendMessage(list_of_command2);
-            return true;
+            this.plugin.adventure().player((Player)sender).sendMessage(list_of_command2);
         }
+
+        return true;
     }
 
     public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-        if (args.length == 1) {
+        if (args.length <= 1) {
             List<String> commands = new ArrayList();
-            if (sender.hasPermission("autorank.add")) {
-                commands.add("add");
-            }
-            if (sender.hasPermission("autorank.archive")) {
-                commands.add("arch");
-                commands.add("archive");
-            }
-            if (sender.hasPermission("autorank.backup.storage")) {
-                commands.add("backup");
-            }
-            if (sender.hasPermission("autorank.admin")) {
-                commands.add("broadcast");
-            }
-            if (sender.hasPermission("autorank.check")) {
-                commands.add("check");
-            }
-            if (sender.hasPermission("autorank.choose")) {
-                commands.add("activate");
-                commands.add("choose");
-            }
-            if (sender.hasPermission("autorank.complete")) {
-                commands.add("complete");
-            }
-            if (sender.hasPermission("autorank.convert.storage")) {
-                commands.add("convert");
-            }
-            if (sender.hasPermission("autorank.deactivate")) {
-                commands.add("deactivate");
-            }
-            if (sender.hasPermission("autorank.debug")) {
-                commands.add("debug");
-            }
-            if (sender.hasPermission("autorank.editor")) {
-                commands.add("editor");
-            }
-            if (sender.hasPermission("autorank.forcecheck")) {
-                commands.add("fcheck");
-                commands.add("forcecheck");
-            }
-            if (sender.hasPermission("autorank.gadd")) {
-                commands.add("gadd");
-                commands.add("globaladd");
-            }
-            if (sender.hasPermission("autorank.gcheck")) {
-                commands.add("gcheck");
-                commands.add("globalcheck");
-            }
-            if (sender.hasPermission("autorank.gset")) {
-                commands.add("gset");
-                commands.add("globalset");
-            }
-            if (sender.hasPermission("autorank.help")) {
-                commands.add("help");
-            }
-            if (sender.hasPermission("autorank.hooks")) {
-                commands.add("hook");
-                commands.add("hooks");
-            }
-            if (sender.hasPermission("autorank.import")) {
-                commands.add("import");
-            }
-            if (sender.hasPermission("autorank.info.*")) {
-                commands.add("info");
-            }
-            if (sender.hasPermission("autorank.leaderboard")) {
-                commands.add("leaderboard");
-                commands.add("leaderboards");
-            }
-            if (sender.hasPermission("autorank.migrate")) {
-                commands.add("migrate");
-            }
-            if (sender.hasPermission("autorank.reload")) {
-                commands.add("reload");
-            }
-            if (sender.hasPermission("autorank.remove")) {
-                commands.add("rem");
-                commands.add("remove");
-            }
-            if (sender.hasPermission("autorank.reset")) {
-                commands.add("reset");
-            }
-            if (sender.hasPermission("autorank.set")) {
-                commands.add("set");
-            }
-            if (sender.hasPermission("autorank.sync")) {
-                commands.add("sync");
-                commands.add("syncstats");
-            }
-            if (sender.hasPermission("autorank.time")) {
-                commands.add("time");
-                commands.add("times");
-            }
-            if (sender.hasPermission("autorank.top")) {
-                commands.add("top");
-            }
-            if (sender.hasPermission("autorank.track")) {
-                commands.add("track");
-            }
-            if (sender.hasPermission("autorank.view")) {
-                commands.add("view");
+
+            for(Map.Entry entry : this.registeredCommands.entrySet()) {
+                List list = (List)entry.getKey();
+                commands.addAll(list);
             }
 
-            //create new array
-            List<String> completions = new ArrayList<>();
-            if (!(args[0] == "")) {
-                //copy matches of first argument from list (ex: if first arg is 'm' will return just string that starts with m)
-                StringUtil.copyPartialMatches(args[0], commands, completions);
+            return this.findSuggestedCommands(commands, args[0]);
+        } else {
+            String subCommand = args[0].trim();
+            if (!subCommand.equalsIgnoreCase("set") && !subCommand.equalsIgnoreCase("add") && !subCommand.equalsIgnoreCase("remove") && !subCommand.equalsIgnoreCase("rem") && !subCommand.equalsIgnoreCase("gadd") && !subCommand.equalsIgnoreCase("gset")) {
+                for(Map.Entry entry : this.registeredCommands.entrySet()) {
+                    for(Object o : (List)entry.getKey()) {
+                        String alias = (String)o;
+                        if (subCommand.trim().equalsIgnoreCase(alias)) {
+                            return ((AutorankCommand)entry.getValue()).onTabComplete(sender, cmd, commandLabel, args);
+                        }
+                    }
+                }
+
+                return null;
+            } else if (args.length > 2) {
+                String arg = args[2];
+
+                int count;
+                try {
+                    count = Integer.parseInt(arg);
+                } catch (NumberFormatException var11) {
+                    count = 0;
+                }
+
+                return Lists.newArrayList("" + (count + 5));
             } else {
-                //if arg is null return whole list
-                completions = commands;
+                return null;
             }
-            //sort the list
-            Collections.sort(completions);
-            return completions;
         }
-        return null;
+    }
+
+    private List<String> findSuggestedCommands(List<String> list, String string) {
+        if (string.isEmpty()) {
+            return list;
+        } else {
+            List<String> returnList = new ArrayList();
+
+            for(String item : list) {
+                if (item.toLowerCase().startsWith(string.toLowerCase())) {
+                    returnList.add(item);
+                }
+            }
+
+            return returnList;
+        }
     }
 }

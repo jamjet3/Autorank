@@ -1,22 +1,30 @@
 package me.armar.plugins.autorank.leaderboard;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.storage.PlayTimeStorageProvider;
 import me.armar.plugins.autorank.storage.TimeType;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider.StorageType;
 import me.armar.plugins.autorank.util.AutorankTools;
 import me.armar.plugins.autorank.util.uuid.UUIDManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 public class LeaderboardHandler {
-    private static final double LEADERBOARD_TIME_VALID = 30.0D;
+    private static final double LEADERBOARD_TIME_VALID = 30.0F;
     private final Autorank plugin;
     private String layout = "<GOLD>&r | <AQUA>&p - <GRAY>&d %day%, &h %hour% and &m %minute%.";
     private int leaderboardLength = 10;
@@ -28,17 +36,15 @@ public class LeaderboardHandler {
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-        List<Entry<K, V>> list = new LinkedList(map.entrySet());
-        Collections.sort(list, new Comparator<Entry<K, V>>() {
-            public int compare(Entry<K, V> o1, Entry<K, V> o2) {
+        List<Map.Entry<K, V>> list = new LinkedList(map.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
                 return o2.getValue().compareTo(o1.getValue());
             }
         });
         Map<K, V> result = new LinkedHashMap();
-        Iterator var3 = list.iterator();
 
-        while(var3.hasNext()) {
-            Entry<K, V> entry = (Entry)var3.next();
+        for(Map.Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
 
@@ -51,20 +57,15 @@ public class LeaderboardHandler {
                 public void run() {
                     LeaderboardHandler.this.plugin.debugMessage("Updating leaderboard because it's outdated");
                     LeaderboardHandler.this.updateLeaderboard(type);
-                    Iterator var1 = LeaderboardHandler.this.plugin.getInternalPropertiesConfig().getCachedLeaderboard(type).iterator();
 
-                    while(var1.hasNext()) {
-                        String msg = (String)var1.next();
+                    for(String msg : LeaderboardHandler.this.plugin.getInternalPropertiesConfig().getCachedLeaderboard(type)) {
                         LeaderboardHandler.this.plugin.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&', msg));
                     }
 
                 }
             });
         } else {
-            Iterator var2 = this.plugin.getInternalPropertiesConfig().getCachedLeaderboard(type).iterator();
-
-            while(var2.hasNext()) {
-                String msg = (String)var2.next();
+            for(String msg : this.plugin.getInternalPropertiesConfig().getCachedLeaderboard(type)) {
                 this.plugin.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&', msg));
             }
         }
@@ -82,31 +83,33 @@ public class LeaderboardHandler {
             UUID uuid = uuids.get(i);
             if (uuid != null && !this.plugin.getPlayerChecker().isExemptedFromLeaderboard(uuid)) {
                 DecimalFormat df = new DecimalFormat("#.#");
-                double percentage = (double) i / (double)size * 100.0D;
+                double percentage = (double)i / (double)size * (double)100.0F;
                 int floored = (int)Math.floor(percentage);
                 if (lastSentPercentage != floored && floored % 10 == 0) {
                     lastSentPercentage = floored;
-                    this.plugin.debugMessage("Autorank leaderboard update is at " + df.format(percentage) + "%.");
+                    Autorank var10000 = this.plugin;
+                    String var10001 = df.format(percentage);
+                    var10000.debugMessage("Autorank leaderboard update is at " + var10001 + "%.");
                 }
 
                 if (type == TimeType.TOTAL_TIME) {
-                    if (this.plugin.getSettingsConfig().useGlobalTimeInLeaderboard() && this.plugin.getPlayTimeStorageManager().isStorageTypeActive(PlayTimeStorageProvider.StorageType.DATABASE)) {
+                    if (this.plugin.getSettingsConfig().useGlobalTimeInLeaderboard() && this.plugin.getPlayTimeStorageManager().isStorageTypeActive(StorageType.DATABASE)) {
                         try {
                             times.put(uuid, this.plugin.getPlayTimeManager().getGlobalPlayTime(type, uuid).get());
-                        } catch (ExecutionException | InterruptedException var14) {
+                        } catch (InterruptedException | ExecutionException var14) {
                             var14.printStackTrace();
                         }
                     } else {
                         try {
                             times.put(uuid, primaryStorageProvider.getPlayerTime(type, uuid).get());
-                        } catch (ExecutionException | InterruptedException var16) {
+                        } catch (InterruptedException | ExecutionException var16) {
                             var16.printStackTrace();
                         }
                     }
                 } else {
                     try {
                         times.put(uuid, primaryStorageProvider.getPlayerTime(type, uuid).get());
-                    } catch (ExecutionException | InterruptedException var15) {
+                    } catch (InterruptedException | ExecutionException var15) {
                         var15.printStackTrace();
                     }
                 }
@@ -130,37 +133,39 @@ public class LeaderboardHandler {
 
                 try {
                     uuid = UUIDManager.getUUID(playerName).get();
-                } catch (ExecutionException | InterruptedException var16) {
+                } catch (InterruptedException | ExecutionException var16) {
                     var16.printStackTrace();
                 }
 
                 if (uuid != null && !this.plugin.getPlayerChecker().isExemptedFromLeaderboard(uuid)) {
                     DecimalFormat df = new DecimalFormat("#.#");
-                    double percentage = (double) i / (double)size * 100.0D;
+                    double percentage = (double)i / (double)size * (double)100.0F;
                     int floored = (int)Math.floor(percentage);
                     if (lastSentPercentage != floored) {
                         lastSentPercentage = floored;
-                        this.plugin.debugMessage("Autorank leaderboard update is at " + df.format(percentage) + "%.");
+                        Autorank var10000 = this.plugin;
+                        String var10001 = df.format(percentage);
+                        var10000.debugMessage("Autorank leaderboard update is at " + var10001 + "%.");
                     }
 
                     if (type == TimeType.TOTAL_TIME) {
-                        if (this.plugin.getSettingsConfig().useGlobalTimeInLeaderboard() && this.plugin.getPlayTimeStorageManager().isStorageTypeActive(PlayTimeStorageProvider.StorageType.DATABASE)) {
+                        if (this.plugin.getSettingsConfig().useGlobalTimeInLeaderboard() && this.plugin.getPlayTimeStorageManager().isStorageTypeActive(StorageType.DATABASE)) {
                             try {
                                 times.put(playerName, this.plugin.getPlayTimeManager().getGlobalPlayTime(type, uuid).get());
-                            } catch (ExecutionException | InterruptedException var15) {
+                            } catch (InterruptedException | ExecutionException var15) {
                                 var15.printStackTrace();
                             }
                         } else {
                             try {
                                 times.put(playerName, primaryStorageProvider.getPlayerTime(type, uuid).get());
-                            } catch (ExecutionException | InterruptedException var18) {
+                            } catch (InterruptedException | ExecutionException var18) {
                                 var18.printStackTrace();
                             }
                         }
                     } else {
                         try {
                             times.put(playerName, primaryStorageProvider.getPlayerTime(type, uuid).get());
-                        } catch (ExecutionException | InterruptedException var17) {
+                        } catch (InterruptedException | ExecutionException var17) {
                             var17.printStackTrace();
                         }
                     }
@@ -187,18 +192,14 @@ public class LeaderboardHandler {
     }
 
     public void sendMessages(CommandSender sender, TimeType type) {
-        Iterator var3 = this.plugin.getInternalPropertiesConfig().getCachedLeaderboard(type).iterator();
-
-        while(var3.hasNext()) {
-            String msg = (String)var3.next();
+        for(String msg : this.plugin.getInternalPropertiesConfig().getCachedLeaderboard(type)) {
             AutorankTools.sendColoredMessage(sender, msg);
-           // AutorankTools.sendDeserialize(sender, msg);
         }
 
     }
 
     private boolean shouldUpdateLeaderboard(TimeType type) {
-        if ((double)(System.currentTimeMillis() - this.plugin.getInternalPropertiesConfig().getLeaderboardLastUpdateTime(type)) > 1800000.0D) {
+        if ((double)(System.currentTimeMillis() - this.plugin.getInternalPropertiesConfig().getLeaderboardLastUpdateTime(type)) > (double)1800000.0F) {
             return true;
         } else {
             return this.plugin.getInternalPropertiesConfig().getCachedLeaderboard(type).size() <= 2;
@@ -209,11 +210,8 @@ public class LeaderboardHandler {
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable() {
             public void run() {
                 LeaderboardHandler.this.plugin.debugMessage("Updating all leaderboards forcefully");
-                TimeType[] var1 = TimeType.values();
-                int var2 = var1.length;
 
-                for(int var3 = 0; var3 < var2; ++var3) {
-                    TimeType type = var1[var3];
+                for(TimeType type : TimeType.values()) {
                     if (LeaderboardHandler.this.shouldUpdateLeaderboard(type)) {
                         LeaderboardHandler.this.updateLeaderboard(type);
                     }
@@ -224,7 +222,8 @@ public class LeaderboardHandler {
     }
 
     public void updateLeaderboard(TimeType type) {
-        this.plugin.debugMessage(ChatColor.BLUE + "Updating leaderboard '" + type.toString() + "'!");
+        ChatColor var10001 = ChatColor.BLUE;
+        this.plugin.debugMessage(var10001 + "Updating leaderboard '" + type.toString() + "'!");
         List<String> stringList = new ArrayList();
         if (type == TimeType.TOTAL_TIME) {
             stringList.add(Lang.LEADERBOARD_HEADER_ALL_TIME.getConfigValue());
@@ -240,15 +239,15 @@ public class LeaderboardHandler {
 
         try {
             finalLeaderboard = this.getSortedLeaderboard(type).get();
-        } catch (ExecutionException | InterruptedException var12) {
+        } catch (InterruptedException | ExecutionException var12) {
             var12.printStackTrace();
         }
 
         if (finalLeaderboard != null) {
-            Iterator<Entry<String, Integer>> iterator = finalLeaderboard.getLeaderboard().entrySet().iterator();
+            Iterator<Map.Entry<String, Integer>> iterator = finalLeaderboard.getLeaderboard().entrySet().iterator();
 
             for(int i = 0; i < this.leaderboardLength && iterator.hasNext(); ++i) {
-                Entry<String, Integer> entry = iterator.next();
+                Map.Entry<String, Integer> entry = iterator.next();
                 int time = entry.getValue();
                 String message = this.layout.replace("&p", entry.getKey());
                 int days = time / 1440;
@@ -288,23 +287,24 @@ public class LeaderboardHandler {
             this.plugin.getInternalPropertiesConfig().setCachedLeaderboard(type, stringList);
             this.plugin.getInternalPropertiesConfig().setLeaderboardLastUpdateTime(type, System.currentTimeMillis());
         }
+
     }
 
     private CompletableFuture<AutorankLeaderboard> getSortedLeaderboard(TimeType type) {
         return CompletableFuture.supplyAsync(() -> {
             AutorankLeaderboard finalLeaderboard = new AutorankLeaderboard(type);
             Map<UUID, Integer> sortedPlaytimes = this.getSortedTimesByUUID(type);
-            Iterator<Entry<UUID, Integer>> itr = sortedPlaytimes.entrySet().iterator();
+            Iterator<Map.Entry<UUID, Integer>> itr = sortedPlaytimes.entrySet().iterator();
             this.plugin.debugMessage("Size leaderboard: " + sortedPlaytimes.size());
 
             for(int i = 0; i < this.leaderboardLength && itr.hasNext(); ++i) {
-                Entry<UUID, Integer> entry = itr.next();
+                Map.Entry<UUID, Integer> entry = itr.next();
                 UUID uuid = entry.getKey();
                 String name = null;
 
                 try {
                     name = UUIDManager.getPlayerName(uuid).get();
-                } catch (ExecutionException | InterruptedException var10) {
+                } catch (InterruptedException | ExecutionException var10) {
                     var10.printStackTrace();
                 }
 

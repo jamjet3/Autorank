@@ -1,11 +1,10 @@
 package me.armar.plugins.autorank.statsmanager.handlers.vanilla;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.statsmanager.StatsPlugin;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-
-import java.util.UUID;
 
 public class VanillaHandler extends StatsPlugin {
     private final Autorank plugin;

@@ -22,20 +22,14 @@ class CachedPlayerData {
     }
 
     public boolean hasCachedEntry(String completedPath, String serverName) {
-        return this.getCachedEntriesByPath(completedPath).stream().anyMatch((e) -> {
-            return e.getServerName().equalsIgnoreCase(serverName);
-        });
+        return this.getCachedEntriesByPath(completedPath).stream().anyMatch((e) -> e.getServerName().equalsIgnoreCase(serverName));
     }
 
     public List<CachedPlayerDataEntry> getCachedEntriesByPath(String completedPath) {
-        return this.cachedEntries.stream().filter((entry) -> {
-            return entry.getCompletedPath().equalsIgnoreCase(completedPath);
-        }).collect(Collectors.toList());
+        return this.cachedEntries.stream().filter((entry) -> entry.getCompletedPath().equalsIgnoreCase(completedPath)).collect(Collectors.toList());
     }
 
     public List<CachedPlayerDataEntry> getCachedEntriesByServer(String serverName) {
-        return this.cachedEntries.stream().filter((entry) -> {
-            return entry.getServerName().equalsIgnoreCase(serverName);
-        }).collect(Collectors.toList());
+        return this.cachedEntries.stream().filter((entry) -> entry.getServerName().equalsIgnoreCase(serverName)).collect(Collectors.toList());
     }
 }

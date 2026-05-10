@@ -1,9 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
-
-import java.util.UUID;
 
 public class TotalVotesRequirement extends AbstractRequirement {
     int totalVotes = -1;
@@ -12,7 +11,7 @@ public class TotalVotesRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String lang = Lang.VOTE_REQUIREMENT.getConfigValue(this.totalVotes + "");
+        String lang = Lang.VOTE_REQUIREMENT.getConfigValue("" + this.totalVotes);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -49,6 +48,6 @@ public class TotalVotesRequirement extends AbstractRequirement {
 
     public double getProgressPercentage(UUID uuid) {
         int votes = this.getStatisticsManager().getTimesVoted(uuid);
-        return (double) votes / (double)this.totalVotes;
+        return (double)votes / (double)this.totalVotes;
     }
 }

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public enum Library {
     ADVANCEDACHIEVEMENTS("AdvancedAchievements", AdvancedAchievementsHook.class, "DarkPyves"),
-    AURELIUM_SKILLS("AureliumSkills", AureliumSkillsHook.class, "Archyx"),
+    AURA_SKILLS("AuraSkills", AuraSkillsHook.class, "Archyx"),
     AUTORANK("Autorank", AutorankHook.class, "Staartvin"),
     BENTOBOX("BentoBox", BentoBoxHook.class, "tastybento"),
     CMI("CMI", CMIHook.class, "Zrips"),
@@ -86,11 +86,8 @@ public enum Library {
         if (this.hook == null) {
             try {
                 this.hook = this.libraryClass.getDeclaredConstructor().newInstance();
-            } catch (NoClassDefFoundError | Exception var2) {
-                if (this.getHumanPluginName() == "AureliumSkills"){
-                    return Optional.empty();
-                }
-                Bukkit.getLogger().info("Could not grab hook of " + this.getHumanPluginName());
+            } catch (Exception | NoClassDefFoundError var2) {
+                Bukkit.getConsoleSender().sendMessage("Could not grab hook of " + this.getHumanPluginName());
                 var2.printStackTrace();
                 return Optional.empty();
             }
@@ -100,6 +97,7 @@ public enum Library {
     }
 
     public String getAuthor() {
+
         return this.authorName;
     }
 
@@ -108,18 +106,21 @@ public enum Library {
     }
 
     public String getMainClass() {
+
         return this.mainClass;
     }
 
     public boolean hasMainClass() {
+
         return this.mainClass != null;
     }
 
-    public void setMainClass(String mainClass) {
-        this.mainClass = mainClass;
-    }
+//    public void setMainClass(String mainClass) {
+//        this.mainClass = mainClass;
+//    }
 
-    public boolean isPluginInstalled() {
-        return Bukkit.getPluginManager().isPluginEnabled(MCRPG.getInternalPluginName());
-    }
+//    public boolean isPluginInstalled() {
+//        if (Bukkit.getPluginManager().isPluginEnabled(MCRPG.getInternalPluginName())) return true;
+//        else return false;
+//    }
 }

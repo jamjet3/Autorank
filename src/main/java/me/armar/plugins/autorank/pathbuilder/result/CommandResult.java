@@ -1,14 +1,12 @@
 package me.armar.plugins.autorank.pathbuilder.result;
 
+import java.util.ArrayList;
+import java.util.List;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.util.AutorankTools;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class CommandResult extends AbstractResult {
     private List<String> commands = null;
@@ -19,16 +17,13 @@ public class CommandResult extends AbstractResult {
 
     public boolean applyResult(Player player) {
         if (this.server != null) {
-            Iterator var2 = this.commands.iterator();
-
-            while(var2.hasNext()) {
-                String command = (String)var2.next();
+            for(String command : this.commands) {
                 String cmd = command.replace("&p", player.getName());
                 cmd = cmd.replace("@p", player.getName());
+                cmd = cmd.replace("&u", player.getUniqueId().toString());
+                cmd = cmd.replace("@u", player.getUniqueId().toString());
                 String finalCmd = cmd;
-                Bukkit.getScheduler().callSyncMethod(this.getAutorank(), () -> {
-                    return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCmd);
-                });
+                Bukkit.getScheduler().callSyncMethod(this.getAutorank(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCmd));
             }
         }
 
@@ -42,11 +37,8 @@ public class CommandResult extends AbstractResult {
     public boolean setOptions(String[] commands) {
         this.server = this.getAutorank().getServer();
         List<String> replace = new ArrayList();
-        String[] var3 = commands;
-        int var4 = commands.length;
 
-        for(int var5 = 0; var5 < var4; ++var5) {
-            String command = var3[var5];
+        for(String command : commands) {
             replace.add(command.trim());
         }
 

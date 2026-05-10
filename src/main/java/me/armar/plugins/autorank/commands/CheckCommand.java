@@ -93,7 +93,7 @@ public class CheckCommand extends AutorankCommand {
         Path targetPath = null;
         OfflinePlayer targetPlayer = null;
         if (args.length == 1) {
-            if (!(sender instanceof Player)) {
+            if (!(sender instanceof Player player)) {
                 AutorankTools.consoleDeserialize(Lang.YOU_SHOULD_SPECIFY.getConfigValue());
                 return true;
             } else if (!this.hasPermission("autorank.check", sender)) {
@@ -102,7 +102,6 @@ public class CheckCommand extends AutorankCommand {
                 AutorankTools.sendDeserialize(sender, Lang.PLAYER_IS_EXCLUDED.getConfigValue(sender.getName()));
                 return true;
             } else {
-                Player player = (Player)sender;
                 CompletableFuture<Void> task = this.plugin.getPlayTimeManager().getPlayTime(TimeType.TOTAL_TIME, player.getUniqueId()).thenAccept((playTime) -> {
                     TimeUnit time = TimeUnit.valueOf(plugin.getSettingsConfig().getTimeFormat());
                     String order = plugin.getSettingsConfig().getTimeOrder();

@@ -1,13 +1,12 @@
 package me.armar.plugins.autorank.config;
 
-import me.armar.plugins.autorank.Autorank;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
+import me.armar.plugins.autorank.Autorank;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class SimpleYamlConfiguration extends YamlConfiguration {
     File file;

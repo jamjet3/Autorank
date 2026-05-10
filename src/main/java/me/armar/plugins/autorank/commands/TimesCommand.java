@@ -1,5 +1,9 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -7,15 +11,11 @@ import me.armar.plugins.autorank.playtimes.PlayTimeManager;
 import me.armar.plugins.autorank.storage.TimeType;
 import me.armar.plugins.autorank.util.AutorankTools;
 import me.armar.plugins.autorank.util.uuid.UUIDManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class TimesCommand extends AutorankCommand {
     private final Autorank plugin;
@@ -25,83 +25,101 @@ public class TimesCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        var mm = MiniMessage.miniMessage();
-        String targetName = "";
+        Player player = ((Player)sender).getPlayer();
+        MiniMessage mm = MiniMessage.miniMessage();
         if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (args.length > 1) {
-            if (!this.hasPermission("autorank.times.others", sender)) {
-                return true;
-            }
-
-            targetName = args[1];
         } else {
-            if (!(sender instanceof Player)) {
-                AutorankTools.sendDeserialize(sender, Lang.CANNOT_CHECK_CONSOLE.getConfigValue());
-                return true;
-            }
+            String targetName;
+            if (args.length > 1) {
+                if (!Objects.requireNonNull(player).hasPermission("autorank.times.others")) {
+                    return true;
+                }
 
-            if (!this.hasPermission("autorank.times.self", sender)) {
-                return true;
-            }
-
-            targetName = sender.getName();
-        }
-
-        String finalTargetName = targetName;
-        CompletableFuture<Void> task = UUIDManager.getUUID(targetName).thenAccept((uuid) -> {
-            if (uuid == null) {
-                AutorankTools.sendDeserialize(sender, Lang.UNKNOWN_PLAYER.getConfigValue(finalTargetName));
+                targetName = args[1];
             } else {
-                String playerName = finalTargetName;
-
-                try {
-                    playerName = UUIDManager.getPlayerName(uuid).get();
-                } catch (ExecutionException | InterruptedException var12) {
-                    var12.printStackTrace();
+                if (!Objects.requireNonNull(player).hasPermission("autorank.times.self")) {
+                    return true;
                 }
 
-                PlayTimeManager playTimeManager = this.plugin.getPlayTimeManager();
-                int daily = 0;
-                int weekly = 0;
-                int monthly = 0;
-                int total = 0;
-
-                try {
-                    daily = playTimeManager.getPlayTime(TimeType.DAILY_TIME, uuid).get();
-                    weekly = playTimeManager.getPlayTime(TimeType.WEEKLY_TIME, uuid).get();
-                    monthly = playTimeManager.getPlayTime(TimeType.MONTHLY_TIME, uuid).get();
-                    total = playTimeManager.getPlayTime(TimeType.TOTAL_TIME, uuid).get();
-                } catch (ExecutionException | InterruptedException var11) {
-                    var11.printStackTrace();
-                }
-
-                TimeUnit time = TimeUnit.valueOf(plugin.getSettingsConfig().getTimeFormat());
-                String order = plugin.getSettingsConfig().getTimeOrder();
-                if (order.equals("START")) {
-                    Component times_command = mm.deserialize(Lang.AUTORANK_TIMES_HEADER.getConfigValue(playerName))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_PLAYER_PLAYED.getConfigValue(playerName))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_TODAY.getConfigValue(AutorankTools.timeToString(daily, time))))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_THIS_WEEK.getConfigValue(AutorankTools.timeToString(weekly, time))))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_THIS_MONTH.getConfigValue(AutorankTools.timeToString(monthly, time))))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_TOTAL.getConfigValue(AutorankTools.timeToString(total, time)))));
-                    plugin.adventure().player((Player) sender).sendMessage(times_command);
-                }
-                if (order.equals("START_WITH")) {
-                    Component times_command = mm.deserialize(Lang.AUTORANK_TIMES_HEADER.getConfigValue(playerName))
-                            .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_PLAYER_PLAYED.getConfigValue(playerName))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_TODAY.getConfigValue(AutorankTools.timeStartToString(daily, time))))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_THIS_WEEK.getConfigValue(AutorankTools.timeStartToString(weekly, time))))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_THIS_MONTH.getConfigValue(AutorankTools.timeStartToString(monthly, time))))
-                                    .append(mm.deserialize("<NEWLINE>" + Lang.AUTORANK_TIMES_TOTAL.getConfigValue(AutorankTools.timeStartToString(total, time)))));
-                    plugin.adventure().player((Player) sender).sendMessage(times_command);
-                }
+                targetName = sender.getName();
             }
-        });
-        this.runCommandTask(task);
-        return true;
+
+            CompletableFuture<Void> task = UUIDManager.getUUID(targetName).thenAccept((uuid) -> {
+                if (uuid == null) {
+                    AutorankTools.sendDeserialize(sender, Lang.UNKNOWN_PLAYER.getConfigValue(targetName));
+                } else {
+                    String playerName = targetName;
+
+                    try {
+                        playerName = UUIDManager.getPlayerName(uuid).get();
+                    } catch (InterruptedException | ExecutionException var12) {
+                        var12.printStackTrace();
+                    }
+
+                    PlayTimeManager playTimeManager = this.plugin.getPlayTimeManager();
+                    int daily = 0;
+                    int weekly = 0;
+                    int monthly = 0;
+                    int total = 0;
+
+                    try {
+                        daily = playTimeManager.getPlayTime(TimeType.DAILY_TIME, uuid).get();
+                        weekly = playTimeManager.getPlayTime(TimeType.WEEKLY_TIME, uuid).get();
+                        monthly = playTimeManager.getPlayTime(TimeType.MONTHLY_TIME, uuid).get();
+                        total = playTimeManager.getPlayTime(TimeType.TOTAL_TIME, uuid).get();
+                    } catch (InterruptedException | ExecutionException var11) {
+                        var11.printStackTrace();
+                    }
+
+                    TimeUnit time = TimeUnit.valueOf(this.plugin.getSettingsConfig().getTimeFormat());
+                    String order = this.plugin.getSettingsConfig().getTimeOrder();
+                    if (order.equals("START")) {
+                        Component var10000 = mm.deserialize(Lang.AUTORANK_TIMES_HEADER.getConfigValue(playerName));
+                        Lang var10002 = Lang.AUTORANK_TIMES_PLAYER_PLAYED;
+                        Object[] var10003 = new Object[]{playerName};
+                        Component var10001 = mm.deserialize("<NEWLINE>" + var10002.getConfigValue(var10003));
+                        Lang var26 = Lang.AUTORANK_TIMES_TODAY;
+                        Object[] var10004 = new Object[]{AutorankTools.timeToString(daily, time)};
+                        var10001 = var10001.append(mm.deserialize("<NEWLINE>" + var26.getConfigValue(var10004)));
+                        var26 = Lang.AUTORANK_TIMES_THIS_WEEK;
+                        var10004 = new Object[]{AutorankTools.timeToString(weekly, time)};
+                        var10001 = var10001.append(mm.deserialize("<NEWLINE>" + var26.getConfigValue(var10004)));
+                        var26 = Lang.AUTORANK_TIMES_THIS_MONTH;
+                        var10004 = new Object[]{AutorankTools.timeToString(monthly, time)};
+                        var10001 = var10001.append(mm.deserialize("<NEWLINE>" + var26.getConfigValue(var10004)));
+                        var26 = Lang.AUTORANK_TIMES_TOTAL;
+                        var10004 = new Object[]{AutorankTools.timeToString(total, time)};
+                        Component times_command = var10000.append(var10001.append(mm.deserialize("<NEWLINE>" + var26.getConfigValue(var10004))));
+                        this.plugin.adventure().player((Player)sender).sendMessage(times_command);
+                    }
+
+                    if (order.equals("START_WITH")) {
+                        Component var17 = mm.deserialize(Lang.AUTORANK_TIMES_HEADER.getConfigValue(playerName));
+                        Lang var25 = Lang.AUTORANK_TIMES_PLAYER_PLAYED;
+                        Object[] var30 = new Object[]{playerName};
+                        Component var21 = mm.deserialize("<NEWLINE>" + var25.getConfigValue(var30));
+                        Lang var31 = Lang.AUTORANK_TIMES_TODAY;
+                        Object[] var38 = new Object[]{AutorankTools.timeStartToString(daily, time)};
+                        var21 = var21.append(mm.deserialize("<NEWLINE>" + var31.getConfigValue(var38)));
+                        var31 = Lang.AUTORANK_TIMES_THIS_WEEK;
+                        var38 = new Object[]{AutorankTools.timeStartToString(weekly, time)};
+                        var21 = var21.append(mm.deserialize("<NEWLINE>" + var31.getConfigValue(var38)));
+                        var31 = Lang.AUTORANK_TIMES_THIS_MONTH;
+                        var38 = new Object[]{AutorankTools.timeStartToString(monthly, time)};
+                        var21 = var21.append(mm.deserialize("<NEWLINE>" + var31.getConfigValue(var38)));
+                        var31 = Lang.AUTORANK_TIMES_TOTAL;
+                        var38 = new Object[]{AutorankTools.timeStartToString(total, time)};
+                        Component times_command = var17.append(var21.append(mm.deserialize("<NEWLINE>" + var31.getConfigValue(var38))));
+                        this.plugin.adventure().player((Player)sender).sendMessage(times_command);
+                    }
+                }
+
+            });
+            this.runCommandTask(task);
+            return true;
+        }
     }
 
     public String getDescription() {

@@ -1,10 +1,13 @@
 package me.armar.plugins.autorank.config;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import me.armar.plugins.autorank.Autorank;
 import org.bukkit.configuration.ConfigurationSection;
-
-import java.util.*;
 
 public class PathsConfig extends AbstractConfig {
     public PathsConfig(Autorank instance) {
@@ -33,7 +36,7 @@ public class PathsConfig extends AbstractConfig {
     }
 
     public List<String> getPaths() {
-        return new ArrayList(this.getConfig().getKeys(false));
+        return new ArrayList<>(this.getConfig().getKeys(false));
     }
 
     public int getRequirementId(String pathName, String reqName, boolean isPreRequisite) {
@@ -56,13 +59,10 @@ public class PathsConfig extends AbstractConfig {
 
     public List<String[]> getRequirementOptions(String pathName, String reqName, boolean isPreRequisite) {
         String org = this.getRequirementValue(pathName, reqName, isPreRequisite);
-        List<String[]> list = new ArrayList();
+        List<String[]> list = new ArrayList<>();
         String[] split = org.split(",");
-        String[] var7 = split;
-        int var8 = split.length;
 
-        for(int var9 = 0; var9 < var8; ++var9) {
-            String sp = var7[var9];
+        for(String sp : split) {
             StringBuilder builder = new StringBuilder(sp);
             if (builder.charAt(0) == '(') {
                 builder.deleteCharAt(0);
@@ -91,8 +91,7 @@ public class PathsConfig extends AbstractConfig {
     }
 
     public String getResultOfPath(String pathName, String resultName) {
-        String result = this.getConfig().get(pathName + ".results." + resultName + ".value") != null ? this.getConfig().get(pathName + ".results." + resultName + ".value").toString() : this.getConfig().getString(pathName + ".results." + resultName);
-        return result;
+        return this.getConfig().get(pathName + ".results." + resultName + ".value") != null ? this.getConfig().get(pathName + ".results." + resultName + ".value").toString() : this.getConfig().getString(pathName + ".results." + resultName);
     }
 
     public String getResultOfRequirement(String pathName, String reqName, String resName, boolean isPreRequisite) {
@@ -107,8 +106,8 @@ public class PathsConfig extends AbstractConfig {
 
     public List<String> getResultsOfRequirement(String pathName, String reqName, boolean isPreRequisite) {
         String keyType = isPreRequisite ? "prerequisites" : "requirements";
-        Set<String> results = this.getConfig().getConfigurationSection(pathName + "." + keyType + "." + reqName + ".results") != null ? this.getConfig().getConfigurationSection(pathName + "." + keyType + "." + reqName + ".results").getKeys(false) : new HashSet();
-        return Lists.newArrayList((Iterable)results);
+        Set<String> results = (Set<String>)(this.getConfig().getConfigurationSection(pathName + "." + keyType + "." + reqName + ".results") != null ? this.getConfig().getConfigurationSection(pathName + "." + keyType + "." + reqName + ".results").getKeys(false) : new HashSet());
+        return Lists.newArrayList(results);
     }
 
     public String getWorldOfRequirement(String pathName, String reqName, boolean isPreRequisite) {
@@ -131,13 +130,12 @@ public class PathsConfig extends AbstractConfig {
     }
 
     public ArrayList<String> getResultsUponChoosing(String pathName) {
-        Set<String> results = this.getConfig().getConfigurationSection(pathName + ".upon choosing") != null ? this.getConfig().getConfigurationSection(pathName + ".upon choosing").getKeys(false) : new HashSet();
-        return Lists.newArrayList((Iterable)results);
+        Set<String> results = (Set<String>)(this.getConfig().getConfigurationSection(pathName + ".upon choosing") != null ? this.getConfig().getConfigurationSection(pathName + ".upon choosing").getKeys(false) : new HashSet());
+        return Lists.newArrayList(results);
     }
 
     public String getResultValueUponChoosing(String pathName, String resName) {
-        String result = this.getConfig().get(pathName + ".upon choosing." + resName + ".value") != null ? this.getConfig().get(pathName + ".upon choosing." + resName + ".value").toString() : this.getConfig().getString(pathName + ".upon choosing." + resName);
-        return result;
+        return this.getConfig().get(pathName + ".upon choosing." + resName + ".value") != null ? this.getConfig().get(pathName + ".upon choosing." + resName + ".value").toString() : this.getConfig().getString(pathName + ".upon choosing." + resName);
     }
 
     public boolean shouldAutoAssignPath(String pathName) {

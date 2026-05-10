@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import static org.bukkit.Bukkit.getLogger;
+import org.bukkit.Bukkit;
 
 public class GrabPlayerTimeTask implements Callable<Integer> {
     private final SQLConnection mysql;
@@ -23,7 +23,8 @@ public class GrabPlayerTimeTask implements Callable<Integer> {
             return -1;
         } else {
             int time = -1;
-            String statement = "SELECT * FROM " + this.table + " WHERE uuid='" + this.uuid.toString() + "'";
+            String var10000 = this.table;
+            String statement = "SELECT * FROM " + var10000 + " WHERE uuid='" + this.uuid.toString() + "'";
             Optional<ResultSet> rs = this.mysql.executeQuery(statement);
             if (!rs.isPresent()) {
                 return time;
@@ -36,9 +37,9 @@ public class GrabPlayerTimeTask implements Callable<Integer> {
                     time = rs.get().getInt(2);
                     rs.get().close();
                 } catch (SQLException var5) {
-                    getLogger().info("SQLException: " + var5.getMessage());
-                    getLogger().info("SQLState: " + var5.getSQLState());
-                    getLogger().info("VendorError: " + var5.getErrorCode());
+                    Bukkit.getLogger().info("SQLException: " + var5.getMessage());
+                    Bukkit.getLogger().info("SQLState: " + var5.getSQLState());
+                    Bukkit.getLogger().info("VendorError: " + var5.getErrorCode());
                 }
 
                 return time;

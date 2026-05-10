@@ -1,13 +1,5 @@
 package me.armar.plugins.autorank.storage.mysql;
 
-import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.config.SettingsConfig;
-import me.armar.plugins.autorank.config.SettingsConfig.MySQLSettings;
-import me.armar.plugins.autorank.storage.PlayTimeStorageProvider;
-import me.armar.plugins.autorank.storage.TimeType;
-import org.bukkit.ChatColor;
-import static org.bukkit.Bukkit.getLogger;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -15,9 +7,28 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import me.armar.plugins.autorank.Autorank;
+import me.armar.plugins.autorank.config.SettingsConfig;
+import me.armar.plugins.autorank.config.SettingsConfig.MySQLSettings;
+import me.armar.plugins.autorank.logger.LoggerManager;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider;
+import me.armar.plugins.autorank.storage.TimeType;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider.StorageType;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 public class MySQLStorageProvider extends PlayTimeStorageProvider {
     public static int CACHE_EXPIRY_TIME = 2;
@@ -31,23 +42,15 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
         super(instance);
         CACHE_EXPIRY_TIME = this.plugin.getSettingsConfig().getIntervalTime();
         instance.getServer().getScheduler().runTaskTimerAsynchronously(instance, () -> {
-            Set<UUID> cachedUUIDs = this.cacheManager.getCachedUUIDs();
-            Iterator var2 = cachedUUIDs.iterator();
-
-            while(var2.hasNext()) {
-                UUID cachedUUID = (UUID)var2.next();
-                TimeType[] var4 = TimeType.values();
-                int var5 = var4.length;
-
-                for(int var6 = 0; var6 < var5; ++var6) {
-                    TimeType timeType = var4[var6];
+            for(UUID cachedUUID : this.cacheManager.getCachedUUIDs()) {
+                for(TimeType timeType : TimeType.values()) {
                     if (this.cacheManager.shouldUpdateCachedEntry(timeType, cachedUUID)) {
                         this.plugin.debugMessage("Refreshing cached global time of " + cachedUUID);
                         int playTime = 0;
 
                         try {
                             playTime = this.getFreshPlayerTime(timeType, cachedUUID).get();
-                        } catch (ExecutionException | InterruptedException var10) {
+                        } catch (InterruptedException | ExecutionException var10) {
                             var10.printStackTrace();
                         }
 
@@ -56,10 +59,10 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
                 }
             }
 
-        }, 1200L, CACHE_EXPIRY_TIME * 1200L / 2);
+        }, 1200L, (long)CACHE_EXPIRY_TIME * 1200L / 2L);
     }
 
-    public StorageType getStorageType() {
+    public PlayTimeStorageProvider.StorageType getStorageType() {
         return StorageType.DATABASE;
     }
 
@@ -80,20 +83,23 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
 
     public CompletableFuture<Integer> getPlayerTime(TimeType timeType, UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            int freshPlayerTime;
             if (this.cacheManager.hasCachedTime(timeType, uuid)) {
-                this.plugin.debugMessage("Getting cached time (" + timeType + ") of '" + uuid.toString() + "'");
-                freshPlayerTime = this.cacheManager.getCachedTime(timeType, uuid);
+                this.plugin.debugMessage("Getting cached time (" + timeType + ") of '" + uuid + "'");
+                int freshPlayerTime = this.cacheManager.getCachedTime(timeType, uuid);
                 this.plugin.getLoggerManager().logMessage("Retrieved cached time (MySQL) " + timeType.name() + " of " + uuid + ": " + freshPlayerTime + " minutes");
                 return freshPlayerTime;
             } else {
                 try {
-                    freshPlayerTime = this.getFreshPlayerTime(timeType, uuid).get();
-                    this.plugin.getLoggerManager().logMessage("Retrieved fresh time (MySQL) " + timeType.name() + " of " + uuid.toString() + ": " + freshPlayerTime + " minutes");
+                    int freshPlayerTime = this.getFreshPlayerTime(timeType, uuid).get();
+                    LoggerManager var7 = this.plugin.getLoggerManager();
+                    String var8 = timeType.name();
+                    var7.logMessage("Retrieved fresh time (MySQL) " + var8 + " of " + uuid + ": " + freshPlayerTime + " minutes");
                     return freshPlayerTime;
-                } catch (ExecutionException | InterruptedException var4) {
+                } catch (InterruptedException | ExecutionException var4) {
                     var4.printStackTrace();
-                    this.plugin.getLoggerManager().logMessage("Couldn't retrieve data (MySQL) " + timeType.name() + " of " + uuid.toString());
+                    LoggerManager var10000 = this.plugin.getLoggerManager();
+                    String var10001 = timeType.name();
+                    var10000.logMessage("Couldn't retrieve data (MySQL) " + var10001 + " of " + uuid);
                     return 0;
                 }
             }
@@ -103,9 +109,7 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
     public void resetData(TimeType timeType) {
         String tableName = this.tableNames.get(timeType);
         String statement = "TRUNCATE TABLE " + tableName;
-        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            this.mysqlLibrary.execute(statement);
-        });
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> this.mysqlLibrary.execute(statement));
     }
 
     public void addPlayerTime(TimeType timeType, UUID uuid, int timeToAdd) {
@@ -134,7 +138,7 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
                 if (!(Boolean)this.loadMySQLVariables().get()) {
                     return false;
                 }
-            } catch (ExecutionException | InterruptedException var2) {
+            } catch (InterruptedException | ExecutionException var2) {
                 var2.printStackTrace();
                 return false;
             }
@@ -166,9 +170,9 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
                         return rs.get().getInt(1);
                     }
                 } catch (SQLException var6) {
-                    getLogger().info("SQLException: " + var6.getMessage());
-                    getLogger().info("SQLState: " + var6.getSQLState());
-                    getLogger().info("VendorError: " + var6.getErrorCode());
+                    Bukkit.getLogger().info("SQLException: " + var6.getMessage());
+                    Bukkit.getLogger().info("SQLState: " + var6.getSQLState());
+                    Bukkit.getLogger().info("VendorError: " + var6.getErrorCode());
                 }
 
                 return 0;
@@ -190,9 +194,9 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
                     uuids.add(UUID.fromString(uuidString));
                 }
             } catch (SQLException var7) {
-                getLogger().info("SQLException: " + var7.getMessage());
-                getLogger().info("SQLState: " + var7.getSQLState());
-                getLogger().info("VendorError: " + var7.getErrorCode());
+                Bukkit.getLogger().info("SQLException: " + var7.getMessage());
+                Bukkit.getLogger().info("SQLState: " + var7.getSQLState());
+                Bukkit.getLogger().info("VendorError: " + var7.getErrorCode());
             }
 
             return uuids;
@@ -216,10 +220,8 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
     public boolean backupData() {
         List<String> statements = new ArrayList();
         DateFormat df = new SimpleDateFormat("yyyy_MM_dd HH_mm_ss");
-        Iterator var3 = this.tableNames.entrySet().iterator();
 
-        while(var3.hasNext()) {
-            Entry<TimeType, String> entry = (Entry)var3.next();
+        for(Map.Entry<TimeType, String> entry : this.tableNames.entrySet()) {
             String tableName = entry.getValue();
             String backupTableName = tableName + "_backup_" + df.format(new Date());
             statements.add(String.format("CREATE TABLE `%1$s` LIKE `%2$s`;", backupTableName, tableName));
@@ -237,46 +239,23 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
         if (!optionalResultSet.isPresent()) {
             return 0;
         } else {
-            try {
-                ResultSet resultSet = optionalResultSet.get();
-                Throwable var6 = null;
+            try (ResultSet resultSet = optionalResultSet.get()) {
+                while(resultSet.next()) {
+                    String tableName = resultSet.getString(1);
+                    String fileDateString = tableName.replaceAll("[^\\d]", "");
+                    Date fileDate = null;
 
-                try {
-                    while(resultSet.next()) {
-                        String tableName = resultSet.getString(1);
-                        String fileDateString = tableName.replaceAll("[^\\d]", "");
-                        Date fileDate = null;
-
-                        try {
-                            fileDate = df.parse(fileDateString);
-                        } catch (ParseException var20) {
-                        }
-
-                        if (fileDate != null && fileDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(date)) {
-                            tablesToDelete.add(tableName);
-                        }
+                    try {
+                        fileDate = df.parse(fileDateString);
+                    } catch (ParseException var20) {
                     }
 
-                    tablesToDelete.forEach((tableNamex) -> {
-                        this.mysqlLibrary.execute("DROP TABLE `" + tableNamex + "`;");
-                    });
-                } catch (Throwable var21) {
-                    var6 = var21;
-                    throw var21;
-                } finally {
-                    if (resultSet != null) {
-                        if (var6 != null) {
-                            try {
-                                resultSet.close();
-                            } catch (Throwable var19) {
-                                var6.addSuppressed(var19);
-                            }
-                        } else {
-                            resultSet.close();
-                        }
+                    if (fileDate != null && fileDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(date)) {
+                        tablesToDelete.add(tableName);
                     }
-
                 }
+
+                tablesToDelete.forEach((tableNamex) -> this.mysqlLibrary.execute("DROP TABLE `" + tableNamex + "`;"));
             } catch (SQLException var23) {
                 var23.printStackTrace();
             }
@@ -323,14 +302,9 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
             this.mysqlLibrary.connect();
         }
 
-        Iterator var1 = this.tableNames.entrySet().iterator();
-
-        while(var1.hasNext()) {
-            Entry<TimeType, String> entry = (Entry)var1.next();
+        for(Map.Entry<TimeType, String> entry : this.tableNames.entrySet()) {
             String statement = "CREATE TABLE IF NOT EXISTS " + entry.getValue() + " (uuid VARCHAR(40) not NULL,  time INTEGER not NULL,  modified TIMESTAMP not NULL,  PRIMARY KEY ( uuid ))";
-            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                this.mysqlLibrary.execute(statement);
-            });
+            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> this.mysqlLibrary.execute(statement));
         }
 
     }
@@ -348,39 +322,20 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
             if (!optionalResultSet.isPresent()) {
                 return time;
             } else {
-                try {
-                    ResultSet rs = optionalResultSet.get();
-                    Throwable var8 = null;
-
-                    try {
-                        if (rs.next()) {
-                            time = rs.getInt(2);
-                            rs.close();
-                        }
-                    } catch (Throwable var18) {
-                        var8 = var18;
-                        throw var18;
-                    } finally {
-                        if (rs != null) {
-                            if (var8 != null) {
-                                try {
-                                    rs.close();
-                                } catch (Throwable var17) {
-                                    var8.addSuppressed(var17);
-                                }
-                            } else {
-                                rs.close();
-                            }
-                        }
-
+                try (ResultSet rs = optionalResultSet.get()) {
+                    if (rs.next()) {
+                        time = rs.getInt(2);
+                        rs.close();
                     }
                 } catch (SQLException var20) {
-                    getLogger().info("SQLException: " + var20.getMessage());
-                    getLogger().info("SQLState: " + var20.getSQLState());
-                    getLogger().info("VendorError: " + var20.getErrorCode());
+                    Bukkit.getLogger().info("SQLException: " + var20.getMessage());
+                    Bukkit.getLogger().info("SQLState: " + var20.getSQLState());
+                    Bukkit.getLogger().info("VendorError: " + var20.getErrorCode());
                 }
 
-                this.plugin.getLoggerManager().logMessage("Fetched fresh (MySQL) " + timeType.name() + " of " + uuid + ": " + time + " minutes");
+                LoggerManager var10000 = this.plugin.getLoggerManager();
+                String var10001 = timeType.name();
+                var10000.logMessage("Fetched fresh (MySQL) " + var10001 + " of " + uuid + ": " + time + " minutes");
                 this.cacheManager.registerCachedTime(timeType, uuid, time);
                 this.plugin.debugMessage("(" + (Thread.currentThread().getName().contains("Server thread") ? "not async" : "async") + ") Obtained fresh global time (" + timeType + ") of '" + uuid + "' with value " + time);
                 return time;
@@ -413,10 +368,9 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
                 MySQLStorageProvider.this.plugin.debugMessage("Looking for old data in MySQL database that might be useful.");
                 if (rs.isPresent()) {
                     try {
-                        String foundTableName;
                         while(rs.get().next()) {
                             ResultSet set = rs.get();
-                            foundTableName = null;
+                            String foundTableName = null;
 
                             try {
                                 foundTableName = set.getString(1);
@@ -496,18 +450,16 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
                             }
                         }
 
-                        Iterator var32 = adjustedTables.iterator();
-
-                        while(var32.hasNext()) {
-                            foundTableName = (String)var32.next();
+                        for(String foundTableName : adjustedTables) {
                             MySQLStorageProvider.this.plugin.debugMessage("Renaming table " + foundTableName + " to IMPORTED_" + foundTableName + " so it's not imported again.");
                             MySQLStorageProvider.this.plugin.getLoggerManager().logMessage("Renaming table " + foundTableName + " to IMPORTED_" + foundTableName + " so it's not imported again.");
                             MySQLStorageProvider.this.mysqlLibrary.execute("RENAME TABLE " + foundTableName + " TO IMPORTED_" + foundTableName);
                         }
+
                     } catch (SQLException var30) {
-                        getLogger().info("SQLException: " + var30.getMessage());
-                        getLogger().info("SQLState: " + var30.getSQLState());
-                        getLogger().info("VendorError: " + var30.getErrorCode());
+                        Bukkit.getLogger().info("SQLException: " + var30.getMessage());
+                        Bukkit.getLogger().info("SQLState: " + var30.getSQLState());
+                        Bukkit.getLogger().info("VendorError: " + var30.getErrorCode());
                     } finally {
                         try {
                             rs.get().close();
@@ -516,8 +468,8 @@ public class MySQLStorageProvider extends PlayTimeStorageProvider {
                         }
 
                     }
-
                 }
+
             }
         });
     }

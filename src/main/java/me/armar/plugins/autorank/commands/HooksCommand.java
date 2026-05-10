@@ -19,11 +19,10 @@ public class HooksCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission(this.getPermission(), sender)) {
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else if (!this.plugin.getDependencyManager().isPluginLibraryLoaded()) {
             AutorankTools.sendDeserialize(sender, Lang.DEPRECATED_COMMAND.getConfigValue());
@@ -31,10 +30,8 @@ public class HooksCommand extends AutorankCommand {
         } else {
             AutorankTools.sendDeserialize(sender, Lang.HOOKS.getConfigValue());
             Library[] var5 = Library.values();
-            int var6 = var5.length;
 
-            for(int var7 = 0; var7 < var6; ++var7) {
-                Library dep = var5[var7];
+            for(Library dep : var5) {
                 LibraryHook handler = this.plugin.getDependencyManager().getLibraryHook(dep).orElse(null);
                 if (handler != null && handler.isHooked() && !(handler instanceof AutorankHook)) {
                     AutorankTools.sendDeserialize(sender, Lang.HOOKED_PLUGINS.getConfigValue(dep.getHumanPluginName()));

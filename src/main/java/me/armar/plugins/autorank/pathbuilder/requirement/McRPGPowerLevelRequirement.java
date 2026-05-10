@@ -1,10 +1,10 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.McRPGHook;
-
-import java.util.UUID;
 
 public class McRPGPowerLevelRequirement extends AbstractRequirement {
     int powerLevel = -1;
@@ -18,7 +18,8 @@ public class McRPGPowerLevelRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.hook.getPowerLevel(uuid) + "/" + this.powerLevel;
+        int var10000 = this.hook.getPowerLevel(uuid);
+        return var10000 + "/" + this.powerLevel;
     }
 
     public boolean meetsRequirement(UUID uuid) {
@@ -48,6 +49,6 @@ public class McRPGPowerLevelRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.hook.getPowerLevel(uuid) / (double)this.powerLevel;
+        return (double)this.hook.getPowerLevel(uuid) / (double)this.powerLevel;
     }
 }

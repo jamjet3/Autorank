@@ -1,7 +1,6 @@
 package me.armar.plugins.autorank.pathbuilder.playerdata;
 
 import io.reactivex.annotations.NonNull;
-
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;

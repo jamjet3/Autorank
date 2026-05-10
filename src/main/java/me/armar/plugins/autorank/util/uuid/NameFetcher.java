@@ -1,19 +1,21 @@
 package me.armar.plugins.autorank.util.uuid;
 
 import com.google.common.collect.ImmutableList;
-import me.armar.plugins.autorank.Autorank;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
+import me.armar.plugins.autorank.Autorank;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class NameFetcher implements Callable<Map<UUID, String>> {
     private static final String PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/";
@@ -24,7 +26,7 @@ public class NameFetcher implements Callable<Map<UUID, String>> {
     public static String fromStream(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder out = new StringBuilder();
-        String newLine = System.getProperty("line.separator");
+        String newLine = System.lineSeparator();
 
         String line;
         while((line = reader.readLine()) != null) {
@@ -42,21 +44,18 @@ public class NameFetcher implements Callable<Map<UUID, String>> {
 
     public Map<UUID, String> call() throws Exception {
         Map<UUID, String> uuidStringMap = new HashMap();
-        Iterator var2 = this.uuids.iterator();
 
-        while(var2.hasNext()) {
-            UUID uuid = (UUID)var2.next();
-            HttpURLConnection connection = (HttpURLConnection)(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString().replace("-", ""))).openConnection();
-            JSONObject response = null;
+        for(UUID uuid : this.uuids) {
+            String var10002 = uuid.toString();
+            HttpURLConnection connection = (HttpURLConnection)(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + var10002.replace("-", ""))).openConnection();
             String name = null;
-            String fromStream = null;
 
             try {
-                response = (JSONObject)this.jsonParser.parse(new InputStreamReader(connection.getInputStream()));
+                JSONObject response = (JSONObject)this.jsonParser.parse(new InputStreamReader(connection.getInputStream()));
                 name = (String)response.get("name");
             } catch (ParseException var15) {
-                fromStream = fromStream(connection.getInputStream()).replaceAll(" ", "");
-                response = (JSONObject)this.jsonParser.parse(fromStream);
+                String fromStream = fromStream(connection.getInputStream()).replaceAll(" ", "");
+                JSONObject response = (JSONObject)this.jsonParser.parse(fromStream);
                 name = (String)response.get("name");
                 if (name == null) {
                     this.plugin.getLogger().warning("[Autorank] Could not parse uuid '" + uuid + "' to name!");
@@ -65,7 +64,7 @@ public class NameFetcher implements Callable<Map<UUID, String>> {
 
                 String error = (String)response.get("error");
                 String errorMessage = (String)response.get("errorMessage");
-                if (error != null && error.length() > 0) {
+                if (error != null && !error.isEmpty()) {
                     throw new IllegalStateException(errorMessage);
                 }
             } catch (IOException var16) {
@@ -76,7 +75,7 @@ public class NameFetcher implements Callable<Map<UUID, String>> {
 
                 var16.printStackTrace();
             } finally {
-                if (name == null || response == null) {
+                if (name == null) {
                     this.plugin.getLogger().warning("[Autorank] Could not find name of account with uuid: '" + uuid + "'");
                 }
 

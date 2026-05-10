@@ -1,10 +1,10 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
 import me.armar.plugins.utils.pluginlibrary.hooks.GriefPreventionHook;
-
-import java.util.UUID;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 
 public class GriefPreventionClaimedBlocksRequirement extends AbstractRequirement {
     int claimedBlocks = -1;
@@ -18,7 +18,8 @@ public class GriefPreventionClaimedBlocksRequirement extends AbstractRequirement
     }
 
     public String getProgressString(UUID uuid) {
-        return this.handler.getNumberOfClaimedBlocks(uuid) + "/" + this.claimedBlocks;
+        int var10000 = this.handler.getNumberOfClaimedBlocks(uuid);
+        return var10000 + "/" + this.claimedBlocks;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -53,6 +54,6 @@ public class GriefPreventionClaimedBlocksRequirement extends AbstractRequirement
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.handler.getNumberOfClaimedBlocks(uuid) / (double)this.claimedBlocks;
+        return (double)this.handler.getNumberOfClaimedBlocks(uuid) / (double)this.claimedBlocks;
     }
 }

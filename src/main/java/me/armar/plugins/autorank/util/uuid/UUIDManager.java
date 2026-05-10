@@ -1,16 +1,19 @@
 package me.armar.plugins.autorank.util.uuid;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import me.armar.plugins.autorank.Autorank;
 import org.bukkit.Bukkit;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 public class UUIDManager {
-    private static final boolean useCache = true;
     private static final Autorank plugin = (Autorank)Bukkit.getPluginManager().getPlugin("Autorank");
 
     public UUIDManager() {
@@ -18,22 +21,20 @@ public class UUIDManager {
 
     public static CompletableFuture<String> getPlayerName(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            if (uuid == null) {
-                return null;
-            } else {
+            if (uuid != null) {
                 try {
                     Map<UUID, String> names = getPlayerNames(Collections.singletonList(uuid)).get();
-                    Iterator var2 = names.entrySet().iterator();
+                    Iterator<Map.Entry<UUID, String>> var2 = names.entrySet().iterator();
                     if (var2.hasNext()) {
-                        Entry<UUID, String> entry = (Entry)var2.next();
+                        Map.Entry<UUID, String> entry = var2.next();
                         return entry.getValue();
                     }
-                } catch (ExecutionException | InterruptedException var4) {
+                } catch (InterruptedException | ExecutionException var4) {
                     var4.printStackTrace();
                 }
-
-                return null;
             }
+
+            return null;
         });
     }
 
@@ -41,16 +42,14 @@ public class UUIDManager {
         return CompletableFuture.supplyAsync(() -> {
             List<UUID> uuidsToSearch = new ArrayList(uuids);
             Map<UUID, String> cachedData = new HashMap();
-            Iterator var3 = uuids.iterator();
 
-            UUID uuid;
-            while(var3.hasNext()) {
-                uuid = (UUID)var3.next();
-                String playerName = null;
-
+            for(UUID uuid : uuids) {
+                String playerName;
                 try {
+                    assert plugin != null;
+
                     playerName = plugin.getUUIDStorage().getUsername(uuid).get();
-                } catch (ExecutionException | InterruptedException var8) {
+                } catch (InterruptedException | ExecutionException var8) {
                     continue;
                 }
 
@@ -62,7 +61,6 @@ public class UUIDManager {
 
             if (!uuids.isEmpty()) {
                 NameFetcher fetcher = new NameFetcher(uuidsToSearch, plugin);
-                uuid = null;
 
                 try {
                     Map<UUID, String> response = fetcher.call();
@@ -82,22 +80,20 @@ public class UUIDManager {
 
     public static CompletableFuture<UUID> getUUID(String playerName) {
         return CompletableFuture.supplyAsync(() -> {
-            if (playerName == null) {
-                return null;
-            } else {
+            if (playerName != null) {
                 try {
                     Map<String, UUID> uuids = getUUIDs(Collections.singletonList(playerName)).get();
-                    Iterator var2 = uuids.entrySet().iterator();
+                    Iterator<Map.Entry<String, UUID>> var2 = uuids.entrySet().iterator();
                     if (var2.hasNext()) {
-                        Entry<String, UUID> entry = (Entry)var2.next();
+                        Map.Entry<String, UUID> entry = var2.next();
                         return entry.getValue();
                     }
-                } catch (ExecutionException | InterruptedException var4) {
+                } catch (InterruptedException | ExecutionException var4) {
                     var4.printStackTrace();
                 }
-
-                return null;
             }
+
+            return null;
         });
     }
 
@@ -105,16 +101,14 @@ public class UUIDManager {
         return CompletableFuture.supplyAsync(() -> {
             List<String> playerNamesToSearch = new ArrayList(playerNames);
             Map<String, UUID> cachedData = new HashMap();
-            Iterator var3 = playerNames.iterator();
 
-            String playerName;
-            while(var3.hasNext()) {
-                playerName = (String)var3.next();
-                UUID storedUUID = null;
-
+            for(String playerName : playerNames) {
+                UUID storedUUID;
                 try {
+                    assert plugin != null;
+
                     storedUUID = plugin.getUUIDStorage().getUUID(playerName).get();
-                } catch (ExecutionException | InterruptedException var8) {
+                } catch (InterruptedException | ExecutionException var8) {
                     continue;
                 }
 
@@ -126,7 +120,6 @@ public class UUIDManager {
 
             if (!playerNamesToSearch.isEmpty()) {
                 UUIDFetcher fetcher = new UUIDFetcher(playerNamesToSearch);
-                playerName = null;
 
                 try {
                     Map<String, UUID> response = fetcher.call();

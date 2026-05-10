@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class BlocksMovedRequirement extends AbstractRequirement {
     BlocksMovedWrapper wrapper = null;
@@ -11,7 +10,7 @@ public class BlocksMovedRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String desc = Lang.BLOCKS_MOVED_REQUIREMENT.getConfigValue(this.wrapper.getBlocksMoved() + "", this.wrapper.getMovementType());
+        String desc = Lang.BLOCKS_MOVED_REQUIREMENT.getConfigValue("" + this.wrapper.getBlocksMoved(), this.wrapper.getMovementType());
         if (this.isWorldSpecific()) {
             desc = desc.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -50,6 +49,6 @@ public class BlocksMovedRequirement extends AbstractRequirement {
 
     public double getProgressPercentage(UUID uuid) {
         int progressBar = this.getStatisticsManager().getBlocksMoved(uuid, this.getWorld());
-        return (double) progressBar / (double)this.wrapper.getBlocksMoved();
+        return (double)progressBar / (double)this.wrapper.getBlocksMoved();
     }
 }

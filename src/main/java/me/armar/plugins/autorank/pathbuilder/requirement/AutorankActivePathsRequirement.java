@@ -1,9 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.pathbuilder.Path;
-
-import java.util.UUID;
 
 public class AutorankActivePathsRequirement extends AbstractRequirement {
     private int requiredPaths = -1;
@@ -27,13 +26,15 @@ public class AutorankActivePathsRequirement extends AbstractRequirement {
 
     public String getProgressString(UUID uuid) {
         if (this.requiredPaths > 0) {
-            return this.getAutorank().getPathManager().getActivePaths(uuid).size() + "/" + this.requiredPaths;
+            int var2 = this.getAutorank().getPathManager().getActivePaths(uuid).size();
+            return var2 + "/" + this.requiredPaths;
         } else {
             if (this.requiredPath == null) {
                 this.findMatchingPath();
             }
 
-            return "has " + this.requiredPath.getDisplayName() + " as active: " + this.requiredPath.isActive(uuid);
+            String var10000 = this.requiredPath.getDisplayName();
+            return "has " + var10000 + " as active: " + this.requiredPath.isActive(uuid);
         }
     }
 

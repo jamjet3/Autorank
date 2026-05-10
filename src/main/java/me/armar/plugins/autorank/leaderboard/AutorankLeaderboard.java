@@ -1,11 +1,11 @@
 package me.armar.plugins.autorank.leaderboard;
 
-import me.armar.plugins.autorank.storage.TimeType;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import me.armar.plugins.autorank.storage.TimeType;
 
 public class AutorankLeaderboard {
     private TimeType timeType;
@@ -36,10 +36,11 @@ public class AutorankLeaderboard {
 
     public void sortLeaderboard() {
         if (!this.isSorted()) {
-            LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
-            leaderboard.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+            LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap();
+            this.leaderboard.entrySet().stream().sorted(Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered((x) -> reverseSortedMap.put(x.getKey(), x.getValue()));
             this.isSorted = true;
         }
+
     }
 
     public Map<String, Integer> getLeaderboard() {

@@ -1,18 +1,16 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.hooks.PlaceholderAPIHook;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 public class PlaceholderapiStringRequirement extends AbstractRequirement {
     private String placeholderStr = "null";
     private String placeholderVal = "null";
     private String placeholderDef = "null";
-
     private final PlaceholderAPIHook handler = null;
 
     public PlaceholderapiStringRequirement() {
@@ -24,14 +22,13 @@ public class PlaceholderapiStringRequirement extends AbstractRequirement {
 
     public String getProgressString(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        String placeholderValue = PlaceholderAPI.setPlaceholders(player, placeholderVal);
+        String placeholderValue = PlaceholderAPI.setPlaceholders(player, this.placeholderVal);
         return placeholderValue + "/" + this.placeholderStr;
     }
 
-
     public boolean meetsRequirement(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        String placeholderValue = PlaceholderAPI.setPlaceholders(player, placeholderVal);
+        String placeholderValue = PlaceholderAPI.setPlaceholders(player, this.placeholderVal);
         return placeholderValue.equalsIgnoreCase(this.placeholderStr);
     }
 
@@ -39,6 +36,7 @@ public class PlaceholderapiStringRequirement extends AbstractRequirement {
         if (options.length > 0) {
             this.placeholderStr = options[0];
         }
+
         if (options.length > 1) {
             this.placeholderVal = options[1];
         }

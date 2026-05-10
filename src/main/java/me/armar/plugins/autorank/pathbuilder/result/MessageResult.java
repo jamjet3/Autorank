@@ -17,15 +17,13 @@ public class MessageResult extends AbstractResult {
             this.msg = this.msg.replace("&p", player.getName());
             this.msg = this.msg.replace("@p", player.getName());
             AutorankTools.sendDeserialize(player, this.msg);
-            if (this.msg.startsWith("deserialize ") ){
-                this.msg = msg.replace("deserialize ", "");
+            if (this.msg.startsWith("deserialize ")) {
+                this.msg = this.msg.replace("deserialize ", "");
                 AutorankTools.sendDeserialize(player, this.msg);
                 return true;
+            } else {
+                return true;
             }
-
-            //this.msg = this.msg.replaceAll("(&([a-z0-9]))", "§$2");
-           // player.sendMessage(this.msg);
-            return this.msg != null;
         }
     }
 

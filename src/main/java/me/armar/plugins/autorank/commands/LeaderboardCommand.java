@@ -1,5 +1,7 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.Arrays;
+import java.util.List;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -9,9 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class LeaderboardCommand extends AutorankCommand {
     private final Autorank plugin;
 
@@ -19,21 +18,17 @@ public class LeaderboardCommand extends AutorankCommand {
         this.plugin = instance;
     }
 
-    public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.leaderboard", sender)) {
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else {
             boolean broadcast = false;
             boolean force = false;
-            String[] var7 = args;
-            int var8 = args.length;
 
-            for(int var9 = 0; var9 < var8; ++var9) {
-                String arg = var7[var9];
+            for(String arg : args) {
                 if (arg.equalsIgnoreCase("force")) {
                     if (!this.hasPermission("autorank.leaderboard.force", sender)) {
                         return true;
@@ -50,7 +45,7 @@ public class LeaderboardCommand extends AutorankCommand {
             }
 
             String leaderboardType = "total";
-            TimeType type = null; //final TimeType type = null;
+            TimeType type;
             if (args.length > 1 && !args[1].equalsIgnoreCase("force") && !args[1].equalsIgnoreCase("broadcast")) {
                 leaderboardType = args[1].toLowerCase();
             }
@@ -62,6 +57,8 @@ public class LeaderboardCommand extends AutorankCommand {
                     type = TimeType.WEEKLY_TIME;
                 } else if (leaderboardType.contains("month")) {
                     type = TimeType.MONTHLY_TIME;
+                } else {
+                    type = null;
                 }
             } else {
                 type = TimeType.DAILY_TIME;
@@ -71,14 +68,12 @@ public class LeaderboardCommand extends AutorankCommand {
                 AutorankTools.sendDeserialize(sender, Lang.INVALID_LEADERBOARD_TYPE.getConfigValue());
                 return true;
             } else if (force) {
-                AutorankTools.sendDeserialize(sender, Lang.UPDATING.getConfigValue() + "<NEWLINE>" + Lang.ILL_LET.getConfigValue());
-                TimeType finalType = type;
-                this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable() {
-                    public void run() {
-                        LeaderboardCommand.this.plugin.getLeaderboardManager().updateLeaderboard(finalType);
-                        AutorankTools.sendDeserialize(sender, Lang.LEADERBOARD.getConfigValue());
-                        LeaderboardCommand.this.plugin.getLeaderboardManager().sendLeaderboard(sender, finalType);
-                    }
+                String var10001 = Lang.UPDATING.getConfigValue();
+                AutorankTools.sendDeserialize(sender, var10001 + "<NEWLINE>" + Lang.ILL_LET.getConfigValue());
+                this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                    this.plugin.getLeaderboardManager().updateLeaderboard(type);
+                    AutorankTools.sendDeserialize(sender, Lang.LEADERBOARD.getConfigValue());
+                    this.plugin.getLeaderboardManager().sendLeaderboard(sender, type);
                 });
                 return true;
             } else {

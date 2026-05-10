@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class FishCaughtRequirement extends AbstractRequirement {
     int fishCaught = -1;
@@ -11,7 +10,7 @@ public class FishCaughtRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String lang = Lang.FISH_CAUGHT_REQUIREMENT.getConfigValue(this.fishCaught + "");
+        String lang = Lang.FISH_CAUGHT_REQUIREMENT.getConfigValue("" + this.fishCaught);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -46,6 +45,6 @@ public class FishCaughtRequirement extends AbstractRequirement {
 
     public double getProgressPercentage(UUID uuid) {
         int progressBar = this.getStatisticsManager().getFishCaught(uuid, this.getWorld());
-        return (double) progressBar / (double)this.fishCaught;
+        return (double)progressBar / (double)this.fishCaught;
     }
 }

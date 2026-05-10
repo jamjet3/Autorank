@@ -1,6 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
 import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.MovementTypeParameter;
+import me.armar.plugins.autorank.statsmanager.query.parameter.implementation.MovementTypeParameter.MovementType;
 
 class BlocksMovedWrapper {
     private int blocksMoved = 0;
@@ -18,19 +19,25 @@ class BlocksMovedWrapper {
     }
 
     private String getMovementString(int moveType) {
-        switch(moveType) {
-            case 1:
+        switch (moveType) {
+            case 1 -> {
                 return "by boat";
-            case 2:
+            }
+            case 2 -> {
                 return "by cart";
-            case 3:
+            }
+            case 3 -> {
                 return "by pig";
-            case 4:
+            }
+            case 4 -> {
                 return "by piggy-cart";
-            case 5:
+            }
+            case 5 -> {
                 return "by horse";
-            default:
+            }
+            default -> {
                 return "by foot";
+            }
         }
     }
 
@@ -39,19 +46,25 @@ class BlocksMovedWrapper {
     }
 
     public MovementTypeParameter.MovementType getRawMovementType() {
-        switch(this.rawMovementType) {
-            case 1:
-                return MovementTypeParameter.MovementType.BOAT;
-            case 2:
-                return MovementTypeParameter.MovementType.MINECART;
-            case 3:
-                return MovementTypeParameter.MovementType.PIG;
-            case 4:
-                return MovementTypeParameter.MovementType.PIG_IN_MINECART;
-            case 5:
-                return MovementTypeParameter.MovementType.HORSE;
-            default:
-                return MovementTypeParameter.MovementType.FOOT;
+        switch (this.rawMovementType) {
+            case 1 -> {
+                return MovementType.BOAT;
+            }
+            case 2 -> {
+                return MovementType.MINECART;
+            }
+            case 3 -> {
+                return MovementType.PIG;
+            }
+            case 4 -> {
+                return MovementType.PIG_IN_MINECART;
+            }
+            case 5 -> {
+                return MovementType.HORSE;
+            }
+            default -> {
+                return MovementType.FOOT;
+            }
         }
     }
 }

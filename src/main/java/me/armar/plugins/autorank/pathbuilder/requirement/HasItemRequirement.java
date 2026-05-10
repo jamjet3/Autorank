@@ -32,11 +32,8 @@ public class HasItemRequirement extends AbstractRequirement {
     public String getProgressString(Player player) {
         ItemStack item = this.neededItem.getItem();
         int slotAmount = 0;
-        ItemStack[] var4 = player.getInventory().getStorageContents();
-        int var5 = var4.length;
 
-        for(int var6 = 0; var6 < var5; ++var6) {
-            ItemStack itemInInv = var4[var6];
+        for(ItemStack itemInInv : player.getInventory().getStorageContents()) {
             if (itemInInv != null && itemInInv.isSimilar(item)) {
                 slotAmount += itemInInv.getAmount();
             }

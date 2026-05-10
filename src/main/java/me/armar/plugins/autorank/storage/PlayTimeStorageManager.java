@@ -1,13 +1,14 @@
 package me.armar.plugins.autorank.storage;
 
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.util.AutorankTools;
-import org.bukkit.Bukkit;
-
-import java.time.LocalDate;
-import java.time.temporal.WeekFields;
-import java.util.*;
 
 public class PlayTimeStorageManager {
     private final List<PlayTimeStorageProvider> activeStorageProviders = new ArrayList();
@@ -32,10 +33,8 @@ public class PlayTimeStorageManager {
 
     public List<String> getActiveStorageProviders() {
         List<String> storageProviders = new ArrayList();
-        Iterator var2 = this.activeStorageProviders.iterator();
 
-        while(var2.hasNext()) {
-            PlayTimeStorageProvider storageProvider = (PlayTimeStorageProvider)var2.next();
+        for(PlayTimeStorageProvider storageProvider : this.activeStorageProviders) {
             storageProviders.add(storageProvider.getName());
         }
 
@@ -43,11 +42,7 @@ public class PlayTimeStorageManager {
     }
 
     public PlayTimeStorageProvider getActiveStorageProvider(String providerName) {
-        return this.activeStorageProviders.stream().filter((provider) -> {
-            return provider.getName().equalsIgnoreCase(providerName);
-        }).findFirst().orElseGet(() -> {
-            return null;
-        });
+        return this.activeStorageProviders.stream().filter((provider) -> provider.getName().equalsIgnoreCase(providerName)).findFirst().orElse(null);
     }
 
     public void registerStorageProvider(PlayTimeStorageProvider storageProvider) throws IllegalArgumentException {
@@ -59,23 +54,14 @@ public class PlayTimeStorageManager {
                 this.setPrimaryStorageProvider(storageProvider);
             }
 
-            this.plugin.debugMessage("Registered new storage provider: " + storageProvider.getName() + " (type: " + storageProvider.getStorageType() + ")");
-        }
-    }
-
-    public void deRegisterStorageProvider(PlayTimeStorageProvider storageProvider) throws IllegalArgumentException {
-        if (storageProvider == null) {
-            throw new IllegalArgumentException("StorageProvider cannot be null.");
-        } else {
-            this.activeStorageProviders.remove(storageProvider);
+            Autorank var10000 = this.plugin;
+            String var10001 = storageProvider.getName();
+            var10000.debugMessage("Registered new storage provider: " + var10001 + " (type: " + storageProvider.getStorageType() + ")");
         }
     }
 
     public void saveAllStorageProviders() {
-        Iterator var1 = this.activeStorageProviders.iterator();
-
-        while(var1.hasNext()) {
-            PlayTimeStorageProvider storageProvider = (PlayTimeStorageProvider)var1.next();
+        for(PlayTimeStorageProvider storageProvider : this.activeStorageProviders) {
             storageProvider.saveData();
         }
 
@@ -87,10 +73,7 @@ public class PlayTimeStorageManager {
     }
 
     public void setPlayerTime(TimeType timeType, UUID uuid, int value) {
-        Iterator var4 = this.activeStorageProviders.iterator();
-
-        while(var4.hasNext()) {
-            PlayTimeStorageProvider storageProvider = (PlayTimeStorageProvider)var4.next();
+        for(PlayTimeStorageProvider storageProvider : this.activeStorageProviders) {
             storageProvider.setPlayerTime(timeType, uuid, value);
         }
 
@@ -98,10 +81,8 @@ public class PlayTimeStorageManager {
 
     public void setPlayerTime(UUID uuid, int value) {
         TimeType[] var3 = TimeType.values();
-        int var4 = var3.length;
 
-        for(int var5 = 0; var5 < var4; ++var5) {
-            TimeType timeType = var3[var5];
+        for(TimeType timeType : var3) {
             this.setPlayerTime(timeType, uuid, value);
         }
 
@@ -110,19 +91,15 @@ public class PlayTimeStorageManager {
     public void setPlayerTime(PlayTimeStorageProvider.StorageType storageType, TimeType timeType, UUID uuid, int value) {
         this.getActiveStorageProviders().forEach((storageProviderName) -> {
             PlayTimeStorageProvider storageProvider = this.getActiveStorageProvider(storageProviderName);
-            if (storageProvider != null) {
-                if (storageProvider.getStorageType() == storageType) {
-                    storageProvider.setPlayerTime(timeType, uuid, value);
-                }
+            if (storageProvider != null && storageProvider.getStorageType() == storageType) {
+                storageProvider.setPlayerTime(timeType, uuid, value);
             }
+
         });
     }
 
     public void addPlayerTime(TimeType timeType, UUID uuid, int value) {
-        Iterator var4 = this.activeStorageProviders.iterator();
-
-        while(var4.hasNext()) {
-            PlayTimeStorageProvider storageProvider = (PlayTimeStorageProvider)var4.next();
+        for(PlayTimeStorageProvider storageProvider : this.activeStorageProviders) {
             storageProvider.addPlayerTime(timeType, uuid, value);
         }
 
@@ -130,10 +107,8 @@ public class PlayTimeStorageManager {
 
     public void addPlayerTime(UUID uuid, int value) {
         TimeType[] var3 = TimeType.values();
-        int var4 = var3.length;
 
-        for(int var5 = 0; var5 < var4; ++var5) {
-            TimeType timeType = var3[var5];
+        for(TimeType timeType : var3) {
             this.addPlayerTime(timeType, uuid, value);
         }
 
@@ -142,71 +117,40 @@ public class PlayTimeStorageManager {
     public void addPlayerTime(PlayTimeStorageProvider.StorageType storageType, TimeType timeType, UUID uuid, int value) {
         this.getActiveStorageProviders().forEach((storageProviderName) -> {
             PlayTimeStorageProvider storageProvider = this.getActiveStorageProvider(storageProviderName);
-            if (storageProvider != null) {
-                if (storageProvider.getStorageType() == storageType) {
-                    storageProvider.addPlayerTime(timeType, uuid, value);
-                }
+            if (storageProvider != null && storageProvider.getStorageType() == storageType) {
+                storageProvider.addPlayerTime(timeType, uuid, value);
             }
+
         });
     }
 
     public boolean isStorageTypeActive(PlayTimeStorageProvider.StorageType storageType) {
-        Iterator var2 = this.activeStorageProviders.iterator();
-
-        PlayTimeStorageProvider storageProvider;
-        do {
-            if (!var2.hasNext()) {
-                return false;
+        for(PlayTimeStorageProvider storageProvider : this.activeStorageProviders) {
+            if (storageProvider.getStorageType() == storageType) {
+                return true;
             }
+        }
 
-            storageProvider = (PlayTimeStorageProvider)var2.next();
-        } while(storageProvider.getStorageType() != storageType);
-
-        return true;
+        return false;
     }
 
     public PlayTimeStorageProvider getStorageProvider(PlayTimeStorageProvider.StorageType storageType) {
-        Iterator var2 = this.activeStorageProviders.iterator();
-
-        PlayTimeStorageProvider storageProvider;
-        do {
-            if (!var2.hasNext()) {
-                return null;
-            }
-
-            storageProvider = (PlayTimeStorageProvider)var2.next();
-        } while(storageProvider.getStorageType() != storageType);
-
-        return storageProvider;
-    }
-
-    public void importDataForStorageProviders() {
-        Iterator var1 = this.activeStorageProviders.iterator();
-
-        while(var1.hasNext()) {
-            PlayTimeStorageProvider storageProvider = (PlayTimeStorageProvider)var1.next();
-            if (storageProvider.canImportData()) {
-                storageProvider.importData();
+        for(PlayTimeStorageProvider storageProvider : this.activeStorageProviders) {
+            if (storageProvider.getStorageType() == storageType) {
+                return storageProvider;
             }
         }
 
+        return null;
     }
 
-    public boolean backupStorageProviders() {
-        boolean successfulBackup = true;
-        Iterator var2 = this.activeStorageProviders.iterator();
-
-        while(var2.hasNext()) {
-            PlayTimeStorageProvider storageProvider = (PlayTimeStorageProvider)var2.next();
+    public void backupStorageProviders() {
+        for(PlayTimeStorageProvider storageProvider : this.activeStorageProviders) {
             if (storageProvider.canBackupData()) {
-                boolean result = storageProvider.backupData();
-                if (!result) {
-                    successfulBackup = false;
-                }
+                boolean var3 = storageProvider.backupData();
             }
         }
 
-        return successfulBackup;
     }
 
     public void checkDataIsUpToDate() {
@@ -214,14 +158,10 @@ public class PlayTimeStorageManager {
             LocalDate today = LocalDate.now();
             this.plugin.debugMessage("Running check to see if data files are still up to date.");
             TimeType[] var2 = TimeType.values();
-            int var3 = var2.length;
 
-            for(int var4 = 0; var4 < var3; ++var4) {
-                TimeType type = var2[var4];
+            for(TimeType type : var2) {
                 if (this.isDataFileOutdated(type)) {
-                    this.activeStorageProviders.forEach((provider) -> {
-                        provider.resetData(type);
-                    });
+                    this.activeStorageProviders.forEach((provider) -> provider.resetData(type));
                     int value = 0;
                     String broadcastMessage = "";
                     if (type == TimeType.DAILY_TIME) {

@@ -1,16 +1,15 @@
 package me.armar.plugins.autorank.storage;
 
-import me.armar.plugins.autorank.Autorank;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import me.armar.plugins.autorank.Autorank;
 
 public abstract class PlayTimeStorageProvider {
     public Autorank plugin;
 
-    public abstract PlayTimeStorageProvider.StorageType getStorageType();
+    public abstract StorageType getStorageType();
 
     public PlayTimeStorageProvider(Autorank instance) {
         this.plugin = instance;

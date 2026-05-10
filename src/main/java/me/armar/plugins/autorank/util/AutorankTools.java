@@ -1,6 +1,5 @@
 package me.armar.plugins.autorank.util;
 
-import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.language.Lang;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -21,14 +20,12 @@ public class AutorankTools {
     public static final int TICKS_PER_MINUTE = 1200;
     private static final Set<String> reqTypes = new HashSet();
     private static final Set<String> resTypes = new HashSet();
-    private final Autorank plugin;
 
-    public AutorankTools(Autorank autorank) {
-        this.plugin = autorank;
+    public AutorankTools() {
     }
 
     public static boolean isExcludedFromRanking(Player player) {
-        if (player.hasPermission("autorank.askdjaslkdj")) {
+        if (player.hasPermission("autorank.exclude")) {
             return !player.isOp();
         } else {
             return player.hasPermission("autorank.exclude");
@@ -39,11 +36,9 @@ public class AutorankTools {
         int count = 0;
         displayName = displayName.replace("&", "§");
         ItemStack[] var5 = player.getInventory().getContents();
-        int var6 = var5.length;
 
-        for(int var7 = 0; var7 < var6; ++var7) {
-            ItemStack itemFound = var5[var7];
-            if (itemFound != null && itemFound.getType().equals(item.getType()) && itemFound.hasItemMeta() && itemFound.getItemMeta().hasDisplayName() && itemFound.getItemMeta().getDisplayName().equals(displayName)) {
+        for(ItemStack itemFound : var5) {
+            if (itemFound != null && itemFound.getType().equals(item.getType()) && itemFound.hasItemMeta() && Objects.requireNonNull(itemFound.getItemMeta()).hasDisplayName() && itemFound.getItemMeta().getDisplayName().equals(displayName)) {
                 count += itemFound.getAmount();
             }
         }
@@ -57,11 +52,11 @@ public class AutorankTools {
 
         for(int i = 0; i < c.size(); ++i) {
             if (i == 0) {
-                builder.append("<GRAY>" + array[i].toString() + "<RESET>");
+                builder.append("<GRAY>").append(array[i].toString()).append("<RESET>");
             } else if (i == c.size() - 1) {
-                builder.append(" and " + "<GRAY>" + array[i].toString() + "<RESET>");
+                builder.append(" and <GRAY>").append(array[i].toString()).append("<RESET>");
             } else {
-                builder.append(", " + "<GRAY>" + array[i].toString() + "<RESET>");
+                builder.append(", <GRAY>").append(array[i].toString()).append("<RESET>");
             }
         }
 
@@ -73,16 +68,15 @@ public class AutorankTools {
         b = b.toLowerCase();
         int[] costs = new int[b.length() + 1];
 
-        int i;
-        for(i = 0; i < costs.length; costs[i] = i++) {
+        for(int i = 0; i < costs.length; costs[i] = i++) {
         }
 
-        for(i = 1; i <= a.length(); ++i) {
-            costs[0] = i;
-            int nw = i - 1;
+        for(int var9 = 1; var9 <= a.length(); ++var9) {
+            costs[0] = var9;
+            int nw = var9 - 1;
 
             for(int j = 1; j <= b.length(); ++j) {
-                int cj = Math.min(1 + Math.min(costs[j], costs[j - 1]), a.charAt(i - 1) == b.charAt(j - 1) ? nw : nw + 1);
+                int cj = Math.min(1 + Math.min(costs[j], costs[j - 1]), a.charAt(var9 - 1) == b.charAt(j - 1) ? nw : nw + 1);
                 nw = costs[j];
                 costs[j] = cj;
             }
@@ -92,12 +86,10 @@ public class AutorankTools {
     }
 
     public static String findClosestSuggestion(String input, Collection<String> list) {
-        int lowestDistance = 2147483647;
+        int lowestDistance = Integer.MAX_VALUE;
         String bestSuggestion = null;
-        Iterator var4 = list.iterator();
 
-        while(var4.hasNext()) {
-            String possibility = (String)var4.next();
+        for(String possibility : list) {
             int dist = editDistance(input, possibility);
             if (dist < lowestDistance) {
                 lowestDistance = dist;
@@ -110,43 +102,34 @@ public class AutorankTools {
 
     public static String findMatchingRequirementName(String oldName) {
         oldName = oldName.replaceAll("[^a-zA-Z\\s]", "").trim();
-        Iterator var1 = reqTypes.iterator();
 
-        String type;
-        do {
-            if (!var1.hasNext()) {
-                return null;
+        for(String type : reqTypes) {
+            if (oldName.contains(type) && type.length() == oldName.length()) {
+                return type;
             }
+        }
 
-            type = (String)var1.next();
-        } while(!oldName.contains(type) || type.length() != oldName.length());
-
-        return type;
+        return null;
     }
 
     public static String findMatchingResultName(String oldName) {
         oldName = oldName.replaceAll("[^a-zA-Z\\s]", "").trim();
-        Iterator var1 = resTypes.iterator();
 
-        String type;
-        do {
-            if (!var1.hasNext()) {
-                return null;
+        for(String type : resTypes) {
+            if (oldName.contains(type) && type.length() == oldName.length()) {
+                return type;
             }
+        }
 
-            type = (String)var1.next();
-        } while(!oldName.contains(type) || type.length() != oldName.length());
-
-        return type;
+        return null;
     }
 
     public static String getStringFromSplitString(String splitString, String splitterCharacter, int element) {
         String[] split = splitString.split(splitterCharacter);
-        String returnString = null;
 
         try {
-            returnString = split[element];
-            return returnString.trim().equals("") ? null : returnString;
+            String returnString = split[element];
+            return returnString.trim().isEmpty() ? null : returnString;
         } catch (ArrayIndexOutOfBoundsException var6) {
             return null;
         }
@@ -183,7 +166,7 @@ public class AutorankTools {
                 intMinutes = 0;
             }
 
-            res = res + intMinutes;
+            res += intMinutes;
             res += intHours * 60;
             res += intDays * 60 * 24;
             if (time.equals(TimeUnit.SECONDS)) {
@@ -201,7 +184,7 @@ public class AutorankTools {
     public static String makeProgressString(Collection<?> c, String wordBetween, Object currentValue) {
         Object[] array = c.toArray();
         String extraSpace = " ";
-        if (wordBetween == null || wordBetween.equals("")) {
+        if (wordBetween == null || wordBetween.isEmpty()) {
             extraSpace = "";
         }
 
@@ -280,13 +263,17 @@ public class AutorankTools {
             {
                 bldr.append(" ");
             }
+
             bldr.append(args[i]);
         }
+
         return bldr.toString();
     }
 
     public static void sendColoredMessage(CommandSender sender, String msg) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ChatColor.GREEN + msg));
+        if (!Objects.equals(msg, "")) {
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ChatColor.GREEN + msg));
+        }
     }
 
     public static String seperateList(Collection<?> c, String endDivider) {
@@ -302,9 +289,9 @@ public class AutorankTools {
                 if (i == array.length - 1) {
                     string.append(array[i]);
                 } else if (i == array.length - 2) {
-                    string.append(array[i] + " " + endDivider + " ");
+                    string.append(array[i]).append(" ").append(endDivider).append(" ");
                 } else {
-                    string.append(array[i] + ", ");
+                    string.append(array[i]).append(", ");
                 }
             }
 
@@ -313,7 +300,7 @@ public class AutorankTools {
     }
 
     public static double stringToDouble(String string) {
-        double res = -1.0D;
+        double res = -1.0F;
         if (string == null) {
             return res;
         } else {
@@ -321,7 +308,7 @@ public class AutorankTools {
                 res = Double.parseDouble(string);
                 return res;
             } catch (NumberFormatException var4) {
-                return -1.0D;
+                return -1.0F;
             }
         }
     }
@@ -400,7 +387,9 @@ public class AutorankTools {
 
         int index = b.lastIndexOf(",");
         if (index != -1) {
-            b.replace(index, index + 1, " " + Lang.AND.getConfigValue());
+            int var10002 = index + 1;
+            Lang var10003 = Lang.AND;
+            b.replace(index, var10002, " " + var10003.getConfigValue());
         }
 
         return b.toString();
@@ -486,7 +475,9 @@ public class AutorankTools {
 
         int index = b.lastIndexOf(",");
         if (index != -1) {
-            b.replace(index, index + 1, " " + Lang.AND.getConfigValue());
+            int var10002 = index + 1;
+            Lang var10003 = Lang.AND;
+            b.replace(index, var10002, " " + var10003.getConfigValue());
         }
 
         return b.toString();

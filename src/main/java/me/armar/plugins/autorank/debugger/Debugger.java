@@ -1,9 +1,5 @@
 package me.armar.plugins.autorank.debugger;
 
-import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.pathbuilder.builders.RequirementBuilder;
-import me.armar.plugins.autorank.pathbuilder.builders.ResultBuilder;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,7 +7,9 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
+import me.armar.plugins.autorank.Autorank;
+import me.armar.plugins.autorank.pathbuilder.builders.RequirementBuilder;
+import me.armar.plugins.autorank.pathbuilder.builders.ResultBuilder;
 
 public class Debugger {
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -51,7 +49,9 @@ public class Debugger {
             out.newLine();
             out.write("");
             out.newLine();
-            out.write("Date created: " + humanDateFormat.format(new Date()));
+            DateFormat var10001 = humanDateFormat;
+            Date var10002 = new Date();
+            out.write("Date created: " + var10001.format(var10002));
             out.newLine();
             out.write("");
             out.newLine();
@@ -75,10 +75,8 @@ public class Debugger {
             out.newLine();
             out.write("");
             out.newLine();
-            Iterator var4 = this.plugin.getPathManager().debugPaths().iterator();
 
-            while(var4.hasNext()) {
-                String change = (String)var4.next();
+            for(String change : this.plugin.getPathManager().debugPaths()) {
                 out.write(change);
                 out.newLine();
             }
@@ -111,11 +109,8 @@ public class Debugger {
             out.newLine();
             out.write("Requirements registered: ");
             out.newLine();
-            var4 = RequirementBuilder.getRegisteredRequirements().iterator();
 
-            Class result;
-            while(var4.hasNext()) {
-                result = (Class)var4.next();
+            for(Class result : RequirementBuilder.getRegisteredRequirements()) {
                 out.write(result.getName());
                 out.newLine();
             }
@@ -124,19 +119,14 @@ public class Debugger {
             out.newLine();
             out.write("Results registered: ");
             out.newLine();
-            var4 = ResultBuilder.getRegisteredResults().iterator();
 
-            while(true) {
-                if (!var4.hasNext()) {
-                    out.write("");
-                    out.newLine();
-                    break;
-                }
-
-                result = (Class)var4.next();
+            for(Class result : ResultBuilder.getRegisteredResults()) {
                 out.write(result.getName());
                 out.newLine();
             }
+
+            out.write("");
+            out.newLine();
         } catch (IOException var10) {
             var10.printStackTrace();
 

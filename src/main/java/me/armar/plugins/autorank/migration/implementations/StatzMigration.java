@@ -1,16 +1,16 @@
 package me.armar.plugins.autorank.migration.implementations;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.migration.MigrationablePlugin;
 import me.armar.plugins.autorank.storage.TimeType;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.StatzHook;
+import me.staartvin.statz.database.datatype.RowRequirement;
 import me.staartvin.statz.datamanager.player.PlayerStat;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class StatzMigration extends MigrationablePlugin {
     public StatzMigration(Autorank instance) {
@@ -29,12 +29,9 @@ public class StatzMigration extends MigrationablePlugin {
             if (statzHook == null) {
                 return playersImported;
             } else {
-                Iterator var4 = uuids.iterator();
-
-                while(var4.hasNext()) {
-                    UUID uuid = (UUID)var4.next();
+                for(UUID uuid : uuids) {
                     double minutesPlayed = statzHook.getSpecificStatistics(PlayerStat.TIME_PLAYED, uuid);
-                    if (!(minutesPlayed <= 0.0D)) {
+                    if (!(minutesPlayed <= (double)0.0F)) {
                         this.getPlugin().getPlayTimeStorageManager().addPlayerTime(TimeType.TOTAL_TIME, uuid, (int)Math.round(minutesPlayed));
                         ++playersImported;
                     }

@@ -1,11 +1,10 @@
 package me.armar.plugins.autorank.storage.mysql;
 
 import io.reactivex.annotations.NonNull;
-import me.armar.plugins.autorank.storage.TimeType;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import me.armar.plugins.autorank.storage.TimeType;
 
 class CachedEntry {
     private final Map<TimeType, Integer> timePerTimeType = new HashMap();
@@ -37,12 +36,11 @@ class CachedEntry {
     }
 
     public boolean isCachedTimeOutdated(@NonNull TimeType timeType) {
-        return this.hasCachedTime(timeType) && this.getMinutesSinceLastUpdated(timeType).orElseGet(() -> {
-            return (long)MySQLStorageProvider.CACHE_EXPIRY_TIME;
-        }) >= (long)MySQLStorageProvider.CACHE_EXPIRY_TIME;
+        return this.hasCachedTime(timeType) && this.getMinutesSinceLastUpdated(timeType).orElseGet(() -> (long)MySQLStorageProvider.CACHE_EXPIRY_TIME) >= (long)MySQLStorageProvider.CACHE_EXPIRY_TIME;
     }
 
     public int hashCode() {
-        return (this.timePerTimeType.toString() + this.lastUpdatedPerTimeType).hashCode();
+        String var10000 = this.timePerTimeType.toString();
+        return (var10000 + this.lastUpdatedPerTimeType).hashCode();
     }
 }

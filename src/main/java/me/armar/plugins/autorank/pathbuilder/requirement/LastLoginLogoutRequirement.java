@@ -1,14 +1,14 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-import me.armar.plugins.utils.pluginlibrary.Library;
-import me.armar.plugins.utils.pluginlibrary.hooks.LastLoginAPIHook;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.TimeZone;
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
+import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LastLoginAPIHook;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 
 public class LastLoginLogoutRequirement extends AbstractRequirement {
     private LastLoginAPIHook handler = null;
@@ -18,27 +18,27 @@ public class LastLoginLogoutRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-          return Lang.LAST_LOGIN_LOGOUT_REQUIREMENT.getConfigValue(this.lastlogout);
+        return Lang.LAST_LOGIN_LOGOUT_REQUIREMENT.getConfigValue(this.lastlogout);
     }
 
     public String getProgressString(UUID uuid) {
         LocalDateTime from = LocalDateTime.ofInstant(Instant.ofEpochSecond(this.handler.getlastLogout(uuid)), TimeZone.getDefault().toZoneId());
         LocalDateTime to = LocalDateTime.ofInstant(Instant.ofEpochSecond(this.handler.getlastLogin(uuid)), TimeZone.getDefault().toZoneId());
         Duration duration = Duration.between(from, to);
-        return duration.toMinutes() + "/" + this.lastlogout;
+        long var10000 = duration.toMinutes();
+        return var10000 + "/" + this.lastlogout;
     }
-
 
     public boolean meetsRequirement(UUID uuid) {
         LocalDateTime from = LocalDateTime.ofInstant(Instant.ofEpochSecond(this.handler.getlastLogout(uuid)), TimeZone.getDefault().toZoneId());
         LocalDateTime to = LocalDateTime.ofInstant(Instant.ofEpochSecond(this.handler.getlastLogin(uuid)), TimeZone.getDefault().toZoneId());
         Duration duration = Duration.between(from, to);
-        return duration.toMinutes() >= this.lastlogout;
+        return duration.toMinutes() >= (long)this.lastlogout;
     }
 
     public boolean initRequirement(String[] options) {
         this.addDependency(Library.LASTLOGINAPI);
-        this.handler = (LastLoginAPIHook) this.getAutorank().getDependencyManager().getLibraryHook(Library.LASTLOGINAPI).orElse(null);
+        this.handler = (LastLoginAPIHook)this.getAutorank().getDependencyManager().getLibraryHook(Library.LASTLOGINAPI).orElse(null);
 
         try {
             this.lastlogout = Integer.parseInt(options[0]);
@@ -62,6 +62,6 @@ public class LastLoginLogoutRequirement extends AbstractRequirement {
         LocalDateTime from = LocalDateTime.ofInstant(Instant.ofEpochSecond(this.handler.getlastLogout(uuid)), TimeZone.getDefault().toZoneId());
         LocalDateTime to = LocalDateTime.ofInstant(Instant.ofEpochSecond(this.handler.getlastLogin(uuid)), TimeZone.getDefault().toZoneId());
         Duration duration = Duration.between(from, to);
-        return (double) duration.toMinutes() / (double) this.lastlogout;
+        return (double)duration.toMinutes() / (double)this.lastlogout;
     }
 }

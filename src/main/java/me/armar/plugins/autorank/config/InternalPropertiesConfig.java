@@ -1,10 +1,9 @@
 package me.armar.plugins.autorank.config;
 
-import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.storage.TimeType;
-
 import java.util.ArrayList;
 import java.util.List;
+import me.armar.plugins.autorank.Autorank;
+import me.armar.plugins.autorank.storage.TimeType;
 
 public class InternalPropertiesConfig extends AbstractConfig {
     public InternalPropertiesConfig(Autorank instance) {
@@ -50,7 +49,7 @@ public class InternalPropertiesConfig extends AbstractConfig {
             this.getConfig().addDefault("tracked month", 1);
             this.getConfig().addDefault("tracked week", 1);
             this.getConfig().addDefault("tracked day", 1);
-            List<String> newList = new ArrayList();
+            List<String> newList = new ArrayList<>();
             newList.add("&cThis leaderboard wasn't set up yet.");
             this.getConfig().addDefault("leaderboards.total_time.cached leaderboard", newList);
             this.getConfig().addDefault("leaderboards.daily_time.cached leaderboard", newList);

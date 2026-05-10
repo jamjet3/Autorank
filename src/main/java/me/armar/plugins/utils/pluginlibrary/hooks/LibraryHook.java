@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Objects;
+
 public abstract class LibraryHook {
     public LibraryHook() {
     }
@@ -20,14 +22,16 @@ public abstract class LibraryHook {
     }
 
     protected PluginLibrary getPlugin() {
+
         return Bukkit.getServer().getServicesManager().load(PluginLibrary.class);
     }
 
     protected Plugin getProvidedJavaPlugin() {
-        return Bukkit.getServer().getServicesManager().getRegistration(PluginLibrary.class).getPlugin();
+        return Objects.requireNonNull(Bukkit.getServer().getServicesManager().getRegistration(PluginLibrary.class)).getPlugin();
     }
 
     protected Server getServer() {
+
         return Bukkit.getServer();
     }
 

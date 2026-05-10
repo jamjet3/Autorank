@@ -1,5 +1,10 @@
 package me.armar.plugins.autorank.permissions.handlers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.permissions.PermissionsHandler;
 import org.anjocaido.groupmanager.GroupManager;
@@ -10,8 +15,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-
-import java.util.*;
 
 public class GroupManagerHandler extends PermissionsHandler {
     private GroupManager groupManager;
@@ -27,18 +30,13 @@ public class GroupManagerHandler extends PermissionsHandler {
 
     public Collection<String> getGroups() {
         List<String> groups = new ArrayList();
-        Iterator var2 = this.getPlugin().getServer().getWorlds().iterator();
 
-        while(var2.hasNext()) {
-            World world = (World)var2.next();
+        for(World world : this.getPlugin().getServer().getWorlds()) {
             String worldName = world.getName();
             Collection<Group> worldGroup = this.groupManager.getWorldsHolder().getWorldData(worldName).getGroupList();
-            List<Group> list = new ArrayList(worldGroup);
-            Iterator var7 = list.iterator();
 
-            while(var7.hasNext()) {
-                Group group = (Group)var7.next();
-                groups.add(group.getName());
+            for(Object group : new ArrayList(worldGroup)) {
+                groups.add(group.toString());
             }
         }
 
@@ -73,9 +71,7 @@ public class GroupManagerHandler extends PermissionsHandler {
         List<String> groups = new ArrayList();
         String[] var4 = this.groupManager.getWorldsHolder().getWorldPermissions(world).getGroups(player.getName());
         int var5 = var4.length;
-
         groups.addAll(Arrays.asList(var4).subList(0, var5));
-
         return Collections.unmodifiableCollection(groups);
     }
 

@@ -37,6 +37,11 @@
       <option name="url" value="https://maven.enginehub.org/repo/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="net.kyori" />
+      <option name="name" value="net.kyori" />
+      <option name="url" value="https://mvnrepository.com/artifact/net.kyori/adventure-platform-bukkit" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="essentials-releases" />
       <option name="name" value="essentials-releases" />
       <option name="url" value="https://repo.essentialsx.net/releases/" />
@@ -57,14 +62,14 @@
       <option name="url" value="https://repo.codemc.org/repository/maven-public/" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="sonatype-oss-snapshots1" />
-      <option name="name" value="sonatype-oss-snapshots1" />
-      <option name="url" value="https://s01.oss.sonatype.org/content/repositories/snapshots/" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="alessiodp-repo" />
       <option name="name" value="alessiodp-repo" />
       <option name="url" value="https://repo.alessiodp.com/releases/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="sonatype-oss-snapshots1" />
+      <option name="name" value="sonatype-oss-snapshots1" />
+      <option name="url" value="https://s01.oss.sonatype.org/content/repositories/snapshots/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="spigotmc-repo" />
@@ -90,6 +95,11 @@
       <option name="id" value="repo.leonardobishop.com" />
       <option name="name" value="repo.leonardobishop.com" />
       <option name="url" value="https://repo.leonardobishop.com/releases/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven-central-snapshots" />
+      <option name="name" value="maven-central-snapshots" />
+      <option name="url" value="https://central.sonatype.com/repository/maven-snapshots/" />
     </remote-repository>
   </component>
 </project>

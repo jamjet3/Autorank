@@ -1,13 +1,12 @@
 package me.armar.plugins.autorank.tasks;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.playtimes.PlayTimeManager;
 import me.armar.plugins.autorank.playtimes.UpdateTimePlayedTask;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class TaskManager {
     private final Autorank plugin;
@@ -20,11 +19,12 @@ public class TaskManager {
 
     public void startUpdatePlayTimeTask(UUID uuid) {
         if (!this.updatePlayTimeTaskIds.containsKey(uuid)) {
-            BukkitTask task = this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new UpdateTimePlayedTask(this.plugin, uuid), PlayTimeManager.INTERVAL_MINUTES * 1200L, PlayTimeManager.INTERVAL_MINUTES * 1200L);
+            BukkitTask task = this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new UpdateTimePlayedTask(this.plugin, uuid), (long)PlayTimeManager.INTERVAL_MINUTES * 1200L, (long)PlayTimeManager.INTERVAL_MINUTES * 1200L);
             this.updatePlayTimeTaskIds.put(uuid, task.getTaskId());
             this.lastPlayTimeUpdate.put(uuid, System.currentTimeMillis());
             this.plugin.debugMessage("Registered update play time task for player " + uuid + " (" + task.getTaskId() + ").");
         }
+
     }
 
     public void stopUpdatePlayTimeTask(UUID uuid) {
@@ -33,6 +33,7 @@ public class TaskManager {
             this.plugin.getServer().getScheduler().cancelTask(this.updatePlayTimeTaskIds.get(uuid));
             this.updatePlayTimeTaskIds.remove(uuid);
         }
+
     }
 
     public void setLastPlayTimeUpdate(UUID uuid, long value) {
@@ -44,6 +45,6 @@ public class TaskManager {
     }
 
     public long getLastPlayTimeUpdate(UUID uuid) {
-        return !this.lastPlayTimeUpdate.containsKey(uuid) ? -1L : this.lastPlayTimeUpdate.get(uuid);
+        return this.lastPlayTimeUpdate.getOrDefault(uuid, -1L);
     }
 }

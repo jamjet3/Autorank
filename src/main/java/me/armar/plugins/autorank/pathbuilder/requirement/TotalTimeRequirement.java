@@ -1,12 +1,11 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.util.AutorankTools;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class TotalTimeRequirement extends AbstractRequirement {
     int totalTime = -1;
@@ -57,6 +56,6 @@ public class TotalTimeRequirement extends AbstractRequirement {
         long joinTime = Bukkit.getOfflinePlayer(uuid).getFirstPlayed();
         long currentTime = System.currentTimeMillis();
         long difference = (currentTime - joinTime) / 60000L;
-        return (double) difference / (double)this.totalTime;
+        return (double)difference / (double)this.totalTime;
     }
 }

@@ -16,10 +16,10 @@ public enum Lang {
     AND_YOUR_PROGRESS("AND-YOUR-PROGRESS", "<RED>and your progress for this path has been reset."),
     ANIMALS_BRED_REQUIREMENT("ANIMALS-BRED-REQUIREMENT", "Breed at least {0} animals"),
     ASSIGNED("ASSIGNED", "<GREEN>Assigned '<GOLD>{1}<GREEN>' to {0}"),
-    AURELIUM_SKILLS_MANA_REQUIREMENT("AURELIUM-SKILLS-MANA-REQUIREMENT", "Have at least {0} mana."),
-    AURELIUM_SKILLS_SKILL_REQUIREMENT("AURELIUM-SKILLS-SKILL-REQUIREMENT", "Reach level {0} in {1}."),
-    AURELIUM_SKILLS_STAT_REQUIREMENT("AURELIUM-SKILLS-STAT-REQUIREMENT", "Reach level {0} in {1}."),
-    AURELIUM_SKILLS_XP_REQUIREMENT("AURELIUM-SKILLS-XP-REQUIREMENT", "Have {0} xp in {1}."),
+    AURA_SKILLS_MANA_REQUIREMENT("AURA-SKILLS-MANA-REQUIREMENT", "Have at least {0} mana."),
+    AURA_SKILLS_SKILL_REQUIREMENT("AURA-SKILLS-SKILL-REQUIREMENT", "Reach level {0} in {1}."),
+    AURA_SKILLS_STAT_REQUIREMENT("AURA-SKILLS-STAT-REQUIREMENT", "Reach level {0} in {1}."),
+    AURA_SKILLS_XP_REQUIREMENT("AURA-SKILLS-XP-REQUIREMENT", "Have {0} xp in {1}."),
     AUTOMATICALLY_ASSIGNED_PATH("AUTOMATICALLY-ASSIGNED-PATH", "<DARK_GREEN>You have automatically been assigned the path '<GOLD>{0}<DARK_GREEN>'."),
     AUTORANK_NUMBER_OF_ACTIVE_PATHS_REQUIREMENT("AUTORANK-NUMBER-OF-ACTIVE-PATHS-REQUIREMENT", "Have at least {0} active paths."),
     AUTORANK_NUMBER_OF_COMPLETED_PATHS_REQUIREMENT("AUTORANK-NUMBER-OF-COMPLETED-PATHS-REQUIREMENT", "Have at least completed {0} paths."),
@@ -138,6 +138,7 @@ public enum Lang {
     MESSAGE_RESULT("MESSAGE-RESULT", "Send you the following message: {0}"),
     MINUTE_PLURAL("MINUTE-PLURAL", "minutes"),
     MINUTE_SINGULAR("MINUTE-SINGULAR", "minute"),
+    MOBS_KILLED_REQUIREMENT("MOBS-KILLED-REQUIREMENT", "Kill at least {0} {1} {2}"),
     MONEY_REQUIREMENT("MONEY-REQUIREMENT", "Have at least {0}"),
     MONEY_RESULT("MONEY-RESULT", "Reward you with {0}."),
     MYSQL_IS_NOT_ENABLED("MYSQL-IS-NOT-ENABLED", "<RED>MySQL is not enabled!"),
@@ -204,7 +205,7 @@ public enum Lang {
     PROGRESS_OF_PATHS("PROGRESS-OF-PATHS", "<GREEN>----- <GRAY>[Progress of paths for <GOLD>{0}<GRAY>]<GREEN> -----"),
     PROGRESS_RESET("PROGRESS-RESET", "<YELLOW>Your progress for the path is reset."),
     PROGRESS_RESTORED("PROGRESS-RESTORED", "<YELLOW>Your progress for the path has been restored."),
-    QUESTION_MARK("QUESTION-MARK","<DARK_AQUA>?"),
+    QUESTION_MARK("QUESTION-MARK", "<DARK_AQUA>?"),
     QUESTS_ACTIVE_QUESTS_REQUIREMENT("QUESTS-ACTIVE-QUESTS-REQUIREMENT", "Have {0} quests active at the same time."),
     QUESTS_COMPLETED_QUESTS_REQUIREMENT("QUESTS-COMPLETED-QUESTS-REQUIREMENT", "Complete at least {0} quests."),
     QUESTS_COMPLETE_SPECIFIC_QUEST_REQUIREMENT("QUESTS-COMPLETE-SPECIFIC-QUEST-REQUIREMENT", "Complete the quest '{0}'."),
@@ -259,7 +260,7 @@ public enum Lang {
     TIME_MONTHLY_REQUIREMENT("TIME-MONTHLY-REQUIREMENT", " Play for at least {0} in a month."),
     TIME_REQUIREMENT("TIME-REQUIREMENT", "Play for at least {0}"),
     TIME_WEEKLY_REQUIREMENT("TIME-WEEKLY-REQUIREMENT", " Play for at least {0} in a week."),
-    TOTAL_MOBS_KILLED_REQUIREMENT("TOTAL-MOBS-KILLED-REQUIREMENT", "Kill at least {0} {1} {2}"),
+    TOTAL_MOBS_KILLED_REQUIREMENT("TOTAL-MOBS-KILLED-REQUIREMENT", "Kill at least {0}"),
     TOTAL_TIME_REQUIREMENT("TOTAL-TIME-REQUIREMENT", "Be with this server for at least {0} mobs"),
     TOWNY_HAS_NATION_REQUIREMENT("TOWNY-HAS-NATION-REQUIREMENT", "Need to be part of a nation."),
     TOWNY_HAS_TOWN_REQUIREMENT("TOWNY-HAS-TOWN-REQUIREMENT", "Need to be part of a town."),
@@ -302,7 +303,6 @@ public enum Lang {
 
     Lang(String path, String start) {
         this.path = path;
-
         this.def = start;
     }
 
@@ -315,12 +315,12 @@ public enum Lang {
     }
 
     public String getConfigValue(Object... args) {
-        String value = (LANG.getString(this.getPath(), this.getDefault()));
+        String value = LANG.getString(this.getPath(), this.getDefault());
         if (args != null && args.length != 0) {
             if (args[0] == null) {
                 return value;
             } else {
-                for (int i = 0; i < args.length; ++i) {
+                for(int i = 0; i < args.length; ++i) {
                     value = value.replace("{" + i + "}", args[i].toString());
                 }
 

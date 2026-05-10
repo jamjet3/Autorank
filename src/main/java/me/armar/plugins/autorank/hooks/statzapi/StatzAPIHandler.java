@@ -1,15 +1,14 @@
 package me.armar.plugins.autorank.hooks.statzapi;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.hooks.DependencyHandler;
-import me.armar.plugins.autorank.statsmanager.StatsPlugin.StatType;
+import me.armar.plugins.autorank.statsmanager.StatsPlugin;
 import me.staartvin.statz.Statz;
 import me.staartvin.statz.database.datatype.RowRequirement;
 import me.staartvin.statz.datamanager.player.PlayerStat;
 import me.staartvin.statz.hooks.StatzDependency;
 import org.bukkit.plugin.Plugin;
-
-import java.util.UUID;
 
 public class StatzAPIHandler extends DependencyHandler {
     private final Autorank plugin;
@@ -34,59 +33,34 @@ public class StatzAPIHandler extends DependencyHandler {
         return !this.isAvailable() ? null : this.statz.getStatzAPI().getDependencyHandler(dep);
     }
 
-    public double getSpecificData(UUID uuid, StatType statType, RowRequirement... conditions) {
+    public double getSpecificData(UUID uuid, StatsPlugin.StatType statType, RowRequirement... conditions) {
         if (!this.isAvailable()) {
-            return -1.0D;
+            return -1.0F;
         } else {
             Object value;
-            switch(statType) {
-                case VOTES:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.VOTES, uuid, conditions);
-                    break;
-                case DAMAGE_TAKEN:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.DAMAGE_TAKEN, uuid, conditions);
-                    break;
-                case MOBS_KILLED:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.KILLS_MOBS, uuid, conditions);
-                    break;
-                case PLAYERS_KILLED:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.KILLS_PLAYERS, uuid, conditions);
-                    break;
-                case BLOCKS_MOVED:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.DISTANCE_TRAVELLED, uuid, conditions);
-                    break;
-                case BLOCKS_PLACED:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.BLOCKS_PLACED, uuid, conditions);
-                    break;
-                case BLOCKS_BROKEN:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.BLOCKS_BROKEN, uuid, conditions);
-                    break;
-                case TIME_PLAYED:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.TIME_PLAYED, uuid, conditions);
-                    break;
-                case ITEMS_CRAFTED:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.ITEMS_CRAFTED, uuid, conditions);
-                    break;
-                case FISH_CAUGHT:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.ITEMS_CAUGHT, uuid, conditions);
-                    break;
-                case TIMES_SHEARED:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.TIMES_SHORN, uuid, conditions);
-                    break;
-                case FOOD_EATEN:
-                    value = this.statz.getStatzAPI().getSpecificData(PlayerStat.FOOD_EATEN, uuid, conditions);
-                    break;
-                default:
-                    value = 0;
+            switch (statType) {
+                case VOTES -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.VOTES, uuid, conditions);
+                case DAMAGE_TAKEN -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.DAMAGE_TAKEN, uuid, conditions);
+                case MOBS_KILLED -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.KILLS_MOBS, uuid, conditions);
+                case PLAYERS_KILLED -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.KILLS_PLAYERS, uuid, conditions);
+                case BLOCKS_MOVED -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.DISTANCE_TRAVELLED, uuid, conditions);
+                case BLOCKS_PLACED -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.BLOCKS_PLACED, uuid, conditions);
+                case BLOCKS_BROKEN -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.BLOCKS_BROKEN, uuid, conditions);
+                case TIME_PLAYED -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.TIME_PLAYED, uuid, conditions);
+                case ITEMS_CRAFTED -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.ITEMS_CRAFTED, uuid, conditions);
+                case FISH_CAUGHT -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.ITEMS_CAUGHT, uuid, conditions);
+                case TIMES_SHEARED -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.TIMES_SHORN, uuid, conditions);
+                case FOOD_EATEN -> value = this.statz.getStatzAPI().getSpecificData(PlayerStat.FOOD_EATEN, uuid, conditions);
+                default -> value = 0;
             }
 
-            return value == null ? 0.0D : (Double)value;
+            return value == null ? (double)0.0F : (Double)value;
         }
     }
 
-    public double getTotalOf(UUID uuid, StatType statType, String worldName) {
+    public double getTotalOf(UUID uuid, StatsPlugin.StatType statType, String worldName) {
         if (!this.isAvailable()) {
-            return -1.0D;
+            return -1.0F;
         } else {
             double value;
             if (worldName == null) {

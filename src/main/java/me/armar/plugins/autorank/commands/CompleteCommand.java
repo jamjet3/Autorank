@@ -1,19 +1,24 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.pathbuilder.Path;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
 import me.armar.plugins.autorank.util.AutorankTools;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class CompleteCommand extends AutorankCommand {
     private final Autorank plugin;
@@ -23,17 +28,16 @@ public class CompleteCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        var mm = MiniMessage.miniMessage();
-        if (!(sender instanceof Player)) {
+        MiniMessage mm = MiniMessage.miniMessage();
+        if (!(sender instanceof Player player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT_COMPLETE.getConfigValue());
             return true;
-        } else if (!this.hasPermission("autorank.complete", sender)) {
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else if (args.length < 2) {
             AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
             return true;
         } else {
-            Player player = (Player)sender;
             String pathName;
             if (args.length < 3) {
                 if (this.plugin.getPathManager().getActivePaths(player.getUniqueId()).size() != 1) {
@@ -47,7 +51,6 @@ public class CompleteCommand extends AutorankCommand {
             }
 
             String reqIdString = args[1];
-            boolean var8 = false;
 
             int completionID;
             try {
@@ -55,7 +58,7 @@ public class CompleteCommand extends AutorankCommand {
                 if (completionID < 1) {
                     completionID = 1;
                 }
-            } catch (Exception var12) {
+            } catch (Exception var14) {
                 AutorankTools.sendDeserialize(sender, Lang.INVALID_NUMBER.getConfigValue(reqIdString));
                 return true;
             }
@@ -70,7 +73,7 @@ public class CompleteCommand extends AutorankCommand {
             } else if (!targetPath.allowPartialCompletion()) {
                 AutorankTools.sendDeserialize(sender, Lang.THIS_PATH_DOES_NOT.getConfigValue());
                 return true;
-            } else if (targetPath.getFailedRequirements(player.getUniqueId(), true).size() == 0) {
+            } else if (targetPath.getFailedRequirements(player.getUniqueId(), true).isEmpty()) {
                 AutorankTools.sendDeserialize(sender, Lang.YOU_DONT_HAVE.getConfigValue());
                 return true;
             } else {
@@ -82,19 +85,20 @@ public class CompleteCommand extends AutorankCommand {
                 CompositeRequirement holder = requirements.get(completionID - 1);
                 if (targetPath.hasCompletedRequirement(player.getUniqueId(), completionID - 1)) {
                     AutorankTools.sendDeserialize(sender, Lang.ALREADY_COMPLETED_REQUIREMENT.getConfigValue());
-                    return true;
+                } else if (holder.meetsRequirement(player.getUniqueId())) {
+                    targetPath.completeRequirement(player.getUniqueId(), holder.getRequirementId());
                 } else {
-                    if (holder.meetsRequirement(player.getUniqueId())) {
-                        targetPath.completeRequirement(player.getUniqueId(), holder.getRequirementId());
-                    } else {
-                        Component do_not_meet_requirements_for = mm.deserialize(Lang.DO_NOT_MEET_REQUIREMENTS_FOR.getConfigValue(completionID))
-                                .append(mm.deserialize("<NEWLINE>" + Lang.DESCRIPTION.getConfigValue(holder.getDescription())))
-                                .append(mm.deserialize("<NEWLINE>" + Lang.CURRENT.getConfigValue(holder.getProgress(player.getUniqueId()))));
-                        plugin.adventure().player((Player) sender).sendMessage(do_not_meet_requirements_for);
-                    }
-
-                    return true;
+                    Component var10000 = mm.deserialize(Lang.DO_NOT_MEET_REQUIREMENTS_FOR.getConfigValue(completionID));
+                    Lang var10002 = Lang.DESCRIPTION;
+                    Object[] var10003 = new Object[]{holder.getDescription()};
+                    var10000 = var10000.append(mm.deserialize("<NEWLINE>" + var10002.getConfigValue(var10003)));
+                    var10002 = Lang.CURRENT;
+                    var10003 = new Object[]{holder.getProgress(player.getUniqueId())};
+                    Component do_not_meet_requirements_for = var10000.append(mm.deserialize("<NEWLINE>" + var10002.getConfigValue(var10003)));
+                    this.plugin.adventure().player(player).sendMessage(do_not_meet_requirements_for);
                 }
+
+                return true;
             }
         }
     }
@@ -104,16 +108,11 @@ public class CompleteCommand extends AutorankCommand {
             return Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
         } else {
             Set<String> suggestedIds = new HashSet();
-            if (args.length == 2 && args[args.length - 1].trim().equals("")) {
-                Iterator var10 = this.plugin.getPathManager().getActivePaths(((Player)sender).getUniqueId()).iterator();
-
-                while(var10.hasNext()) {
-                    Path activePath = (Path)var10.next();
-                    Iterator var12 = activePath.getFailedRequirements(((Player)sender).getUniqueId(), true).iterator();
-
-                    while(var12.hasNext()) {
-                        CompositeRequirement requirement = (CompositeRequirement)var12.next();
-                        suggestedIds.add("" + (requirement.getRequirementId() + 1));
+            if (args.length == 2 && args[args.length - 1].trim().isEmpty()) {
+                for(Path activePath : this.plugin.getPathManager().getActivePaths(((Player)sender).getUniqueId())) {
+                    for(CompositeRequirement requirement : activePath.getFailedRequirements(((Player)sender).getUniqueId(), true)) {
+                        int var10001 = requirement.getRequirementId();
+                        suggestedIds.add("" + (var10001 + 1));
                     }
                 }
 

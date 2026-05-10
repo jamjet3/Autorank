@@ -39,16 +39,21 @@ import me.armar.plugins.autorank.util.uuid.UUIDStorage;
 import me.armar.plugins.autorank.validations.ValidateHandler;
 import me.armar.plugins.autorank.warningmanager.WarningManager;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -56,12 +61,6 @@ import static me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook.isPluginAva
 
 public class Autorank extends JavaPlugin {
     private BukkitAudiences adventure;
-    public @NonNull BukkitAudiences adventure() {
-        if(this.adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
-        }
-        return this.adventure;
-    }
     public static Autorank autorank;
     private PathManager pathManager;
     private AddOnManager addonManager;
@@ -90,15 +89,19 @@ public class Autorank extends JavaPlugin {
     private DefaultBehaviorConfig defaultBehaviorConfig;
     private PlayerDataManager playerDataManager;
     private LoggerManager loggerManager;
+    FileConfiguration config = this.getConfig();
 
-    public Autorank() {
+    public @NonNull BukkitAudiences adventure() {
+        if (this.adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        } else {
+            return this.adventure;
+        }
     }
 
     public static Autorank getInstance() {
         return autorank;
     }
-
-
 
     public void onDisable() {
         this.debugMessage("Shutting down all pending tasks.");
@@ -109,10 +112,12 @@ public class Autorank extends JavaPlugin {
         if (this.getUUIDStorage() != null) {
             this.getUUIDStorage().saveAllFiles();
         }
-        if(this.adventure != null) {
+
+        if (this.adventure != null) {
             this.adventure.close();
             this.adventure = null;
         }
+
         this.getLogger().info(String.format("Autorank %s has been disabled!", this.getDescription().getVersion()));
         this.getLoggerManager().logMessage("Stopped Autorank");
     }
@@ -153,7 +158,6 @@ public class Autorank extends JavaPlugin {
         this.setBackupManager(new BackupManager(this));
         this.setPlayTimeStorageManager(new PlayTimeStorageManager(this));
         this.setDependencyManager(new DependencyManager(this));
-        // Initialize an audiences instance for the plugin
         this.adventure = BukkitAudiences.create(this);
         this.setCommandsManager(new CommandsManager(this));
         this.setAddonManager(new AddOnManager(this));
@@ -170,13 +174,17 @@ public class Autorank extends JavaPlugin {
         this.setPlayerChecker(new PlayerChecker(this));
         this.setDebugger(new Debugger(this));
         this.getServer().getScheduler().runTaskAsynchronously(this, () -> {
-            Autorank.this.debugMessage("Loading UUID storage");
-            Autorank.this.getUUIDStorage().loadStorageFiles();
+            this.debugMessage("Loading UUID storage");
+            this.getUUIDStorage().loadStorageFiles();
         });
         this.setDataConverter(new DataConverter(this));
-        this.languageHandler.createNewFile();
-        this.languageHandler.createNewlangFRFile();
-        this.languageHandler.createNewlangGEFile();
+        this.config.options().copyDefaults(true);
+        this.saveConfig();
+        this.languageHandler.createNewLangFile();
+        this.languageHandler.createNewLangFRFile();
+        this.languageHandler.createNewLangGEFile();
+        this.setLanguageHandler(new LanguageHandler(this));
+        this.getLanguageHandler().createNewLangFile();
         FlatFileStorageProvider flatFileStorageProvider = new FlatFileStorageProvider(this);
         CompletableFuture<Void> loadFlatFileTask = flatFileStorageProvider.initialiseProvider().thenAccept((loaded) -> {
             if (!loaded) {
@@ -186,6 +194,7 @@ public class Autorank extends JavaPlugin {
                 this.debugMessage("Successfully loaded flatfile storage.");
                 this.getPlayTimeStorageManager().registerStorageProvider(flatFileStorageProvider);
             }
+
         });
         CompletableFuture<Void> loadMySQLTask = CompletableFuture.runAsync(() -> {
         });
@@ -239,14 +248,14 @@ public class Autorank extends JavaPlugin {
             }
 
             HashMap<String, Integer> warnings = this.getWarningManager().getWarnings();
-            if (warnings.size() > 0) {
+            if (!warnings.isEmpty()) {
                 this.getLogger().warning("Autorank has some warnings for you: ");
             }
 
             Iterator var2 = warnings.entrySet().iterator();
 
             while(var2.hasNext()) {
-                Entry<String, Integer> entry = (Entry)var2.next();
+                Map.Entry<String, Integer> entry = (Map.Entry)var2.next();
                 this.getLogger().warning("(Priority " + entry.getValue() + ") '" + entry.getKey() + "'");
             }
 
@@ -261,6 +270,7 @@ public class Autorank extends JavaPlugin {
                 int removed = this.getPlayTimeStorageManager().getPrimaryStorageProvider().purgeOldEntries();
                 this.getLogger().info("Removed " + removed + " old storage entries from database!");
             }
+
         }, 0L, 1728000L);
         this.getCommand("autorank").setExecutor(this.getCommandsManager());
         this.setMigrationManager(new MigrationManager(this));
@@ -275,14 +285,12 @@ public class Autorank extends JavaPlugin {
         this.getUUIDStorage().transferUUIDs();
         this.api = new API(this);
         this.getLogger().info(String.format("Autorank %s has been enabled!", this.getDescription().getVersion()));
-        this.getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
-            public void run() {
-                Autorank.this.debugMessage("Trying to convert data to new format (if needed)");
-                if (!Autorank.this.getInternalPropertiesConfig().isConvertedToNewFormat()) {
-                    Autorank.this.getDataConverter().convertData();
-                }
-
+        this.getServer().getScheduler().runTaskLaterAsynchronously(this, () -> {
+            this.debugMessage("Trying to convert data to new format (if needed)");
+            if (!this.getInternalPropertiesConfig().isConvertedToNewFormat()) {
+                this.getDataConverter().convertData();
             }
+
         }, 100L);
         this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
             this.debugMessage("Checking if new a day has arrived so the playerdata should be reset.");
@@ -293,6 +301,7 @@ public class Autorank extends JavaPlugin {
             this.getLoggerManager().logMessage("Exposed Autorank placeholder extension.");
             this.getLogger().info("Registered placeholders, so you can use them!");
         }
+
         if (Bukkit.getPluginManager().isPluginEnabled("AdvancedAchievements")) {
             Plugin pluginInstance = Bukkit.getPluginManager().getPlugin("AdvancedAchievements");
         }
@@ -303,10 +312,10 @@ public class Autorank extends JavaPlugin {
     private void initializeReqsAndRes() {
         RequirementBuilder.registerRequirement("active paths", AutorankActivePathsRequirement.class);
         RequirementBuilder.registerRequirement("animals bred", AnimalsBredRequirement.class);
-        RequirementBuilder.registerRequirement("aurelium skills mana", AureliumSkillsManaRequirement.class);
-        RequirementBuilder.registerRequirement("aurelium skills skill level", AureliumSkillsSkillRequirement.class);
-        RequirementBuilder.registerRequirement("aurelium skills stat level", AureliumSkillsStatRequirement.class);
-        RequirementBuilder.registerRequirement("aurelium skills xp", AureliumSkillsXPRequirement.class);
+        RequirementBuilder.registerRequirement("aurelium skills mana", AuraSkillsManaRequirement.class);
+        RequirementBuilder.registerRequirement("aurelium skills skill level", AuraSkillsSkillRequirement.class);
+        RequirementBuilder.registerRequirement("aurelium skills stat level", AuraSkillsStatRequirement.class);
+        RequirementBuilder.registerRequirement("aurelium skills xp", AuraSkillsXPRequirement.class);
         RequirementBuilder.registerRequirement("bentobox level", BentoBoxLevelRequirement.class);
         RequirementBuilder.registerRequirement("blocks broken", BlocksBrokenRequirement.class);
         RequirementBuilder.registerRequirement("blocks moved", BlocksMovedRequirement.class);
@@ -384,11 +393,10 @@ public class Autorank extends JavaPlugin {
     }
 
     public void debugMessage(String message) {
-        if (this.getSettingsConfig().getConfig() != null) {
-            if (this.getSettingsConfig().useDebugOutput() || Debugger.debuggerEnabled) {
-                this.getServer().getConsoleSender().sendMessage("[Autorank DEBUG] " + ChatColor.translateAlternateColorCodes('&', message));
-            }
+        if (this.getSettingsConfig().getConfig() != null && (this.getSettingsConfig().useDebugOutput() || Debugger.debuggerEnabled)) {
+            this.getServer().getConsoleSender().sendMessage("[Autorank DEBUG] " + ChatColor.translateAlternateColorCodes('&', message));
         }
+
     }
 
     public boolean isDevVersion() {

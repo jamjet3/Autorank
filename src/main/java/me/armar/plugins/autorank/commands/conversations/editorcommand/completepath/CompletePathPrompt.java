@@ -18,18 +18,18 @@ public class CompletePathPrompt extends StringPrompt {
     public CompletePathPrompt() {
     }
 
-    @NotNull
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
+    public @NotNull String getPromptText(@NotNull ConversationContext conversationContext) {
         String playerName = conversationContext.getSessionData(SelectPlayerPrompt.KEY_PLAYERNAME).toString();
-        return ChatColor.GOLD + Lang.NCC_WHAT_PATH_COMPLETE.getConfigValue(ChatColor.GRAY + playerName + ChatColor.GOLD);
+        ChatColor var10000 = ChatColor.GOLD;
+        return var10000 + Lang.NCC_WHAT_PATH_COMPLETE.getConfigValue(new Object[]{ChatColor.GRAY + playerName + ChatColor.GOLD});
     }
 
-    @Nullable
-    public Prompt acceptInput(@NotNull ConversationContext conversationContext, @Nullable String s) {
+    public @Nullable Prompt acceptInput(@NotNull ConversationContext conversationContext, @Nullable String s) {
         Path path = Autorank.getInstance().getPathManager().findPathByDisplayName(s, false);
         Conversable conversable = conversationContext.getForWhom();
         if (path == null) {
-            conversable.sendRawMessage(ChatColor.RED + Lang.NCC_THE_PATH.getConfigValue(ChatColor.GRAY + s + ChatColor.RED));
+            ChatColor var10001 = ChatColor.RED;
+            conversable.sendRawMessage(var10001 + Lang.NCC_THE_PATH.getConfigValue(new Object[]{ChatColor.GRAY + s + ChatColor.RED}));
             return this;
         } else {
             conversationContext.setSessionData(KEY_PATH_TO_BE_COMPLETED, path.getInternalName());

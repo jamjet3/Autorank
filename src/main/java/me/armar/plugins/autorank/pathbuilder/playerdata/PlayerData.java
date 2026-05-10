@@ -1,9 +1,12 @@
 package me.armar.plugins.autorank.pathbuilder.playerdata;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import me.armar.plugins.autorank.pathbuilder.Path;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
-
-import java.util.*;
 
 public class PlayerData {
     private final UUID uuid = null;

@@ -1,28 +1,33 @@
 package me.armar.plugins.autorank.storage.flatfile;
 
-import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.backup.BackupManager;
-import me.armar.plugins.autorank.config.SimpleYamlConfiguration;
-import me.armar.plugins.autorank.storage.PlayTimeStorageProvider;
-import me.armar.plugins.autorank.storage.TimeType;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.InvalidConfigurationException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import me.armar.plugins.autorank.Autorank;
+import me.armar.plugins.autorank.backup.BackupManager;
+import me.armar.plugins.autorank.config.SimpleYamlConfiguration;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider;
+import me.armar.plugins.autorank.storage.TimeType;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider.StorageType;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.InvalidConfigurationException;
 
 public class FlatFileStorageProvider extends PlayTimeStorageProvider {
     private final String pathTotalTimeFile = "/data/Total_time.yml";
@@ -55,42 +60,40 @@ public class FlatFileStorageProvider extends PlayTimeStorageProvider {
         boolean deleted = data.getInternalFile().delete();
         if (!deleted) {
             this.plugin.debugMessage("Tried deleting storage file, but could not delete!");
-        } else {
-            if (timeType == TimeType.DAILY_TIME) {
-                this.plugin.getLoggerManager().logMessage("Resetting daily time file");
+        } else if (timeType == TimeType.DAILY_TIME) {
+            this.plugin.getLoggerManager().logMessage("Resetting daily time file");
 
-                try {
-                    this.dataFiles.put(TimeType.DAILY_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.DAILY_TIME), "Daily storage"));
-                } catch (InvalidConfigurationException var8) {
-                    var8.printStackTrace();
-                }
-            } else if (timeType == TimeType.WEEKLY_TIME) {
-                this.plugin.getLoggerManager().logMessage("Resetting weekly time file");
-
-                try {
-                    this.dataFiles.put(TimeType.WEEKLY_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.WEEKLY_TIME), "Weekly storage"));
-                } catch (InvalidConfigurationException var7) {
-                    var7.printStackTrace();
-                }
-            } else if (timeType == TimeType.MONTHLY_TIME) {
-                this.plugin.getLoggerManager().logMessage("Resetting monthly time file");
-
-                try {
-                    this.dataFiles.put(TimeType.MONTHLY_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.MONTHLY_TIME), "Monthly storage"));
-                } catch (InvalidConfigurationException var6) {
-                    var6.printStackTrace();
-                }
-            } else if (timeType == TimeType.TOTAL_TIME) {
-                this.plugin.getLoggerManager().logMessage("Resetting total time file");
-
-                try {
-                    this.dataFiles.put(TimeType.TOTAL_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.TOTAL_TIME), "Total storage"));
-                } catch (InvalidConfigurationException var5) {
-                    var5.printStackTrace();
-                }
+            try {
+                this.dataFiles.put(TimeType.DAILY_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.DAILY_TIME), "Daily storage"));
+            } catch (InvalidConfigurationException var8) {
+                var8.printStackTrace();
             }
+        } else if (timeType == TimeType.WEEKLY_TIME) {
+            this.plugin.getLoggerManager().logMessage("Resetting weekly time file");
 
+            try {
+                this.dataFiles.put(TimeType.WEEKLY_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.WEEKLY_TIME), "Weekly storage"));
+            } catch (InvalidConfigurationException var7) {
+                var7.printStackTrace();
+            }
+        } else if (timeType == TimeType.MONTHLY_TIME) {
+            this.plugin.getLoggerManager().logMessage("Resetting monthly time file");
+
+            try {
+                this.dataFiles.put(TimeType.MONTHLY_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.MONTHLY_TIME), "Monthly storage"));
+            } catch (InvalidConfigurationException var6) {
+                var6.printStackTrace();
+            }
+        } else if (timeType == TimeType.TOTAL_TIME) {
+            this.plugin.getLoggerManager().logMessage("Resetting total time file");
+
+            try {
+                this.dataFiles.put(TimeType.TOTAL_TIME, new SimpleYamlConfiguration(this.plugin, this.dataTypePaths.get(TimeType.TOTAL_TIME), "Total storage"));
+            } catch (InvalidConfigurationException var5) {
+                var5.printStackTrace();
+            }
         }
+
     }
 
     public void addPlayerTime(TimeType timeType, UUID uuid, int timeToAdd) {
@@ -100,7 +103,7 @@ public class FlatFileStorageProvider extends PlayTimeStorageProvider {
         try {
             time = this.getPlayerTime(timeType, uuid).get();
             this.plugin.debugMessage("Player " + uuid + " already has " + time + " for (" + timeType.name() + ")");
-        } catch (ExecutionException | InterruptedException var6) {
+        } catch (InterruptedException | ExecutionException var6) {
             var6.printStackTrace();
         }
 
@@ -129,26 +132,22 @@ public class FlatFileStorageProvider extends PlayTimeStorageProvider {
         int entriesRemoved = 0;
         SimpleYamlConfiguration data = this.getDataFile(TimeType.TOTAL_TIME);
         long currentTime = System.currentTimeMillis();
-        Iterator var6 = this.getStoredPlayers(TimeType.TOTAL_TIME).iterator();
 
-        while(true) {
-            while(var6.hasNext()) {
-                UUID uuid = (UUID)var6.next();
-                OfflinePlayer offPlayer = this.plugin.getServer().getOfflinePlayer(uuid);
-                if (offPlayer.getName() == null) {
+        for(UUID uuid : this.getStoredPlayers(TimeType.TOTAL_TIME)) {
+            OfflinePlayer offPlayer = this.plugin.getServer().getOfflinePlayer(uuid);
+            if (offPlayer.getName() == null) {
+                data.set(uuid.toString(), null);
+                ++entriesRemoved;
+            } else {
+                long lastPlayed = offPlayer.getLastPlayed();
+                if (lastPlayed <= 0L || (currentTime - lastPlayed) / 86400000L >= (long)threshold) {
                     data.set(uuid.toString(), null);
                     ++entriesRemoved;
-                } else {
-                    long lastPlayed = offPlayer.getLastPlayed();
-                    if (lastPlayed <= 0L || (currentTime - lastPlayed) / 86400000L >= (long)threshold) {
-                        data.set(uuid.toString(), null);
-                        ++entriesRemoved;
-                    }
                 }
             }
-
-            return entriesRemoved;
         }
+
+        return entriesRemoved;
     }
 
     public CompletableFuture<Integer> getNumberOfStoredPlayers(TimeType timeType) {
@@ -158,10 +157,8 @@ public class FlatFileStorageProvider extends PlayTimeStorageProvider {
     public List<UUID> getStoredPlayers(TimeType timeType) {
         List<UUID> uuids = new ArrayList();
         SimpleYamlConfiguration data = this.getDataFile(timeType);
-        Iterator var4 = data.getKeys(false).iterator();
 
-        while(var4.hasNext()) {
-            String uuidString = (String)var4.next();
+        for(String uuidString : data.getKeys(false)) {
             UUID uuid = null;
 
             try {
@@ -177,16 +174,13 @@ public class FlatFileStorageProvider extends PlayTimeStorageProvider {
     }
 
     public void saveData() {
-        Iterator var1 = this.dataFiles.entrySet().iterator();
-
-        while(var1.hasNext()) {
-            Entry<TimeType, SimpleYamlConfiguration> entry = (Entry)var1.next();
+        for(Map.Entry<TimeType, SimpleYamlConfiguration> entry : this.dataFiles.entrySet()) {
             entry.getValue().saveFile();
         }
 
     }
 
-    public StorageType getStorageType() {
+    public PlayTimeStorageProvider.StorageType getStorageType() {
         return StorageType.FLAT_FILE;
     }
 
@@ -204,66 +198,42 @@ public class FlatFileStorageProvider extends PlayTimeStorageProvider {
     }
 
     public boolean backupData() {
-        Iterator var1 = this.dataTypePaths.entrySet().iterator();
-
-        while(var1.hasNext()) {
-            Entry<TimeType, String> entry = (Entry)var1.next();
+        for(Map.Entry<TimeType, String> entry : this.dataTypePaths.entrySet()) {
             this.plugin.debugMessage("Making a backup of " + entry.getValue());
-            this.plugin.getBackupManager().backupFile(entry.getValue(), this.plugin.getDataFolder().getAbsolutePath() + File.separator + "backups" + File.separator + entry.getValue().replace("/data/", ""));
+            BackupManager var10000 = this.plugin.getBackupManager();
+            String var10001 = entry.getValue();
+            String var10002 = this.plugin.getDataFolder().getAbsolutePath();
+            var10000.backupFile(var10001, var10002 + File.separator + "backups" + File.separator + entry.getValue().replace("/data/", ""));
         }
 
         return true;
     }
 
     public int clearBackupsBeforeDate(LocalDate date) {
-        String backupsFolder = this.plugin.getDataFolder().getAbsolutePath() + File.separator + "backups";
+        String var10000 = this.plugin.getDataFolder().getAbsolutePath();
+        String backupsFolder = var10000 + File.separator + "backups";
         AtomicInteger deletedFiles = new AtomicInteger();
 
-        try {
-            Stream<Path> walk = Files.walk(Paths.get(backupsFolder));
-            Throwable var5 = null;
+        try (Stream<Path> walk = Files.walk(Paths.get(backupsFolder))) {
+            List<String> result = walk.filter((x$0) -> Files.isRegularFile(x$0)).map(Path::toString).collect(Collectors.toList());
+            result.forEach((fileName) -> {
+                String fileDateString = fileName.replaceAll("[^\\d]", "");
+                Date fileDate = null;
 
-            try {
-                List<String> result = walk.filter((x$0) -> {
-                    return Files.isRegularFile(x$0);
-                }).map(Path::toString).collect(Collectors.toList());
-                result.forEach((fileName) -> {
-                    String fileDateString = fileName.replaceAll("[^\\d]", "");
-                    Date fileDate = null;
+                try {
+                    fileDate = BackupManager.dateFormat.parse(fileDateString);
+                } catch (ParseException var7) {
+                }
 
+                if (fileDate != null && fileDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(date)) {
                     try {
-                        fileDate = BackupManager.dateFormat.parse(fileDateString);
-                    } catch (ParseException var7) {
-                    }
-
-                    if (fileDate != null) {
-                        if (fileDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(date)) {
-                            try {
-                                Files.deleteIfExists(Paths.get(fileName));
-                                deletedFiles.getAndIncrement();
-                            } catch (IOException var6) {
-                            }
-
-                        }
-                    }
-                });
-            } catch (Throwable var15) {
-                var5 = var15;
-                throw var15;
-            } finally {
-                if (walk != null) {
-                    if (var5 != null) {
-                        try {
-                            walk.close();
-                        } catch (Throwable var14) {
-                            var5.addSuppressed(var14);
-                        }
-                    } else {
-                        walk.close();
+                        Files.deleteIfExists(Paths.get(fileName));
+                        deletedFiles.getAndIncrement();
+                    } catch (IOException var6) {
                     }
                 }
 
-            }
+            });
         } catch (IOException var17) {
             var17.printStackTrace();
         }
@@ -308,15 +278,13 @@ public class FlatFileStorageProvider extends PlayTimeStorageProvider {
     private int archive(int minimum) {
         int counter = 0;
         SimpleYamlConfiguration data = this.getDataFile(TimeType.TOTAL_TIME);
-        Iterator var4 = this.getStoredPlayers(TimeType.TOTAL_TIME).iterator();
 
-        while(var4.hasNext()) {
-            UUID uuid = (UUID)var4.next();
+        for(UUID uuid : this.getStoredPlayers(TimeType.TOTAL_TIME)) {
             int time = 0;
 
             try {
                 time = this.getPlayerTime(TimeType.TOTAL_TIME, uuid).get();
-            } catch (ExecutionException | InterruptedException var8) {
+            } catch (InterruptedException | ExecutionException var8) {
                 var8.printStackTrace();
             }
 

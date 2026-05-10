@@ -1,11 +1,10 @@
 package me.armar.plugins.autorank.statsmanager.query;
 
-import me.armar.plugins.autorank.statsmanager.query.parameter.ParameterType;
-import me.armar.plugins.autorank.statsmanager.query.parameter.StatisticParameter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import me.armar.plugins.autorank.statsmanager.query.parameter.ParameterType;
+import me.armar.plugins.autorank.statsmanager.query.parameter.StatisticParameter;
 
 public class StatisticQuery {
     private final List<StatisticParameter> parameters = new ArrayList();
@@ -37,15 +36,11 @@ public class StatisticQuery {
     }
 
     public Optional<StatisticParameter> getParameter(ParameterType parameterType) {
-        return this.parameters.stream().filter((p) -> {
-            return p.getParameterType().equals(parameterType);
-        }).findFirst();
+        return this.parameters.stream().filter((p) -> p.getParameterType().equals(parameterType)).findFirst();
     }
 
     public void removeParameter(ParameterType parameterType) {
-        this.parameters.removeIf((parameter) -> {
-            return parameter.getParameterType() == parameterType;
-        });
+        this.parameters.removeIf((parameter) -> parameter.getParameterType() == parameterType);
     }
 
     public boolean hasParameter(ParameterType type) {

@@ -1,13 +1,18 @@
 package me.armar.plugins.autorank.commands;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.conversations.AutorankConversation;
 import me.armar.plugins.autorank.commands.conversations.prompts.ConfirmPrompt;
 import me.armar.plugins.autorank.commands.conversations.prompts.ConfirmPromptCallback;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
-import me.armar.plugins.autorank.storage.PlayTimeStorageProvider;
 import me.armar.plugins.autorank.storage.TimeType;
+import me.armar.plugins.autorank.storage.PlayTimeStorageProvider.StorageType;
 import me.armar.plugins.autorank.util.AutorankTools;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
@@ -15,10 +20,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-
-import java.io.File;
-import java.util.*;
-import java.util.Map.Entry;
 
 public class ImportCommand extends AutorankCommand {
     private final Autorank plugin;
@@ -28,15 +29,14 @@ public class ImportCommand extends AutorankCommand {
     }
 
     public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.import", sender)) {
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else {
             List<String> parameters = getArgumentOptions(args);
-            boolean writeToGlobalDatabase = false; //made these boolean's not final
+            boolean writeToGlobalDatabase = false;
             boolean writeToLocalDatabase = true;
             boolean overwriteGlobalDatabase = false;
             boolean overwriteLocalDatabase = false;
@@ -63,10 +63,8 @@ public class ImportCommand extends AutorankCommand {
             if (args.length > 1 && args[1] != null && args[1].equalsIgnoreCase("vanilladata")) {
                 int importedPlayers = 0;
                 OfflinePlayer[] var11 = this.plugin.getServer().getOfflinePlayers();
-                int var12 = var11.length;
 
-                for(int var13 = 0; var13 < var12; ++var13) {
-                    OfflinePlayer offlinePlayer = var11[var13];
+                for(OfflinePlayer offlinePlayer : var11) {
                     if (offlinePlayer.hasPlayedBefore() && offlinePlayer.getPlayer() != null) {
                         int vanillaTime = offlinePlayer.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE);
                         this.plugin.getPlayTimeManager().addLocalPlayTime(TimeType.TOTAL_TIME, offlinePlayer.getUniqueId(), vanillaTime);
@@ -76,12 +74,11 @@ public class ImportCommand extends AutorankCommand {
 
                 AutorankTools.sendDeserialize(sender, Lang.IMPORTED_DATA.getConfigValue(importedPlayers));
                 return true;
-            } else if (this.plugin.getPlayTimeStorageManager().getActiveStorageProviders().size() == 0) {
+            } else if (this.plugin.getPlayTimeStorageManager().getActiveStorageProviders().isEmpty()) {
                 AutorankTools.sendDeserialize(sender, Lang.THERE_ARE_NO_ACTIVE.getConfigValue());
                 return true;
-            } else if (writeToGlobalDatabase && !this.plugin.getPlayTimeStorageManager().isStorageTypeActive(PlayTimeStorageProvider.StorageType.DATABASE)) {
+            } else if (writeToGlobalDatabase && !this.plugin.getPlayTimeStorageManager().isStorageTypeActive(StorageType.DATABASE)) {
                 AutorankTools.sendDeserialize(sender, Lang.YOU_WANT.getConfigValue());
-
                 return true;
             } else {
                 boolean finalWriteToGlobalDatabase = writeToGlobalDatabase;
@@ -90,7 +87,8 @@ public class ImportCommand extends AutorankCommand {
                 boolean finalOverwriteLocalDatabase = overwriteLocalDatabase;
                 this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable() {
                     public void run() {
-                        final String importFolder = ImportCommand.this.plugin.getDataFolder().getAbsolutePath() + File.separator + "imports" + File.separator;
+                        String var10000 = ImportCommand.this.plugin.getDataFolder().getAbsolutePath();
+                        final String importFolder = var10000 + File.separator + "imports" + File.separator;
                         final Map<String, TimeType> filesToImport = new HashMap<String, TimeType>() {
                             {
                                 this.put("Total_time.yml", TimeType.TOTAL_TIME);
@@ -129,74 +127,65 @@ public class ImportCommand extends AutorankCommand {
 
                         AutorankConversation.fromFirstPrompt(new ConfirmPrompt(null, new ConfirmPromptCallback() {
                             public void promptConfirmed() {
-                                Iterator var1 = filesToImport.entrySet().iterator();
-
-                                label70:
-                                while(var1.hasNext()) {
-                                    Entry<String, TimeType> fileToImport = (Entry)var1.next();
-                                    YamlConfiguration timeConfig = YamlConfiguration.loadConfiguration(new File(importFolder + fileToImport.getKey()));
+                                for(Map.Entry<String, TimeType> fileToImport : filesToImport.entrySet()) {
+                                    String var10002 = importFolder;
+                                    YamlConfiguration timeConfig = YamlConfiguration.loadConfiguration(new File(var10002 + fileToImport.getKey()));
                                     TimeType importedTimeType = fileToImport.getValue();
                                     int importedPlayers = 0;
-                                    Iterator var6 = timeConfig.getKeys(false).iterator();
 
-                                    while(true) {
-                                        while(true) {
-                                            while(var6.hasNext()) {
-                                                String uuidString = (String)var6.next();
-                                                if (uuidString == null) {
-                                                    return;
-                                                }
+                                    for(String uuidString : timeConfig.getKeys(false)) {
+                                        if (uuidString == null) {
+                                            return;
+                                        }
 
-                                                int importedValue = timeConfig.getInt(uuidString);
-                                                UUID importedPlayer = null;
+                                        int importedValue = timeConfig.getInt(uuidString);
 
-                                                try {
-                                                    importedPlayer = UUID.fromString(uuidString);
-                                                } catch (IllegalArgumentException var11) {
-                                                    return;
-                                                }
+                                        UUID importedPlayer;
+                                        try {
+                                            importedPlayer = UUID.fromString(uuidString);
+                                        } catch (IllegalArgumentException var11) {
+                                            return;
+                                        }
 
-                                                ++importedPlayers;
-                                                if (finalWriteToLocalDatabase && finalWriteToGlobalDatabase) {
-                                                    if (finalOverwriteGlobalDatabase && finalOverwriteLocalDatabase) {
-                                                        ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(importedTimeType, importedPlayer, importedValue);
-                                                    } else {
-                                                        if (finalOverwriteGlobalDatabase) {
-                                                            ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(PlayTimeStorageProvider.StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
-                                                        } else {
-                                                            ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(PlayTimeStorageProvider.StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
-                                                        }
-
-                                                        if (finalOverwriteLocalDatabase) {
-                                                            ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(PlayTimeStorageProvider.StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
-                                                        } else {
-                                                            ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(PlayTimeStorageProvider.StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
-                                                        }
-                                                    }
-                                                } else if (finalWriteToGlobalDatabase) {
-                                                    if (finalOverwriteGlobalDatabase) {
-                                                        ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(PlayTimeStorageProvider.StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
-                                                    } else {
-                                                        ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(PlayTimeStorageProvider.StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
-                                                    }
-                                                } else if (finalOverwriteLocalDatabase) {
-                                                    ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(PlayTimeStorageProvider.StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
+                                        ++importedPlayers;
+                                        if (finalWriteToLocalDatabase && finalWriteToGlobalDatabase) {
+                                            if (finalOverwriteGlobalDatabase && finalOverwriteLocalDatabase) {
+                                                ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(importedTimeType, importedPlayer, importedValue);
+                                            } else {
+                                                if (finalOverwriteGlobalDatabase) {
+                                                    ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
                                                 } else {
-                                                    ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(PlayTimeStorageProvider.StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
+                                                    ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
+                                                }
+
+                                                if (finalOverwriteLocalDatabase) {
+                                                    ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
+                                                } else {
+                                                    ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
                                                 }
                                             }
-
-                                            if (importedPlayers == 0) {
-                                                AutorankTools.sendDeserialize(sender, Lang.COULD_NOT_IMPORT.getConfigValue(importedTimeType));
+                                        } else if (finalWriteToGlobalDatabase) {
+                                            if (finalOverwriteGlobalDatabase) {
+                                                ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
+                                            } else {
+                                                ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(StorageType.DATABASE, importedTimeType, importedPlayer, importedValue);
                                             }
-                                            continue label70;
+                                        } else if (finalOverwriteLocalDatabase) {
+                                            ImportCommand.this.plugin.getPlayTimeStorageManager().setPlayerTime(StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
+                                        } else {
+                                            ImportCommand.this.plugin.getPlayTimeStorageManager().addPlayerTime(StorageType.FLAT_FILE, importedTimeType, importedPlayer, importedValue);
                                         }
                                     }
+
+                                    if (importedPlayers == 0) {
+                                        AutorankTools.sendDeserialize(sender, Lang.COULD_NOT_IMPORT.getConfigValue(importedTimeType));
+                                    }
                                 }
-                                plugin.getInternalPropertiesConfig().saveConfig();
-                                File file = new File(plugin.getDataFolder(),"internalprops.yml");
+
+                                ImportCommand.this.plugin.getInternalPropertiesConfig().saveConfig();
+                                File file = new File(ImportCommand.this.plugin.getDataFolder(), "internalprops.yml");
                                 file.delete();
-                                plugin.getInternalPropertiesConfig().loadConfig();
+                                ImportCommand.this.plugin.getInternalPropertiesConfig().loadConfig();
                                 AutorankTools.sendDeserialize(sender, Lang.STORAGE_IMPORTED.getConfigValue());
                             }
 

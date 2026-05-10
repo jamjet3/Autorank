@@ -3,13 +3,13 @@ package me.armar.plugins.autorank.pathbuilder.playerdata.local;
 import io.reactivex.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.config.AbstractConfig;
+import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager;
 import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataStorage;
 import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager.PlayerDataStorageType;
 import me.armar.plugins.autorank.util.uuid.UUIDManager;
@@ -22,24 +22,20 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
     public LocalPlayerDataStorage(Autorank instance) {
         this.setPlugin(instance);
         this.setFileName("/playerdata/PlayerData.yml");
-        this.getPlugin().getServer().getScheduler().runTaskTimerAsynchronously(this.getPlugin(), new Runnable() {
-            public void run() {
-                LocalPlayerDataStorage.this.getPlugin().debugMessage("Saving playerdata.yml file");
-                LocalPlayerDataStorage.this.saveConfig();
-            }
+        this.getPlugin().getServer().getScheduler().runTaskTimerAsynchronously(this.getPlugin(), () -> {
+            this.getPlugin().debugMessage("Saving playerdata.yml file");
+            this.saveConfig();
         }, 600L, 600L);
-        this.getPlugin().getServer().getScheduler().runTaskLaterAsynchronously(this.getPlugin(), new Runnable() {
-            public void run() {
-                LocalPlayerDataStorage.this.getPlugin().debugMessage("Trying to convert paths file format (if it is outdated)");
-                LocalPlayerDataStorage.this.convertFormatToSupportMultiplePathsFormat();
-            }
+        this.getPlugin().getServer().getScheduler().runTaskLaterAsynchronously(this.getPlugin(), () -> {
+            this.getPlugin().debugMessage("Trying to convert paths file format (if it is outdated)");
+            this.convertFormatToSupportMultiplePathsFormat();
         }, 200L);
         this.loadConfig();
     }
 
     public Collection<Integer> getCompletedRequirements(UUID uuid, String pathName) {
         ConfigurationSection section = this.getProgressOnPathSection(uuid, pathName);
-        return section == null ? new ArrayList() : section.getIntegerList("completed requirements");
+        return (Collection<Integer>)(section == null ? new ArrayList() : section.getIntegerList("completed requirements"));
     }
 
     public boolean hasCompletedRequirement(UUID uuid, String pathName, int reqId) {
@@ -52,6 +48,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
             completedRequirements.add(reqId);
             this.setCompletedRequirements(uuid, pathName, completedRequirements);
         }
+
     }
 
     public void setCompletedRequirements(UUID uuid, String pathName, Collection<Integer> requirements) {
@@ -60,7 +57,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
 
     public Collection<Integer> getCompletedPrerequisites(UUID uuid, String pathName) {
         ConfigurationSection section = this.getProgressOnPathSection(uuid, pathName);
-        return section == null ? new ArrayList() : section.getIntegerList("completed prerequisites");
+        return (Collection<Integer>)(section == null ? new ArrayList() : section.getIntegerList("completed prerequisites"));
     }
 
     public boolean hasCompletedPrerequisite(UUID uuid, String pathName, int preReqId) {
@@ -73,6 +70,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
             completedPrerequisites.add(preReqId);
             this.setCompletedPrerequisites(uuid, pathName, completedPrerequisites);
         }
+
     }
 
     public void setCompletedPrerequisites(UUID uuid, String pathName, Collection<Integer> prerequisites) {
@@ -83,83 +81,67 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
         if (!this.convertingData) {
             this.convertingData = true;
             this.getPlugin().getLogger().info("Starting to convert playerdata.yml");
-            this.getPlugin().getServer().getScheduler().runTaskAsynchronously(this.getPlugin(), new Runnable() {
-                public void run() {
-                    LocalPlayerDataStorage.this.getPlugin().getBackupManager().backupFile("/playerdata/playerdata.yml", null);
-                    LocalPlayerDataStorage.this.getPlugin().debugMessage("Trying to convert playernames to UUIDs");
-                    Iterator var1 = LocalPlayerDataStorage.this.getConfig().getKeys(false).iterator();
+            this.getPlugin().getServer().getScheduler().runTaskAsynchronously(this.getPlugin(), () -> {
+                this.getPlugin().getBackupManager().backupFile("/playerdata/playerdata.yml", null);
+                this.getPlugin().debugMessage("Trying to convert playernames to UUIDs");
 
-                    while(var1.hasNext()) {
-                        String name = (String)var1.next();
-                        if (!name.contains("-")) {
-                            UUID uuid = null;
+                for(String name : this.getConfig().getKeys(false)) {
+                    if (!name.contains("-")) {
+                        UUID uuid = null;
 
-                            try {
-                                uuid = UUIDManager.getUUID(name).get();
-                            } catch (ExecutionException | InterruptedException var6) {
-                                var6.printStackTrace();
-                            }
+                        try {
+                            uuid = UUIDManager.getUUID(name).get();
+                        } catch (InterruptedException | ExecutionException var6) {
+                            var6.printStackTrace();
+                        }
 
-                            if (uuid != null) {
-                                List<Integer> progress = LocalPlayerDataStorage.this.getConfig().getIntegerList(name + ".progress");
-                                String lastKnownGroup = LocalPlayerDataStorage.this.getConfig().getString(name + ".last group");
-                                LocalPlayerDataStorage.this.getConfig().set(name, null);
-                                LocalPlayerDataStorage.this.getConfig().set(uuid + ".progress", progress);
-                                LocalPlayerDataStorage.this.getConfig().set(uuid + ".last group", lastKnownGroup);
-                            }
+                        if (uuid != null) {
+                            List<Integer> progress = this.getConfig().getIntegerList(name + ".progress");
+                            String lastKnownGroup = this.getConfig().getString(name + ".last group");
+                            this.getConfig().set(name, null);
+                            this.getConfig().set(uuid + ".progress", progress);
+                            this.getConfig().set(uuid + ".last group", lastKnownGroup);
                         }
                     }
-
-                    LocalPlayerDataStorage.this.getPlugin().getLogger().info("Converted playerdata.yml to UUID format");
                 }
+
+                this.getPlugin().getLogger().info("Converted playerdata.yml to UUID format");
             });
         }
+
     }
 
     private void convertFormatToSupportMultiplePathsFormat() {
         this.getPlugin().debugMessage("Looking for UUIDs to convert in PlayerData.yml file!");
         int convertedUUIDCount = 0;
-        Iterator var2 = this.getConfig().getKeys(false).iterator();
 
-        while(true) {
-            String uuidString;
-            UUID uuid;
-            String chosenPath;
-            do {
-                if (!var2.hasNext()) {
-                    this.getPlugin().debugMessage("Converted " + convertedUUIDCount + " uuids to new format.");
-                    this.saveConfig();
-                    return;
+        for(String uuidString : this.getConfig().getKeys(false)) {
+            UUID uuid = UUID.fromString(uuidString);
+            String chosenPath = this.getConfig().getString(uuidString + ".chosen path");
+            if (chosenPath != null) {
+                this.getPlugin().debugMessage("Converting UUID " + uuidString + "...");
+                this.addActivePath(uuid, chosenPath);
+
+                for(int completedRequirementId : this.getConfig().getIntegerList(uuidString + ".completed requirements")) {
+                    this.addCompletedRequirement(uuid, chosenPath, completedRequirementId);
                 }
 
-                uuidString = (String)var2.next();
-                uuid = UUID.fromString(uuidString);
-                chosenPath = this.getConfig().getString(uuidString + ".chosen path");
-            } while(chosenPath == null);
+                List<String> completedPaths = this.getConfig().getStringList(uuidString + ".completed paths");
+                this.getConfig().set(uuidString + ".completed paths", null);
 
-            this.getPlugin().debugMessage("Converting UUID " + uuidString + "...");
-            this.addActivePath(uuid, chosenPath);
-            Iterator var6 = this.getConfig().getIntegerList(uuidString + ".completed requirements").iterator();
+                for(String completedPathName : completedPaths) {
+                    this.addCompletedPath(uuid, completedPathName);
+                }
 
-            while(var6.hasNext()) {
-                int completedRequirementId = (Integer)var6.next();
-                this.addCompletedRequirement(uuid, chosenPath, completedRequirementId);
+                this.getConfig().set(uuidString + ".chosen path", null);
+                this.getConfig().set(uuidString + ".started paths", null);
+                this.getConfig().set(uuidString + ".completed requirements", null);
+                ++convertedUUIDCount;
             }
-
-            List<String> completedPaths = this.getConfig().getStringList(uuidString + ".completed paths");
-            this.getConfig().set(uuidString + ".completed paths", null);
-            Iterator var10 = completedPaths.iterator();
-
-            while(var10.hasNext()) {
-                String completedPathName = (String)var10.next();
-                this.addCompletedPath(uuid, completedPathName);
-            }
-
-            this.getConfig().set(uuidString + ".chosen path", null);
-            this.getConfig().set(uuidString + ".started paths", null);
-            this.getConfig().set(uuidString + ".completed requirements", null);
-            ++convertedUUIDCount;
         }
+
+        this.getPlugin().debugMessage("Converted " + convertedUUIDCount + " uuids to new format.");
+        this.saveConfig();
     }
 
     public Collection<String> getActivePaths(UUID uuid) {
@@ -176,14 +158,13 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
             ConfigurationSection activePathsSection = this.getActivePathsSection(uuid);
             activePathsSection.set(pathName + ".started", System.currentTimeMillis());
         }
+
     }
 
     public void setActivePaths(UUID uuid, Collection<String> paths) {
         ConfigurationSection activePathsSection = this.getActivePathsSection(uuid);
-        Iterator var4 = paths.iterator();
 
-        while(var4.hasNext()) {
-            String pathName = (String)var4.next();
+        for(String pathName : paths) {
             activePathsSection.set(pathName + ".started", System.currentTimeMillis());
         }
 
@@ -194,6 +175,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
             ConfigurationSection activePathsSection = this.getActivePathsSection(uuid);
             activePathsSection.set(pathName, null);
         }
+
     }
 
     public Collection<String> getCompletedPaths(UUID uuid) {
@@ -221,16 +203,13 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
             ConfigurationSection section = this.getCompletedPathsSection(uuid);
             section.set(pathName, null);
         }
+
     }
 
     public void setCompletedPaths(UUID uuid, Collection<String> paths) {
         ConfigurationSection section = this.getCompletedPathsSection(uuid);
-        this.getCompletedPaths(uuid).forEach((completedPath) -> {
-            section.set(completedPath, null);
-        });
-        paths.forEach((completedPath) -> {
-            this.addCompletedPath(uuid, completedPath);
-        });
+        this.getCompletedPaths(uuid).forEach((completedPath) -> section.set(completedPath, null));
+        paths.forEach((completedPath) -> this.addCompletedPath(uuid, completedPath));
     }
 
     public int getTimesCompletedPath(UUID uuid, String pathName) {
@@ -250,10 +229,8 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
 
     public void resetProgressOfAllPaths(UUID uuid) {
         ConfigurationSection pathProgressSection = this.getProgressOnPathsSection(uuid);
-        Iterator var3 = pathProgressSection.getKeys(false).iterator();
 
-        while(var3.hasNext()) {
-            String path = (String)var3.next();
+        for(String path : pathProgressSection.getKeys(false)) {
             this.resetProgressOfPath(uuid, path);
         }
 
@@ -352,12 +329,11 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
         this.getPlayerSection(uuid).set("exempted from time addition", value);
     }
 
-    public PlayerDataStorageType getDataStorageType() {
+    public PlayerDataManager.PlayerDataStorageType getDataStorageType() {
         return PlayerDataStorageType.LOCAL;
     }
 
-    @NotNull
-    private ConfigurationSection getPlayerSection(@NotNull UUID uuid) {
+    private @NotNull ConfigurationSection getPlayerSection(@NotNull UUID uuid) {
         ConfigurationSection playerSection = this.getConfig().getConfigurationSection(uuid.toString());
         if (playerSection == null) {
             playerSection = this.getConfig().createSection(uuid.toString());
@@ -366,8 +342,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
         return playerSection;
     }
 
-    @NotNull
-    private ConfigurationSection getActivePathsSection(UUID uuid) {
+    private @NotNull ConfigurationSection getActivePathsSection(UUID uuid) {
         ConfigurationSection playerSection = this.getPlayerSection(uuid);
         ConfigurationSection activePathsSection = playerSection.getConfigurationSection("active paths");
         if (activePathsSection == null) {
@@ -382,8 +357,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
         return section.getConfigurationSection(pathName);
     }
 
-    @NotNull
-    private ConfigurationSection getCompletedPathsSection(UUID uuid) {
+    private @NotNull ConfigurationSection getCompletedPathsSection(UUID uuid) {
         ConfigurationSection playerSection = this.getPlayerSection(uuid);
         ConfigurationSection completedPathsSection = playerSection.getConfigurationSection("completed paths");
         if (completedPathsSection == null) {
@@ -398,8 +372,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
         return section.getConfigurationSection(pathName);
     }
 
-    @NotNull
-    private ConfigurationSection getProgressOnPathsSection(UUID uuid) {
+    private @NotNull ConfigurationSection getProgressOnPathsSection(UUID uuid) {
         ConfigurationSection playerSection = this.getPlayerSection(uuid);
         ConfigurationSection progressSection = playerSection.getConfigurationSection("progress on paths");
         if (progressSection == null) {
@@ -414,8 +387,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
         return section.getConfigurationSection(pathName);
     }
 
-    @NotNull
-    private ConfigurationSection getResultsNotPerformedSection(UUID uuid) {
+    private @NotNull ConfigurationSection getResultsNotPerformedSection(UUID uuid) {
         ConfigurationSection section = this.getPlayerSection(uuid);
         ConfigurationSection returnValue = section.getConfigurationSection("results not performed");
         if (returnValue == null) {
@@ -425,8 +397,7 @@ public class LocalPlayerDataStorage extends AbstractConfig implements PlayerData
         return returnValue;
     }
 
-    @NotNull
-    private ConfigurationSection getCompletedRequirementsMissingResultsSection(UUID uuid) {
+    private @NotNull ConfigurationSection getCompletedRequirementsMissingResultsSection(UUID uuid) {
         ConfigurationSection section = this.getResultsNotPerformedSection(uuid);
         ConfigurationSection returnValue = section.getConfigurationSection("completed requirements");
         if (returnValue == null) {

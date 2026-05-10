@@ -1,15 +1,14 @@
 package me.armar.plugins.autorank.pathbuilder.holders;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.pathbuilder.requirement.AbstractRequirement;
 import me.armar.plugins.autorank.pathbuilder.result.AbstractResult;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
 
 public class CompositeRequirement {
     private final Autorank plugin;
@@ -70,7 +69,7 @@ public class CompositeRequirement {
                 if (c2 != c1) {
                     return i;
                 }
-            } catch (IndexOutOfBoundsException var6) {
+            } catch (IndexOutOfBoundsException var61) {
                 return -1;
             }
         }
@@ -85,9 +84,9 @@ public class CompositeRequirement {
         if (size == 0) {
             return "";
         } else {
-            String startingString = "";
             boolean needsPlayerOnline = reqs.get(0).needsOnlinePlayer();
             Player player = null;
+            String startingString;
             if (needsPlayerOnline) {
                 player = Bukkit.getOfflinePlayer(uuid).getPlayer();
                 boolean isPlayerOnline = player != null;
@@ -124,9 +123,9 @@ public class CompositeRequirement {
     }
 
     public int getRequirementId() {
-        Iterator var1 = this.getRequirements().iterator();
+        Iterator<AbstractRequirement> var1 = this.getRequirements().iterator();
         if (var1.hasNext()) {
-            AbstractRequirement r = (AbstractRequirement)var1.next();
+            AbstractRequirement r = var1.next();
             return r.getId();
         } else {
             return -1;
@@ -142,9 +141,9 @@ public class CompositeRequirement {
     }
 
     public List<AbstractResult> getResults() {
-        Iterator var1 = this.getRequirements().iterator();
+        Iterator<AbstractRequirement> var1 = this.getRequirements().iterator();
         if (var1.hasNext()) {
-            AbstractRequirement r = (AbstractRequirement)var1.next();
+            AbstractRequirement r = var1.next();
             return r.getAbstractResults();
         } else {
             return new ArrayList();
@@ -152,85 +151,62 @@ public class CompositeRequirement {
     }
 
     public boolean isOptional() {
-        Iterator var1 = this.getRequirements().iterator();
-
-        AbstractRequirement r;
-        do {
-            if (!var1.hasNext()) {
-                return false;
+        for(AbstractRequirement r : this.getRequirements()) {
+            if (r.isOptional()) {
+                return true;
             }
+        }
 
-            r = (AbstractRequirement)var1.next();
-        } while(!r.isOptional());
-
-        return true;
+        return false;
     }
 
     public boolean meetsRequirement(UUID uuid) {
-        Iterator var2 = this.getRequirements().iterator();
-
-        AbstractRequirement r;
-        do {
-            if (!var2.hasNext()) {
-                return false;
-            }
-
-            r = (AbstractRequirement)var2.next();
+        for(AbstractRequirement r : this.getRequirements()) {
             if (r.isMet(uuid)) {
                 return true;
             }
-        } while(!r.isOptional());
 
-        return true;
+            if (r.isOptional()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean useAutoCompletion() {
-        Iterator var1 = this.getRequirements().iterator();
-
-        AbstractRequirement r;
-        do {
-            if (!var1.hasNext()) {
-                return false;
+        for(AbstractRequirement r : this.getRequirements()) {
+            if (r.useAutoCompletion()) {
+                return true;
             }
+        }
 
-            r = (AbstractRequirement)var1.next();
-        } while(!r.useAutoCompletion());
-
-        return true;
+        return false;
     }
 
     public void runResults(Player player) {
-        Iterator var2 = this.getResults().iterator();
-
-        while(var2.hasNext()) {
-            AbstractResult realAbstractResult = (AbstractResult)var2.next();
+        for(AbstractResult realAbstractResult : this.getResults()) {
             realAbstractResult.applyResult(player);
         }
 
     }
 
     public boolean isPrerequisite() {
-        Iterator var1 = this.requirements.iterator();
-
-        AbstractRequirement req;
-        do {
-            if (!var1.hasNext()) {
-                return false;
+        for(AbstractRequirement req : this.requirements) {
+            if (req.isPreRequisite()) {
+                return true;
             }
+        }
 
-            req = (AbstractRequirement)var1.next();
-        } while(!req.isPreRequisite());
-
-        return true;
+        return false;
     }
 
     public double getProgressPercentage(UUID uuid) {
-        double biggestPercentage = 0.0D;
+        double biggestPercentage = 0.0F;
 
-        double progressPercentage;
-        for(Iterator var4 = this.requirements.iterator(); var4.hasNext(); biggestPercentage = Math.max(progressPercentage, biggestPercentage)) {
-            AbstractRequirement requirement = (AbstractRequirement)var4.next();
-            progressPercentage = Math.min(requirement.getProgressPercentage(uuid), 1.0D);
+        for(AbstractRequirement requirement : this.requirements) {
+            double progressPercentage = Math.min(requirement.getProgressPercentage(uuid), 1.0F);
+            biggestPercentage = Math.max(progressPercentage, biggestPercentage);
         }
 
         return biggestPercentage;

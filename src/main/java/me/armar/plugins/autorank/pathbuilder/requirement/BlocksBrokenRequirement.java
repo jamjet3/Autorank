@@ -1,10 +1,9 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.UUID;
 
 public class BlocksBrokenRequirement extends AbstractRequirement {
     BlocksBrokenWrapper wrapper = null;
@@ -76,7 +75,7 @@ public class BlocksBrokenRequirement extends AbstractRequirement {
         }
 
         ItemStack itemStack = null;
-        if (materialName != null) {
+        if (materialName != null ) {
             Material matchedMaterial = Material.matchMaterial(materialName);
             if (matchedMaterial == null) {
                 this.registerWarningMessage("Material '" + materialName + "' is not a valid material.");
@@ -107,6 +106,6 @@ public class BlocksBrokenRequirement extends AbstractRequirement {
             progress = this.getStatisticsManager().getBlocksBroken(uuid, this.getWorld(), this.wrapper.getItem().getType());
         }
 
-        return (double) progress / (double)this.wrapper.getBlocksBroken();
+        return (double)progress / (double)this.wrapper.getBlocksBroken();
     }
 }

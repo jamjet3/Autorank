@@ -1,12 +1,11 @@
 package me.armar.plugins.autorank.api.services;
 
-import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.pathbuilder.builders.ResultBuilder;
-import me.armar.plugins.autorank.pathbuilder.result.AbstractResult;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import me.armar.plugins.autorank.Autorank;
+import me.armar.plugins.autorank.pathbuilder.builders.ResultBuilder;
+import me.armar.plugins.autorank.pathbuilder.result.AbstractResult;
 
 public class ResultService implements ResultManager {
     private final Autorank plugin;

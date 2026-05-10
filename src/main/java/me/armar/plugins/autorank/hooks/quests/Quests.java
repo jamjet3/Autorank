@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.hooks.quests;
 
-import me.armar.plugins.utils.pluginlibrary.hooks.QuestsHook;
-
 import java.util.UUID;
+import me.armar.plugins.utils.pluginlibrary.hooks.QuestsHook;
 
 public class Quests implements QuestsPlugin {
     private final QuestsHook questsHook;

@@ -3,6 +3,7 @@ package me.armar.plugins.autorank.pathbuilder.requirement;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
 import me.armar.plugins.utils.pluginlibrary.hooks.JobsHook;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import org.bukkit.entity.Player;
 
 public class JobsExperienceRequirement extends AbstractRequirement {
@@ -23,7 +24,7 @@ public class JobsExperienceRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(Player player) {
-        double points = 0.0D;
+        double points = 0.0F;
         if (this.jobsHandler != null && this.jobsHandler.isHooked()) {
             points = this.jobsHandler.getCurrentXP(player, this.jobName);
         }
@@ -32,11 +33,11 @@ public class JobsExperienceRequirement extends AbstractRequirement {
     }
 
     public boolean meetsRequirement(Player player) {
-        double points = -1.0D;
+        double points = -1.0F;
         if (this.jobsHandler != null && this.jobsHandler.isHooked()) {
             points = this.jobsHandler.getCurrentXP(player, this.jobName);
         } else {
-            points = -1.0D;
+            points = -1.0F;
         }
 
         return points >= (double)this.experience;

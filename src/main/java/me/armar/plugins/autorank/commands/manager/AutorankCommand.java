@@ -1,14 +1,5 @@
 package me.armar.plugins.autorank.commands.manager;
 
-import me.armar.plugins.autorank.language.Lang;
-import me.armar.plugins.autorank.util.AutorankTools;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
-import org.bukkit.plugin.Plugin;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,19 +7,31 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import me.armar.plugins.autorank.language.Lang;
+import me.armar.plugins.autorank.util.AutorankTools;
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.bukkit.plugin.Plugin;
 
 public abstract class AutorankCommand implements TabExecutor {
     public AutorankCommand() {
     }
+
     public abstract String getDescription();
+
     public abstract String getPermission();
+
     public abstract String getUsage();
-    public abstract boolean onCommand(CommandSender semder, Command cmd, String commandlabel, String[] args);
+
+    public abstract boolean onCommand(CommandSender var1, Command var2, String var3, String[] var4);
+
     public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
         return null;
     }
+
     public boolean hasPermission(String permission, CommandSender sender) {
-        var mm = MiniMessage.miniMessage();
         if (!sender.hasPermission(permission)) {
             AutorankTools.sendDeserialize(sender, Lang.NO_PERMISSION.getConfigValue(permission));
             return false;
@@ -38,9 +41,9 @@ public abstract class AutorankCommand implements TabExecutor {
     }
 
     public static List<String> getArgumentOptions(String[] strings) {
-        List<String> arguments = new ArrayList<>();
+        List<String> arguments = new ArrayList();
         Arrays.stream(strings).forEach((string) -> {
-            if (string.matches("[-]{2}[a-zA-Z_-]+")) {
+            if (string.matches("-{2}[a-zA-Z_-]+")) {
                 arguments.add(string.replace("--", "").toLowerCase());
             }
 
@@ -50,11 +53,13 @@ public abstract class AutorankCommand implements TabExecutor {
 
     public void runCommandTask(CompletableFuture<?> task) {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("Autorank");
+
         assert plugin != null;
+
         Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 task.get();
-            } catch (ExecutionException | InterruptedException var2) {
+            } catch (InterruptedException | ExecutionException var2) {
                 var2.printStackTrace();
             }
 
@@ -62,9 +67,7 @@ public abstract class AutorankCommand implements TabExecutor {
     }
 
     public static List<String> getOptionsStartingWith(Collection<String> options, String started) {
-        return options.stream().filter((s) -> {
-            return s.toLowerCase().startsWith(started.toLowerCase());
-        }).collect(Collectors.toList());
+        return options.stream().filter((s) -> s.toLowerCase().startsWith(started.toLowerCase())).collect(Collectors.toList());
     }
 
     public static String getStringFromArgs(String[] args, int startArg) {

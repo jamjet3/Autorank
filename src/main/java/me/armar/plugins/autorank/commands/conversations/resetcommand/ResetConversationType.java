@@ -20,25 +20,28 @@ public class ResetConversationType extends FixedSetPrompt {
         super(RESET_ACTIVE_PROGRESS, RESET_COMPLETED_PATHS, RESET_ACTIVE_PATHS, RESET_ALL_PROGRESS);
     }
 
-    @Nullable
-    protected Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
+    protected @Nullable Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
         conversationContext.setSessionData(RESET_TYPE, s);
         String requestPlayerMessage;
         if (s.equals(RESET_COMPLETED_PATHS)) {
-            requestPlayerMessage = ChatColor.DARK_AQUA + Lang.NCC_OF_WHICH_PLAYER_COMPLETED.getConfigValue();
+            ChatColor var10000 = ChatColor.DARK_AQUA;
+            requestPlayerMessage = var10000 + Lang.NCC_OF_WHICH_PLAYER_COMPLETED.getConfigValue(new Object[0]);
         } else if (s.equals(RESET_ACTIVE_PATHS)) {
-            requestPlayerMessage = ChatColor.DARK_AQUA + Lang.NCC_OF_WHICH_PLAYER_ACTIVE.getConfigValue();
+            ChatColor var4 = ChatColor.DARK_AQUA;
+            requestPlayerMessage = var4 + Lang.NCC_OF_WHICH_PLAYER_ACTIVE.getConfigValue(new Object[0]);
         } else if (s.equals(RESET_ALL_PROGRESS)) {
-            requestPlayerMessage = ChatColor.DARK_AQUA + Lang.NCC_OF_WHICH_PLAYER_ALL_PROGRESS.getConfigValue();
+            ChatColor var5 = ChatColor.DARK_AQUA;
+            requestPlayerMessage = var5 + Lang.NCC_OF_WHICH_PLAYER_ALL_PROGRESS.getConfigValue(new Object[0]);
         } else {
-            requestPlayerMessage = ChatColor.DARK_AQUA + Lang.NCC_OF_WHICH_PLAYER_ACTIVE_PROGRESS.getConfigValue();
+            ChatColor var6 = ChatColor.DARK_AQUA;
+            requestPlayerMessage = var6 + Lang.NCC_OF_WHICH_PLAYER_ACTIVE_PROGRESS.getConfigValue(new Object[0]);
         }
 
         return new RequestPlayerNamePrompt(requestPlayerMessage, new ResetConfirmation());
     }
 
-    @NotNull
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
-        return ChatColor.DARK_AQUA + Lang.NCC_WHAT_DO_YOU.getConfigValue() + ChatColor.RED + this.formatFixedSet();
+    public @NotNull String getPromptText(@NotNull ConversationContext conversationContext) {
+        ChatColor var10000 = ChatColor.DARK_AQUA;
+        return var10000 + Lang.NCC_WHAT_DO_YOU.getConfigValue(new Object[0]) + ChatColor.RED + this.formatFixedSet();
     }
 }

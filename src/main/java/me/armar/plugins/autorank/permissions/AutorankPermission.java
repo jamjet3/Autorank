@@ -2,15 +2,10 @@ package me.armar.plugins.autorank.permissions;
 
 public final class AutorankPermission {
     public static final String ADD_LOCAL_TIME = "autorank.add";
-    public static final String ARCHIVE_PLAYERS = "autorank.archive";
     public static final String CHECK_SELF = "autorank.check";
     public static final String CHECK_OTHERS = "autorank.checkothers";
     public static final String CHOOSE_PATH = "autorank.choose";
     public static final String COMPLETE_REQUIREMENT = "autorank.complete";
-    public static final String CONVERT_TIME_DATA = "autorank.convert.storage";
-    public static final String CONVERT_PLAYER_DATA = "autorank.convert.playerdata";
-    public static final String CONVERT_SIMPLE_CONFIG = "autorank.convert.simpleconfig";
-    public static final String CONVERT_ADVANCED_CONFIG = "autorank.convert.advancedconfig";
     public static final String DEBUG_FILE = "autorank.debug";
     public static final String FORCE_CHECK = "autorank.forcecheck";
     public static final String ADD_GLOBAL_TIME = "autorank.gadd";

@@ -15,9 +15,13 @@ class ResetConfirmation extends MessagePrompt {
     ResetConfirmation() {
     }
 
-    @Nullable
-    protected Prompt getNextPrompt(@NotNull final ConversationContext conversationContext) {
-        String message = ChatColor.DARK_AQUA + Lang.NCC_ARE_YOU_SURE_RESET.getConfigValue(ChatColor.GOLD + conversationContext.getSessionData("playerName").toString() + ChatColor.DARK_AQUA);
+    protected @Nullable Prompt getNextPrompt(final @NotNull ConversationContext conversationContext) {
+        ChatColor var10000 = ChatColor.DARK_AQUA;
+        Lang var10001 = Lang.NCC_ARE_YOU_SURE_RESET;
+        Object[] var10002 = new Object[1];
+        ChatColor var10005 = ChatColor.GOLD;
+        var10002[0] = var10005 + conversationContext.getSessionData("playerName").toString() + ChatColor.DARK_AQUA;
+        String message = var10000 + var10001.getConfigValue(var10002);
         String resetType = conversationContext.getSessionData(ResetConversationType.RESET_TYPE).toString();
         if (resetType.equals(ResetConversationType.RESET_COMPLETED_PATHS)) {
             message = message.replace("%type%", Lang.NCC_COMPLETED.getConfigValue());
@@ -40,8 +44,7 @@ class ResetConfirmation extends MessagePrompt {
         });
     }
 
-    @NotNull
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
+    public @NotNull String getPromptText(@NotNull ConversationContext conversationContext) {
         return "";
     }
 }

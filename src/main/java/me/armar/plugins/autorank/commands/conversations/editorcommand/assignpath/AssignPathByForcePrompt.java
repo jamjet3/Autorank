@@ -15,13 +15,12 @@ public class AssignPathByForcePrompt extends ConfirmPrompt {
         super(END_OF_CONVERSATION, END_OF_CONVERSATION);
     }
 
-    @NotNull
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
-        return ChatColor.GRAY + conversationContext.getSessionData(SelectPlayerPrompt.KEY_PLAYERNAME).toString() + ChatColor.GOLD + " does not meet the prerequisites of this path. Do you still want to assign them this path?";
+    public @NotNull String getPromptText(@NotNull ConversationContext conversationContext) {
+        ChatColor var10000 = ChatColor.GRAY;
+        return var10000 + conversationContext.getSessionData(SelectPlayerPrompt.KEY_PLAYERNAME).toString() + ChatColor.GOLD + " does not meet the prerequisites of this path. Do you still want to assign them this path?";
     }
 
-    @Nullable
-    protected Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
+    protected @Nullable Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
         Prompt nextPrompt = super.acceptValidatedInput(conversationContext, s);
         conversationContext.setSessionData(KEY_ASSIGN_PATH_BY_FORCE, s.equalsIgnoreCase("yes"));
         return nextPrompt;

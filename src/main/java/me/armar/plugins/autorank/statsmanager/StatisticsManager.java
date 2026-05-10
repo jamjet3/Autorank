@@ -1,7 +1,10 @@
 package me.armar.plugins.autorank.statsmanager;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.hooks.DependencyManager;
+import me.armar.plugins.autorank.hooks.DependencyManager.AutorankDependency;
 import me.armar.plugins.autorank.hooks.statzapi.StatzAPIHandler;
 import me.armar.plugins.autorank.statsmanager.handlers.StatzHandler;
 import me.armar.plugins.autorank.statsmanager.handlers.vanilla.VanillaHandler;
@@ -10,10 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import static org.bukkit.Material.*;
 
 public class StatisticsManager {
     private final Autorank plugin;
@@ -32,7 +32,7 @@ public class StatisticsManager {
         this.availableStatsPlugins.clear();
         if (this.isPluginAvailable("Statz")) {
             this.plugin.getLogger().info("Found Statz plugin: Statz (by Staartvin)");
-            StatsPlugin statsPlugin = new StatzHandler(this.plugin, (StatzAPIHandler)this.plugin.getDependencyManager().getDependency(DependencyManager.AutorankDependency.STATZ));
+            StatsPlugin statsPlugin = new StatzHandler(this.plugin, (StatzAPIHandler)this.plugin.getDependencyManager().getDependency(AutorankDependency.STATZ));
             if (!statsPlugin.isEnabled()) {
                 this.plugin.getLogger().info("Couldn't hook into Statz! Make sure the version is correct!");
                 return;
@@ -48,12 +48,11 @@ public class StatisticsManager {
     }
 
     public int getBlocksBroken(UUID uuid, String worldName, Material block) {
-        Iterator var4 = this.availableStatsPlugins.iterator();
-
-        while(var4.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var4.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
+                if (block == CARROT) block = CARROTS;
+                if (block == POTATO) block = POTATOES;
+                if (block == BEETROOT) block = BEETROOTS;
                 return availableStatsPlugin.getBlocksBroken(uuid, worldName, block);
             } catch (UnsupportedOperationException var7) {
             }
@@ -63,11 +62,7 @@ public class StatisticsManager {
     }
 
     public int getBlocksMoved(UUID uuid, String worldName) {
-        Iterator var3 = this.availableStatsPlugins.iterator();
-
-        while(var3.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var3.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getBlocksMoved(uuid, worldName);
             } catch (UnsupportedOperationException var6) {
@@ -78,11 +73,7 @@ public class StatisticsManager {
     }
 
     public int getBlocksPlaced(UUID uuid, String worldName, Material block) {
-        Iterator var4 = this.availableStatsPlugins.iterator();
-
-        while(var4.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var4.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getBlocksPlaced(uuid, worldName, block);
             } catch (UnsupportedOperationException var7) {
@@ -93,11 +84,7 @@ public class StatisticsManager {
     }
 
     public int getDamageTaken(UUID uuid, String worldName) {
-        Iterator var3 = this.availableStatsPlugins.iterator();
-
-        while(var3.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var3.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getDamageTaken(uuid, worldName);
             } catch (UnsupportedOperationException var6) {
@@ -108,11 +95,7 @@ public class StatisticsManager {
     }
 
     public int getFishCaught(UUID uuid, String worldName) {
-        Iterator var3 = this.availableStatsPlugins.iterator();
-
-        while(var3.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var3.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getFishCaught(uuid, worldName);
             } catch (UnsupportedOperationException var6) {
@@ -123,11 +106,7 @@ public class StatisticsManager {
     }
 
     public int getFoodEaten(UUID uuid, String worldName, Material food) {
-        Iterator var4 = this.availableStatsPlugins.iterator();
-
-        while(var4.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var4.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getFoodEaten(uuid, worldName, food);
             } catch (UnsupportedOperationException var7) {
@@ -138,11 +117,7 @@ public class StatisticsManager {
     }
 
     public int getItemsCrafted(UUID uuid, String worldName, Material item) {
-        Iterator var4 = this.availableStatsPlugins.iterator();
-
-        while(var4.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var4.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getItemsCrafted(uuid, worldName, item);
             } catch (UnsupportedOperationException var7) {
@@ -153,11 +128,7 @@ public class StatisticsManager {
     }
 
     public int getMobsKilled(UUID uuid, String worldName, EntityType mob) {
-        Iterator var4 = this.availableStatsPlugins.iterator();
-
-        while(var4.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var4.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getMobsKilled(uuid, worldName, mob);
             } catch (UnsupportedOperationException var7) {
@@ -168,11 +139,7 @@ public class StatisticsManager {
     }
 
     public int getPlayersKilled(UUID uuid, String worldName) {
-        Iterator var3 = this.availableStatsPlugins.iterator();
-
-        while(var3.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var3.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getPlayersKilled(uuid, worldName);
             } catch (UnsupportedOperationException var6) {
@@ -183,11 +150,7 @@ public class StatisticsManager {
     }
 
     public int getTimePlayed(UUID uuid, String worldName) {
-        Iterator var3 = this.availableStatsPlugins.iterator();
-
-        while(var3.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var3.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getTimePlayed(uuid, worldName);
             } catch (UnsupportedOperationException var6) {
@@ -198,11 +161,7 @@ public class StatisticsManager {
     }
 
     public int getSheepShorn(UUID uuid, String worldName) {
-        Iterator var3 = this.availableStatsPlugins.iterator();
-
-        while(var3.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var3.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getSheepShorn(uuid, worldName);
             } catch (UnsupportedOperationException var6) {
@@ -213,11 +172,7 @@ public class StatisticsManager {
     }
 
     public int getTimesVoted(UUID uuid) {
-        Iterator var2 = this.availableStatsPlugins.iterator();
-
-        while(var2.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var2.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getTimesVoted(uuid);
             } catch (UnsupportedOperationException var5) {
@@ -228,11 +183,7 @@ public class StatisticsManager {
     }
 
     public int getAnimalsBred(UUID uuid) {
-        Iterator var2 = this.availableStatsPlugins.iterator();
-
-        while(var2.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var2.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getAnimalsBred(uuid);
             } catch (UnsupportedOperationException var5) {
@@ -243,11 +194,7 @@ public class StatisticsManager {
     }
 
     public int getCakeSlicesEaten(UUID uuid) {
-        Iterator var2 = this.availableStatsPlugins.iterator();
-
-        while(var2.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var2.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getCakeSlicesEaten(uuid);
             } catch (UnsupportedOperationException var5) {
@@ -258,11 +205,7 @@ public class StatisticsManager {
     }
 
     public int getItemsEnchanted(UUID uuid) {
-        Iterator var2 = this.availableStatsPlugins.iterator();
-
-        while(var2.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var2.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getItemsEnchanted(uuid);
             } catch (UnsupportedOperationException var5) {
@@ -273,11 +216,7 @@ public class StatisticsManager {
     }
 
     public int getTimesDied(UUID uuid) {
-        Iterator var2 = this.availableStatsPlugins.iterator();
-
-        while(var2.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var2.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getTimesDied(uuid);
             } catch (UnsupportedOperationException var5) {
@@ -288,11 +227,7 @@ public class StatisticsManager {
     }
 
     public int getPlantsPotted(UUID uuid) {
-        Iterator var2 = this.availableStatsPlugins.iterator();
-
-        while(var2.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var2.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getPlantsPotted(uuid);
             } catch (UnsupportedOperationException var5) {
@@ -303,11 +238,7 @@ public class StatisticsManager {
     }
 
     public int getTimesTradedWithVillagers(UUID uuid) {
-        Iterator var2 = this.availableStatsPlugins.iterator();
-
-        while(var2.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var2.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getTimesTradedWithVillagers(uuid);
             } catch (UnsupportedOperationException var5) {
@@ -318,11 +249,7 @@ public class StatisticsManager {
     }
 
     public int getItemThrown(UUID uuid, Material item) {
-        Iterator var3 = this.availableStatsPlugins.iterator();
-
-        while(var3.hasNext()) {
-            StatsPlugin availableStatsPlugin = (StatsPlugin)var3.next();
-
+        for(StatsPlugin availableStatsPlugin : this.availableStatsPlugins) {
             try {
                 return availableStatsPlugin.getItemThrown(uuid, item);
             } catch (UnsupportedOperationException var6) {

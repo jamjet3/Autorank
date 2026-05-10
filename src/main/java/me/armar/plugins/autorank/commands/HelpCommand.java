@@ -1,5 +1,9 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -9,11 +13,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class HelpCommand extends AutorankCommand {
     private final Autorank plugin;
 
@@ -22,51 +21,46 @@ public class HelpCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (args.length == 1) {
-            this.showHelpPages(sender, 1);
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
+            return true;
         } else {
-            boolean var5 = true;
+            if (args.length == 1) {
+                this.showHelpPages(sender, 1);
+            } else {
+                int page;
+                try {
+                    page = Integer.parseInt(args[1]);
+                } catch (Exception var7) {
+                    AutorankTools.sendDeserialize(sender, Lang.INVALID_NUMBER.getConfigValue(args[1]));
+                    return true;
+                }
 
-            int page;
-            try {
-                page = Integer.parseInt(args[1]);
-            } catch (Exception var7) {
-                AutorankTools.sendDeserialize(sender, Lang.INVALID_NUMBER.getConfigValue(args[1]));
-                return true;
+                this.showHelpPages(sender, page);
             }
 
-            this.showHelpPages(sender, page);
+            return true;
         }
-
-        return true;
     }
 
     private void showHelpPages(CommandSender sender, int page) {
-        if (!this.hasPermission("autorank.help", sender)) {
-            return;
-        }
         List<AutorankCommand> commands = (List)(new ArrayList(this.plugin.getCommandsManager().getRegisteredCommands().values())).stream().sorted(Comparator.comparing(AutorankCommand::getUsage)).collect(Collectors.toList());
         if (this.plugin.getSettingsConfig().doBaseHelpPageOnPermissions() && !sender.isOp()) {
-            commands = commands.stream().filter((cmd) -> {
-                return sender.hasPermission(cmd.getPermission());
-            }).collect(Collectors.toList());
+            commands = commands.stream().filter((cmd) -> sender.hasPermission(cmd.getPermission())).toList();
         }
 
         int listSize = commands.size();
-        int maxPages = (int)Math.ceil((double)listSize / 6.0D);
+        int maxPages = (int)Math.ceil((double)listSize / (double)6.0F);
         if (page > maxPages || page == 0) {
             page = maxPages;
         }
 
         int start = 0;
         int end = 6;
-        int i;
         if (page != 1) {
-            i = page - 1;
+            int i = page - 1;
             ++start;
             start += 6 * i;
             end = start + 6;
@@ -74,9 +68,10 @@ public class HelpCommand extends AutorankCommand {
 
         sender.sendMessage(ChatColor.GREEN + "-- Autorank Commands --");
 
-        for(i = start; i < end && i < listSize; ++i) {
+        for(int i = start; i < end && i < listSize; ++i) {
             AutorankCommand command = commands.get(i);
-            sender.sendMessage(ChatColor.AQUA + command.getUsage() + ChatColor.GRAY + " - " + command.getDescription());
+            ChatColor var10001 = ChatColor.AQUA;
+            sender.sendMessage(var10001 + command.getUsage() + ChatColor.GRAY + " - " + command.getDescription());
         }
 
         sender.sendMessage(ChatColor.BLUE + "Page " + page + " of " + maxPages);

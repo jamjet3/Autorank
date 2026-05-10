@@ -1,21 +1,21 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.text.DecimalFormat;
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
 import me.armar.plugins.utils.pluginlibrary.hooks.FactionXHook;
-
-import java.text.DecimalFormat;
-import java.util.UUID;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 
 public class FactionsXPowerRequirement extends AbstractRequirement {
-    double factionPower = -1.0D;
+    double factionPower = -1.0F;
     private FactionXHook handler;
 
     public FactionsXPowerRequirement() {
     }
 
     public String getDescription() {
-        String lang = Lang.FACTIONS_POWER_REQUIREMENT.getConfigValue(this.factionPower + "");
+        String lang = Lang.FACTIONS_POWER_REQUIREMENT.getConfigValue("" + this.factionPower);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -44,7 +44,7 @@ public class FactionsXPowerRequirement extends AbstractRequirement {
             return false;
         }
 
-        if (this.factionPower < 0.0D) {
+        if (this.factionPower < (double)0.0F) {
             this.registerWarningMessage("No number is provided or smaller than 0.");
             return false;
         } else if (this.handler != null && this.handler.isHooked()) {

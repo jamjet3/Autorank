@@ -1,11 +1,15 @@
-package me.armar.plugins.autorank.pathbuilder.requirement;
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+package me.armar.plugins.autorank.pathbuilder.requirement;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public class JavaScriptRequirement extends AbstractRequirement {
     String code = null;

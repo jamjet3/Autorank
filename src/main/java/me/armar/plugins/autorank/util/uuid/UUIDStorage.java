@@ -1,19 +1,23 @@
 package me.armar.plugins.autorank.util.uuid;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.armar.plugins.autorank.Autorank;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
 public class UUIDStorage {
     private final HashMap<String, File> configFiles = new HashMap();
@@ -25,11 +29,9 @@ public class UUIDStorage {
     public UUIDStorage(Autorank instance) {
         this.plugin = instance;
         this.desFolder = this.plugin.getDataFolder() + "/uuids";
-        this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new Runnable() {
-            public void run() {
-                UUIDStorage.this.plugin.debugMessage("Periodically save all UUID files");
-                UUIDStorage.this.saveAllFiles();
-            }
+        this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, () -> {
+            this.plugin.debugMessage("Periodically save all UUID files");
+            this.saveAllFiles();
         }, 1200L, 2400L);
     }
 
@@ -41,7 +43,9 @@ public class UUIDStorage {
             this.reloadConfig(suffix);
             this.loadConfig(suffix);
         });
-        this.plugin.getLogger().info("Loaded UUID storage in " + (System.currentTimeMillis() - startTime) / 1000L + " seconds.");
+        Logger var10000 = this.plugin.getLogger();
+        long var10001 = System.currentTimeMillis() - startTime;
+        var10000.info("Loaded UUID storage in " + var10001 / 1000L + " seconds.");
     }
 
     private FileConfiguration findCorrectConfig(String playerName) {
@@ -51,34 +55,24 @@ public class UUIDStorage {
 
     private String findMatchingKey(String text) {
         text = text.toLowerCase();
-        Iterator var2 = this.fileSuffixes.iterator();
 
-        String key;
-        do {
-            if (!var2.hasNext()) {
-                return "other";
+        for(String key : this.fileSuffixes) {
+            if (!key.equals("other") && text.startsWith(key)) {
+                return key;
             }
+        }
 
-            key = (String)var2.next();
-        } while(key.equals("other") || !text.startsWith(key));
-
-        return key;
+        return "other";
     }
 
     private String getStoredUsername(UUID uuid) {
-        Iterator var2 = this.fileSuffixes.iterator();
-
-        while(var2.hasNext()) {
-            String suffix = (String)var2.next();
+        for(String suffix : this.fileSuffixes) {
             FileConfiguration config = this.getConfig(suffix);
             if (config == null) {
                 return null;
             }
 
-            Iterator var5 = config.getKeys(false).iterator();
-
-            while(var5.hasNext()) {
-                String fPlayerName = (String)var5.next();
+            for(String fPlayerName : config.getKeys(false)) {
                 String fuuid = config.getString(fPlayerName + ".uuid");
                 if (fuuid != null && fuuid.equals(uuid.toString())) {
                     String realName = config.getString(fPlayerName + ".realName", null);
@@ -102,22 +96,6 @@ public class UUIDStorage {
         }
 
         return config;
-    }
-
-    private int getLastUpdateTime(String playerName) {
-        playerName = playerName.toLowerCase();
-        FileConfiguration fileConfiguration = this.findCorrectConfig(playerName);
-        if (fileConfiguration == null) {
-            return -1;
-        } else {
-            long lastUpdateTime = fileConfiguration.getLong(playerName + ".updateTime", -1L);
-            if (lastUpdateTime < 0L) {
-                return -1;
-            } else {
-                long difference = System.currentTimeMillis() - lastUpdateTime;
-                return Math.round((float)difference / 3600000.0F);
-            }
-        }
     }
 
     protected CompletableFuture<String> getUsername(UUID uuid) {
@@ -159,7 +137,7 @@ public class UUIDStorage {
         return this.getStoredUsername(uuid) != null;
     }
 
-    public boolean isOutdated(String playerName) {
+    public boolean isOutdated() {
         return true;
     }
 
@@ -172,22 +150,18 @@ public class UUIDStorage {
             config.options().copyDefaults(true);
             this.saveConfig(key);
         }
+
     }
 
     public void reloadConfig(String key) {
-        File configFile = null;
-        FileConfiguration config = null;
-        configFile = new File(this.desFolder, "uuids_" + key + ".yml");
-        config = YamlConfiguration.loadConfiguration(configFile);
+        File configFile = new File(this.desFolder, "uuids_" + key + ".yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
         this.configs.put(key, config);
         this.configFiles.put(key, configFile);
     }
 
     public void saveAllFiles() {
-        Iterator var1 = this.fileSuffixes.iterator();
-
-        while(var1.hasNext()) {
-            String suffix = (String)var1.next();
+        for(String suffix : this.fileSuffixes) {
             this.saveConfig(suffix);
         }
 
@@ -202,22 +176,21 @@ public class UUIDStorage {
             } catch (IOException var5) {
                 this.plugin.getLogger().log(Level.SEVERE, "Could not save config to " + configFile, var5);
             }
-
         }
+
     }
 
     public CompletableFuture<Boolean> storeUUID(String playerName, UUID uuid) {
         String lowerCasePlayerName = playerName.toLowerCase();
         return CompletableFuture.supplyAsync(() -> {
-            if (!this.isOutdated(lowerCasePlayerName)) {
+            if (!this.isOutdated()) {
                 this.plugin.debugMessage("Do not store " + playerName + " because it's not outdated.");
                 return true;
             } else {
-                FileConfiguration config;
                 if (this.isStored(uuid)) {
                     String oldUser = this.getStoredUsername(uuid);
                     if (oldUser != null) {
-                        config = this.findCorrectConfig(oldUser);
+                        FileConfiguration config = this.findCorrectConfig(oldUser);
                         if (oldUser.equalsIgnoreCase(lowerCasePlayerName)) {
                             config.set(lowerCasePlayerName + ".updateTime", System.currentTimeMillis());
                             this.plugin.debugMessage("Already stored " + oldUser + ", so only updating time.");
@@ -229,9 +202,11 @@ public class UUIDStorage {
                     }
                 }
 
-                config = this.findCorrectConfig(lowerCasePlayerName);
+                FileConfiguration config = this.findCorrectConfig(lowerCasePlayerName);
                 if (config == null) {
-                    this.plugin.debugMessage("Could not store uuid " + uuid.toString() + " of player " + lowerCasePlayerName);
+                    Autorank var10000 = this.plugin;
+                    String var10001 = uuid.toString();
+                    var10000.debugMessage("Could not store uuid " + var10001 + " of player " + lowerCasePlayerName);
                     return false;
                 } else {
                     config.set(lowerCasePlayerName + ".uuid", uuid.toString());
@@ -241,7 +216,7 @@ public class UUIDStorage {
                     if (realName == null) {
                         try {
                             realName = UUIDManager.getPlayerName(uuid).get();
-                        } catch (ExecutionException | InterruptedException var8) {
+                        } catch (InterruptedException | ExecutionException var8) {
                             var8.printStackTrace();
                         }
                     }
@@ -258,43 +233,30 @@ public class UUIDStorage {
         if (!this.plugin.getInternalPropertiesConfig().hasTransferredUUIDs()) {
             this.plugin.getServer().getConsoleSender().sendMessage("[Autorank] " + ChatColor.RED + "Since the uuid storage have not been converted yet, I need to convert your UUID files to a new format.");
             this.plugin.getServer().getConsoleSender().sendMessage("[Autorank] " + ChatColor.RED + "Converting UUID files to new format (3.7.1), this may take a while.");
-            Iterator var1 = this.fileSuffixes.iterator();
 
-            while(true) {
-                FileConfiguration config;
-                do {
-                    if (!var1.hasNext()) {
-                        this.plugin.getServer().getConsoleSender().sendMessage("[Autorank] " + ChatColor.GREEN + "All UUID files were properly converted. Please restart your server!");
-                        this.plugin.getInternalPropertiesConfig().hasTransferredUUIDs(true);
-                        return;
+            for(String suffix : this.fileSuffixes) {
+                FileConfiguration config = this.getConfig(suffix);
+                if (config != null) {
+                    for(String name : config.getKeys(false)) {
+                        String uuidString = config.getString(name + ".uuid");
+                        long updateTime = config.getLong(name + ".updateTime", 0L);
+                        config.set(name, null);
+                        config.set(name.toLowerCase() + ".uuid", uuidString);
+                        config.set(name.toLowerCase() + ".updateTime", updateTime);
                     }
-
-                    String suffix = (String)var1.next();
-                    config = this.getConfig(suffix);
-                } while(config == null);
-
-                Set<String> names = config.getKeys(false);
-                Iterator var5 = names.iterator();
-
-                while(var5.hasNext()) {
-                    String name = (String)var5.next();
-                    String uuidString = config.getString(name + ".uuid");
-                    long updateTime = config.getLong(name + ".updateTime", 0L);
-                    config.set(name, null);
-                    config.set(name.toLowerCase() + ".uuid", uuidString);
-                    config.set(name.toLowerCase() + ".updateTime", updateTime);
                 }
             }
+
+            this.plugin.getServer().getConsoleSender().sendMessage("[Autorank] " + ChatColor.GREEN + "All UUID files were properly converted. Please restart your server!");
+            this.plugin.getInternalPropertiesConfig().hasTransferredUUIDs(true);
         }
     }
 
     public List<String> getStoredPlayerNames() {
         List<String> playerNames = new ArrayList();
-        Iterator var2 = this.configs.entrySet().iterator();
 
-        while(var2.hasNext()) {
-            Entry<String, FileConfiguration> entry = (Entry)var2.next();
-            FileConfiguration config = entry.getValue();
+        for(Map.Entry<String, FileConfiguration> stringFileConfigurationEntry : this.configs.entrySet()) {
+            FileConfiguration config = stringFileConfigurationEntry.getValue();
             playerNames.addAll(config.getKeys(false));
         }
 

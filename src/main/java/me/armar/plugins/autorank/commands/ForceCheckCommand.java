@@ -1,5 +1,7 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -9,9 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 public class ForceCheckCommand extends AutorankCommand {
     private final Autorank plugin;
 
@@ -20,11 +19,10 @@ public class ForceCheckCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)){
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.forcecheck", sender)) {
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else if (args.length != 2) {
             AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue(this.getUsage()));
@@ -39,7 +37,7 @@ public class ForceCheckCommand extends AutorankCommand {
 
                     try {
                         playerName = UUIDManager.getPlayerName(uuid).get();
-                    } catch (ExecutionException | InterruptedException var6) {
+                    } catch (InterruptedException | ExecutionException var6) {
                         var6.printStackTrace();
                     }
 
@@ -50,6 +48,7 @@ public class ForceCheckCommand extends AutorankCommand {
                         AutorankTools.sendDeserialize(sender, Lang.CHECKED.getConfigValue());
                     }
                 }
+
             });
             this.runCommandTask(task);
             return true;

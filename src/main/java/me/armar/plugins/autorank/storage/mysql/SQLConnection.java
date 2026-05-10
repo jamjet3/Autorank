@@ -1,18 +1,16 @@
 package me.armar.plugins.autorank.storage.mysql;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import me.armar.plugins.autorank.config.SettingsConfig;
-import me.armar.plugins.autorank.config.SettingsConfig.MySQLSettings;
-import static org.bukkit.Bukkit.getLogger;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Optional;
+import me.armar.plugins.autorank.config.SettingsConfig;
+import me.armar.plugins.autorank.config.SettingsConfig.MySQLSettings;
+import org.bukkit.Bukkit;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 public class SQLConnection {
     private static SQLConnection instance;
@@ -108,22 +106,19 @@ public class SQLConnection {
 
                 }
             } catch (SQLException var24) {
-                getLogger().info("SQLDataStorage.execute");
-                getLogger().info("SQLException: " + var24.getMessage());
-                getLogger().info("SQLState: " + var24.getSQLState());
-                getLogger().info("VendorError: " + var24.getErrorCode());
+                Bukkit.getLogger().info("SQLDataStorage.execute");
+                Bukkit.getLogger().info("SQLException: " + var24.getMessage());
+                Bukkit.getLogger().info("SQLState: " + var24.getSQLState());
+                Bukkit.getLogger().info("VendorError: " + var24.getErrorCode());
             } finally {
                 this.close(null, stmt, null);
             }
-
         }
+
     }
 
     public void executeQueries(Collection<String> queries) {
-        Iterator var2 = queries.iterator();
-
-        while(var2.hasNext()) {
-            String query = (String)var2.next();
+        for(String query : queries) {
             this.execute(query);
         }
 
@@ -136,38 +131,19 @@ public class SQLConnection {
             return Optional.empty();
         } else {
             try {
-                Connection connection = this.getConnection().get();
-                Throwable var5 = null;
-
                 Optional var6;
-                try {
+                try (Connection connection = this.getConnection().get()) {
                     stmt = connection.prepareStatement(sql);
                     rs = stmt.executeQuery();
                     var6 = Optional.of(rs);
-                } catch (Throwable var16) {
-                    var5 = var16;
-                    throw var16;
-                } finally {
-                    if (connection != null) {
-                        if (var5 != null) {
-                            try {
-                                connection.close();
-                            } catch (Throwable var15) {
-                                var5.addSuppressed(var15);
-                            }
-                        } else {
-                            connection.close();
-                        }
-                    }
-
                 }
 
                 return var6;
             } catch (SQLException var18) {
-                getLogger().info("SQLDataStorage.execute");
-                getLogger().info("SQLException: " + var18.getMessage());
-                getLogger().info("SQLState: " + var18.getSQLState());
-                getLogger().info("VendorError: " + var18.getErrorCode());
+                Bukkit.getLogger().info("SQLDataStorage.execute");
+                Bukkit.getLogger().info("SQLException: " + var18.getMessage());
+                Bukkit.getLogger().info("SQLState: " + var18.getSQLState());
+                Bukkit.getLogger().info("VendorError: " + var18.getErrorCode());
                 return Optional.empty();
             }
         }

@@ -2,6 +2,7 @@ package me.armar.plugins.autorank.pathbuilder.requirement;
 
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import me.armar.plugins.utils.pluginlibrary.hooks.McMMOHook;
 import org.bukkit.entity.Player;
 
@@ -13,7 +14,7 @@ public class McMMOPowerLevelRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        return Lang.MCMMO_POWER_LEVEL_REQUIREMENT.getConfigValue(this.powerLevel + "");
+        return Lang.MCMMO_POWER_LEVEL_REQUIREMENT.getConfigValue("" + this.powerLevel);
     }
 
     public String getProgressString(Player player) {

@@ -1,16 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.playerdata.global;
 
 import io.reactivex.annotations.NonNull;
-import me.armar.plugins.autorank.Autorank;
-import me.armar.plugins.autorank.config.SettingsConfig;
-import me.armar.plugins.autorank.config.SettingsConfig.MySQLSettings;
-import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager.PlayerDataStorageType;
-import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataStorage;
-import me.armar.plugins.autorank.storage.mysql.SQLConnection;
-import org.apache.commons.lang.Validate;
-import org.bukkit.ChatColor;
-import org.jetbrains.annotations.NotNull;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -18,6 +10,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import me.armar.plugins.autorank.Autorank;
+import me.armar.plugins.autorank.config.SettingsConfig;
+import me.armar.plugins.autorank.config.SettingsConfig.MySQLSettings;
+import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager;
+import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataStorage;
+import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager.PlayerDataStorageType;
+import me.armar.plugins.autorank.storage.mysql.SQLConnection;
+import org.apache.commons.lang.Validate;
+import org.bukkit.ChatColor;
+import org.jetbrains.annotations.NotNull;
 
 public class GlobalPlayerDataStorage implements PlayerDataStorage {
     private final String tablePlayerdataStorageCompletedPaths;
@@ -35,7 +37,7 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
                     this.loadServerRegister();
                     this.loadPlayerData();
                 }
-            } catch (ExecutionException | InterruptedException var2) {
+            } catch (InterruptedException | ExecutionException var2) {
                 var2.printStackTrace();
             }
 
@@ -51,8 +53,7 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
         }, 600L, 600L);
     }
 
-    @NotNull
-    private CompletableFuture<Boolean> loadDatabaseConnection() {
+    private @NotNull CompletableFuture<Boolean> loadDatabaseConnection() {
         return CompletableFuture.supplyAsync(() -> {
             SettingsConfig configHandler = this.plugin.getSettingsConfig();
             if (!configHandler.useMySQL()) {
@@ -78,12 +79,15 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
 
     private void loadServerRegister() {
         this.getConnection().execute("CREATE TABLE IF NOT EXISTS " + this.tableServerRegister + "(server_name varchar(36) NOT NULL, hostname varchar(55) NOT NULL, last_updated timestamp DEFAULT CURRENT_TIMESTAMP, UNIQUE(server_name, hostname))");
-        this.getConnection().execute("INSERT INTO " + this.tableServerRegister + " VALUES ('" + this.plugin.getSettingsConfig().getMySQLSetting(MySQLSettings.SERVER_NAME) + "', '" + this.getHostname() + "', CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE last_updated=CURRENT_TIMESTAMP");
+        SQLConnection var10000 = this.getConnection();
+        String var10001 = this.tableServerRegister;
+        var10000.execute("INSERT INTO " + var10001 + " VALUES ('" + this.plugin.getSettingsConfig().getMySQLSetting(MySQLSettings.SERVER_NAME) + "', '" + this.getHostname() + "', CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE last_updated=CURRENT_TIMESTAMP");
         this.plugin.debugMessage("Loaded online server register.");
     }
 
     private String getHostname() {
-        return this.plugin.getServer().getIp() + ":" + this.plugin.getServer().getPort();
+        String var10000 = this.plugin.getServer().getIp();
+        return var10000 + ":" + this.plugin.getServer().getPort();
     }
 
     private void loadPlayerData() {
@@ -94,7 +98,7 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
 
     private void updateCacheFromRemote() {
         Optional<ResultSet> resultSet = this.getConnection().executeQuery("SELECT * FROM " + this.tablePlayerdataStorageCompletedPaths + " ORDER BY uuid");
-        if (!resultSet.isPresent()) {
+        if (resultSet.isEmpty()) {
             this.plugin.debugMessage("Could not update cache of global player data storage because the connection is not valid.");
         } else {
             ResultSet result = resultSet.get();
@@ -106,6 +110,7 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
                     }
                 } catch (SQLException var8) {
                     var8.printStackTrace();
+                    break;
                 }
 
                 String serverName = null;
@@ -128,6 +133,7 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
 
             this.getConnection().close(null, null, result);
         }
+
     }
 
     public Collection<Integer> getCompletedRequirements(UUID uuid, String pathName) {
@@ -219,7 +225,7 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
     }
 
     public boolean hasCompletedPath(@NonNull UUID uuid, @NonNull String completedPath) {
-        return this.playerDataCache.getCachedPlayerData(uuid).getCachedEntriesByPath(completedPath).size() > 0;
+        return !this.playerDataCache.getCachedPlayerData(uuid).getCachedEntriesByPath(completedPath).isEmpty();
     }
 
     public void addCompletedPath(@NonNull UUID uuid, @NonNull String completedPath) {
@@ -232,15 +238,17 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
 
     public void removeCompletedPath(UUID uuid, String pathName) {
         String serverName = this.plugin.getSettingsConfig().getMySQLSetting(MySQLSettings.SERVER_NAME);
-        this.getConnection().execute("DELETE FROM " + this.tablePlayerdataStorageCompletedPaths + " WHERE uuid='" + uuid.toString() + "' AND server_name='" + serverName + "' AND completed_path='" + pathName + "';");
+        SQLConnection var10000 = this.getConnection();
+        String var10001 = this.tablePlayerdataStorageCompletedPaths;
+        var10000.execute("DELETE FROM " + var10001 + " WHERE uuid='" + uuid.toString() + "' AND server_name='" + serverName + "' AND completed_path='" + pathName + "';");
     }
 
     public void setCompletedPaths(UUID uuid, Collection<String> paths) {
         String serverName = this.plugin.getSettingsConfig().getMySQLSetting(MySQLSettings.SERVER_NAME);
-        this.getConnection().execute("DELETE FROM " + this.tablePlayerdataStorageCompletedPaths + " WHERE uuid='" + uuid.toString() + "' AND server_name='" + serverName + "';");
-        paths.forEach((completedPath) -> {
-            this.addCompletedPath(uuid, completedPath);
-        });
+        SQLConnection var10000 = this.getConnection();
+        String var10001 = this.tablePlayerdataStorageCompletedPaths;
+        var10000.execute("DELETE FROM " + var10001 + " WHERE uuid='" + uuid.toString() + "' AND server_name='" + serverName + "';");
+        paths.forEach((completedPath) -> this.addCompletedPath(uuid, completedPath));
     }
 
     public int getTimesCompletedPath(UUID uuid, String pathName) {
@@ -299,7 +307,7 @@ public class GlobalPlayerDataStorage implements PlayerDataStorage {
         throw new UnsupportedOperationException();
     }
 
-    public PlayerDataStorageType getDataStorageType() {
+    public PlayerDataManager.PlayerDataStorageType getDataStorageType() {
         return PlayerDataStorageType.GLOBAL;
     }
 }

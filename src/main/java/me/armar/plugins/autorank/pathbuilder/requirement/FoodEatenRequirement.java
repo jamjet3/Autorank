@@ -1,9 +1,8 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.Material;
-
-import java.util.UUID;
 
 public class FoodEatenRequirement extends AbstractRequirement {
     FoodWrapper foodEaten = null;
@@ -33,7 +32,6 @@ public class FoodEatenRequirement extends AbstractRequirement {
         int amount = this.foodEaten.getAmount();
         String foodType = this.foodEaten.getFoodName();
         int totalFoodEaten = 0;
-  //      int totalFoodEaten;
         if (foodType != null) {
             totalFoodEaten = this.getStatisticsManager().getFoodEaten(uuid, this.getWorld(), Material.getMaterial(foodType));
             foodType = foodType.toLowerCase();
@@ -50,7 +48,6 @@ public class FoodEatenRequirement extends AbstractRequirement {
         int amount = this.foodEaten.getAmount();
         String foodType = this.foodEaten.getFoodName();
         int totalFoodEaten = 0;
-  //      int totalFoodEaten;
         if (foodType == null) {
             totalFoodEaten = this.getStatisticsManager().getFoodEaten(uuid, this.getWorld(), null);
         } else {
@@ -80,13 +77,12 @@ public class FoodEatenRequirement extends AbstractRequirement {
     public double getProgressPercentage(UUID uuid) {
         int totalFoodEaten = 0;
         String foodType = this.foodEaten.getFoodName();
-   //     int totalFoodEaten;
         if (foodType == null) {
             totalFoodEaten = this.getStatisticsManager().getFoodEaten(uuid, this.getWorld(), null);
         } else {
             totalFoodEaten = this.getStatisticsManager().getFoodEaten(uuid, this.getWorld(), Material.getMaterial(foodType));
         }
 
-        return (double) totalFoodEaten / (double)this.foodEaten.getAmount();
+        return (double)totalFoodEaten / (double)this.foodEaten.getAmount();
     }
 }

@@ -1,10 +1,10 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
 import me.armar.plugins.utils.pluginlibrary.hooks.EssentialsXHook;
-
-import java.util.UUID;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 
 public class EssentialsGeoIPRequirement extends AbstractRequirement {
     private EssentialsXHook essHandler = null;
@@ -18,7 +18,8 @@ public class EssentialsGeoIPRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.essHandler.getGeoIPLocation(uuid) + "/" + this.location;
+        String var10000 = this.essHandler.getGeoIPLocation(uuid);
+        return var10000 + "/" + this.location;
     }
 
     protected boolean meetsRequirement(UUID uuid) {

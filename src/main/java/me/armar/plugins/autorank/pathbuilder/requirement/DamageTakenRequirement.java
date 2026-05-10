@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class DamageTakenRequirement extends AbstractRequirement {
     int damageTaken = -1;
@@ -11,7 +10,7 @@ public class DamageTakenRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        String lang = Lang.DAMAGE_TAKEN_REQUIREMENT.getConfigValue(this.damageTaken + "");
+        String lang = Lang.DAMAGE_TAKEN_REQUIREMENT.getConfigValue("" + this.damageTaken);
         if (this.isWorldSpecific()) {
             lang = lang.concat(" (in world '" + this.getWorld() + "')");
         }
@@ -46,6 +45,6 @@ public class DamageTakenRequirement extends AbstractRequirement {
 
     public double getProgressPercentage(UUID uuid) {
         int damTaken = this.getStatisticsManager().getDamageTaken(uuid, this.getWorld());
-        return (double) damTaken / (double)this.damageTaken;
+        return (double)damTaken / (double)this.damageTaken;
     }
 }

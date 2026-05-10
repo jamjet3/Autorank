@@ -1,10 +1,14 @@
 package me.armar.plugins.autorank.pathbuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.api.events.RequirementCompleteEvent;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
-import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager;
+import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager.PlayerDataStorageType;
 import me.armar.plugins.autorank.pathbuilder.result.AbstractResult;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -12,8 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-
-import java.util.*;
 
 public class Path {
     private final Autorank plugin;
@@ -91,30 +93,20 @@ public class Path {
 
     public List<CompositeRequirement> getFailedRequirements(UUID uuid, boolean checkProgress) {
         List<CompositeRequirement> failedRequirements = new ArrayList();
-        Iterator var4 = this.getRequirements().iterator();
 
-        while(true) {
-            CompositeRequirement holder;
-            do {
-                do {
-                    if (!var4.hasNext()) {
-                        return failedRequirements;
-                    }
-
-                    holder = (CompositeRequirement)var4.next();
-                } while(holder.meetsRequirement(uuid));
-            } while(checkProgress && this.hasCompletedRequirement(uuid, holder.getRequirementId()));
-
-            failedRequirements.add(holder);
+        for(CompositeRequirement holder : this.getRequirements()) {
+            if (!holder.meetsRequirement(uuid) && (!checkProgress || !this.hasCompletedRequirement(uuid, holder.getRequirementId()))) {
+                failedRequirements.add(holder);
+            }
         }
+
+        return failedRequirements;
     }
 
     public List<CompositeRequirement> getCompletedRequirements(UUID uuid) {
         List<CompositeRequirement> completedRequirements = new ArrayList();
-        Iterator var3 = this.getRequirements().iterator();
 
-        while(var3.hasNext()) {
-            CompositeRequirement requirement = (CompositeRequirement)var3.next();
+        for(CompositeRequirement requirement : this.getRequirements()) {
             if (this.plugin.getPathManager().hasCompletedRequirement(uuid, this, requirement.getRequirementId())) {
                 completedRequirements.add(requirement);
             }
@@ -148,28 +140,10 @@ public class Path {
             return false;
         } else {
             boolean meetAllRequirements = true;
-            Iterator var3;
-            CompositeRequirement holder;
-            if (!this.allowPartialCompletion()) {
-                this.plugin.debugMessage("User '" + uuid + "' cannot use partial completion on path '" + this.getDisplayName() + "'");
-                var3 = this.getRequirements().iterator();
-
-                do {
-                    if (!var3.hasNext()) {
-                        return true;
-                    }
-
-                    holder = (CompositeRequirement)var3.next();
-                } while(holder.meetsRequirement(uuid));
-
-                this.plugin.debugMessage("User '" + uuid + "' does not meet requirement '" + holder.getDescription() + "'");
-                return false;
-            } else {
+            if (this.allowPartialCompletion()) {
                 this.plugin.debugMessage("User '" + uuid + "' will use partial completion on path '" + this.getDisplayName() + "'");
-                var3 = this.getRequirements().iterator();
 
-                while(var3.hasNext()) {
-                    holder = (CompositeRequirement)var3.next();
+                for(CompositeRequirement holder : this.getRequirements()) {
                     if (holder == null) {
                         return false;
                     }
@@ -190,6 +164,17 @@ public class Path {
                 }
 
                 return meetAllRequirements;
+            } else {
+                this.plugin.debugMessage("User '" + uuid + "' cannot use partial completion on path '" + this.getDisplayName() + "'");
+
+                for(CompositeRequirement holder : this.getRequirements()) {
+                    if (!holder.meetsRequirement(uuid)) {
+                        this.plugin.debugMessage("User '" + uuid + "' does not meet requirement '" + holder.getDescription() + "'");
+                        return false;
+                    }
+                }
+
+                return true;
             }
         }
     }
@@ -206,7 +191,7 @@ public class Path {
                         s.addCompletedRequirementWithMissingResults(uuid, this.getInternalName(), reqId);
                     });
                 } else if (this.plugin.getSettingsConfig().successfullyCompletedRequirement()){
-                    Component successfully_completed_requirement = mm.deserialize(Lang.SUCCESSFULLY_COMPLETED_REQUIREMENT.getConfigValue(reqId + ""));
+                    Component successfully_completed_requirement = mm.deserialize(Lang.SUCCESSFULLY_COMPLETED_REQUIREMENT.getConfigValue(reqId + 1 + ""));
                     plugin.adventure().player(player).sendMessage(successfully_completed_requirement);
                     player.sendMessage(ChatColor.AQUA + requirement.getDescription());
                 }
@@ -224,78 +209,55 @@ public class Path {
                 });
 
         }
+
     }
 
     public boolean meetsPrerequisites(UUID uuid) {
-        List<CompositeRequirement> preRequisites = this.getPrerequisites();
-        Iterator var3 = preRequisites.iterator();
-
-        CompositeRequirement preRequisite;
-        do {
-            if (!var3.hasNext()) {
-                return true;
+        for(CompositeRequirement preRequisite : this.getPrerequisites()) {
+            if (!preRequisite.meetsRequirement(uuid)) {
+                return false;
             }
+        }
 
-            preRequisite = (CompositeRequirement)var3.next();
-        } while(preRequisite.meetsRequirement(uuid));
-
-        return false;
+        return true;
     }
 
     public boolean performResultsUponChoosing(Player player) {
         boolean success = true;
-        Iterator var3 = this.getResultsUponChoosing().iterator();
 
-        while(true) {
-            AbstractResult r;
-            boolean hasCompletedPathGlobally;
-            do {
-                if (!var3.hasNext()) {
-                    return success;
+        for(AbstractResult r : this.getResultsUponChoosing()) {
+            if (r.isGlobal()) {
+                boolean hasCompletedPathGlobally = this.plugin.getPlayerDataManager().getDataStorage(PlayerDataStorageType.GLOBAL).map((s) -> s.hasCompletedPath(player.getUniqueId(), this.getInternalName())).orElse(false);
+                if (hasCompletedPathGlobally) {
+                    continue;
                 }
-
-                r = (AbstractResult)var3.next();
-                if (!r.isGlobal()) {
-                    break;
-                }
-
-                hasCompletedPathGlobally = this.plugin.getPlayerDataManager().getDataStorage(PlayerDataManager.PlayerDataStorageType.GLOBAL).map((s) -> {
-                    return s.hasCompletedPath(player.getUniqueId(), this.getInternalName());
-                }).orElse(false);
-            } while(hasCompletedPathGlobally);
+            }
 
             if (!r.applyResult(player)) {
                 success = false;
             }
         }
+
+        return success;
     }
 
     public boolean performResults(Player player) {
         boolean success = true;
-        Iterator var3 = this.getResults().iterator();
 
-        while(true) {
-            AbstractResult r;
-            boolean hasCompletedPathGlobally;
-            do {
-                if (!var3.hasNext()) {
-                    return success;
+        for(AbstractResult r : this.getResults()) {
+            if (r.isGlobal()) {
+                boolean hasCompletedPathGlobally = this.plugin.getPlayerDataManager().getDataStorage(PlayerDataStorageType.GLOBAL).map((s) -> s.hasCompletedPath(player.getUniqueId(), this.getInternalName())).orElse(false);
+                if (hasCompletedPathGlobally) {
+                    continue;
                 }
-
-                r = (AbstractResult)var3.next();
-                if (!r.isGlobal()) {
-                    break;
-                }
-
-                hasCompletedPathGlobally = this.plugin.getPlayerDataManager().getDataStorage(PlayerDataManager.PlayerDataStorageType.GLOBAL).map((s) -> {
-                    return s.hasCompletedPath(player.getUniqueId(), this.getInternalName());
-                }).orElse(false);
-            } while(hasCompletedPathGlobally);
+            }
 
             if (!r.applyResult(player)) {
                 success = false;
             }
         }
+
+        return success;
     }
 
     public String toString() {
@@ -343,9 +305,7 @@ public class Path {
     }
 
     public boolean isActive(UUID uuid) {
-        return this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((storage) -> {
-            return storage.hasActivePath(uuid, this.getInternalName());
-        }).orElse(false);
+        return this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((storage) -> storage.hasActivePath(uuid, this.getInternalName())).orElse(false);
     }
 
     public boolean hasCompletedRequirement(UUID uuid, int reqId) {
@@ -377,11 +337,9 @@ public class Path {
     }
 
     public double getProgress(UUID uuid) {
-        double progressSum = 0.0D;
-        Iterator var4 = this.getRequirements().iterator();
+        double progressSum = 0.0F;
 
-        while(var4.hasNext()) {
-            CompositeRequirement requirement = (CompositeRequirement)var4.next();
+        for(CompositeRequirement requirement : this.getRequirements()) {
             if (this.hasCompletedRequirement(uuid, requirement.getRequirementId())) {
                 ++progressSum;
             } else {
@@ -393,9 +351,7 @@ public class Path {
     }
 
     public int getTimesCompleted(UUID uuid) {
-        return this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((s) -> {
-            return s.getTimesCompletedPath(uuid, this.getInternalName());
-        }).orElse(0);
+        return this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((s) -> s.getTimesCompletedPath(uuid, this.getInternalName())).orElse(0);
     }
 
     public boolean hasCompletedPath(UUID uuid) {
@@ -406,9 +362,7 @@ public class Path {
         if (!this.isOnCooldown(uuid)) {
             return 0L;
         } else {
-            long timeSinceCompletion = this.plugin.getPlayerDataManager().getPrimaryDataStorage().flatMap((primaryDataStorage) -> {
-                return primaryDataStorage.getTimeSinceCompletionOfPath(uuid, this.getInternalName());
-            }).orElse(0L);
+            long timeSinceCompletion = this.plugin.getPlayerDataManager().getPrimaryDataStorage().flatMap((primaryDataStorage) -> primaryDataStorage.getTimeSinceCompletionOfPath(uuid, this.getInternalName())).orElse(0L);
             return this.getCooldown() - timeSinceCompletion;
         }
     }
@@ -421,12 +375,8 @@ public class Path {
         if (!this.hasCooldown()) {
             return false;
         } else {
-            Optional<Long> timePathIsCompleted = this.plugin.getPlayerDataManager().getPrimaryDataStorage().flatMap((s) -> {
-                return s.getTimeSinceCompletionOfPath(uuid, this.getInternalName());
-            });
-            return timePathIsCompleted.filter((timeSinceCompletion) -> {
-                return timeSinceCompletion < this.getCooldown();
-            }).isPresent();
+            Optional<Long> timePathIsCompleted = this.plugin.getPlayerDataManager().getPrimaryDataStorage().flatMap((s) -> s.getTimeSinceCompletionOfPath(uuid, this.getInternalName()));
+            return timePathIsCompleted.filter((timeSinceCompletion) -> timeSinceCompletion < this.getCooldown()).isPresent();
         }
     }
 
@@ -451,9 +401,7 @@ public class Path {
     }
 
     public CompositeRequirement getRequirement(int id) {
-        return this.getRequirements().stream().filter((compositeRequirement) -> {
-            return compositeRequirement.getRequirementId() == id;
-        }).findFirst().orElse(null);
+        return this.getRequirements().stream().filter((compositeRequirement) -> compositeRequirement.getRequirementId() == id).findFirst().orElse(null);
     }
 
     public boolean hasCooldown() {

@@ -1,12 +1,15 @@
 package me.armar.plugins.autorank.pathbuilder.builders;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.pathbuilder.result.AbstractResult;
 import me.armar.plugins.autorank.util.AutorankTools;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-
-import java.util.*;
 
 public class ResultBuilder {
     private static final Map<String, Class<? extends AbstractResult>> results = new HashMap();
@@ -57,7 +60,6 @@ public class ResultBuilder {
         this.resultName = resultType;
         if (resultType == null) {
             Autorank.getInstance().getWarningManager().registerWarning(String.format("You are using a '%s' result in path '%s', but that result doesn't exist!", this.originalResultString, pathName), 10);
-            return this;
         } else {
             Class<? extends AbstractResult> c = results.get(resultType);
             if (c != null) {
@@ -69,9 +71,9 @@ public class ResultBuilder {
             } else {
                 Bukkit.getServer().getConsoleSender().sendMessage("[Autorank] " + ChatColor.RED + "Result '" + this.originalResultString + "' is not a valid result type!");
             }
-
-            return this;
         }
+
+        return this;
     }
 
     public ResultBuilder populateResult(String stringValue) {

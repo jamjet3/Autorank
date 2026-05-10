@@ -1,11 +1,18 @@
 package me.armar.plugins.autorank.pathbuilder;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.autorank.pathbuilder.builders.PathBuilder;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
 import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager;
 import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataStorage;
+import me.armar.plugins.autorank.pathbuilder.playerdata.PlayerDataManager.PlayerDataStorageType;
 import me.armar.plugins.autorank.pathbuilder.result.AbstractResult;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -28,10 +35,8 @@ public class PathManager {
     public List<String> debugPaths() {
         List<String> messages = new ArrayList();
         messages.add(" ------------------- Path debug info ------------------- ");
-        Iterator var2 = this.paths.iterator();
 
-        while(var2.hasNext()) {
-            Path path = (Path)var2.next();
+        for(Path path : this.paths) {
             String pathName = path.getInternalName();
             List<CompositeRequirement> requirements = path.getRequirements();
             List<CompositeRequirement> prerequisites = path.getPrerequisites();
@@ -41,27 +46,25 @@ public class PathManager {
             messages.add("Display name: " + path.getDisplayName());
             messages.add("Prerequisites: ");
 
-            Iterator var9;
-            CompositeRequirement req;
-            for(var9 = prerequisites.iterator(); var9.hasNext(); ++count) {
-                req = (CompositeRequirement)var9.next();
+            for(CompositeRequirement req : prerequisites) {
                 messages.add("    " + count + ". " + req.getDescription());
+                ++count;
             }
 
             count = 1;
             messages.add("Requirements: ");
 
-            for(var9 = requirements.iterator(); var9.hasNext(); ++count) {
-                req = (CompositeRequirement)var9.next();
+            for(CompositeRequirement req : requirements) {
                 messages.add("    " + count + ". " + req.getDescription());
+                ++count;
             }
 
             count = 1;
             messages.add("Results: ");
 
-            for(var9 = abstractResults.iterator(); var9.hasNext(); ++count) {
-                AbstractResult res = (AbstractResult)var9.next();
+            for(AbstractResult res : abstractResults) {
                 messages.add("    " + count + ". " + res.getDescription());
+                ++count;
             }
 
             messages.add("----------------------------");
@@ -79,14 +82,10 @@ public class PathManager {
     }
 
     public List<Path> getActivePaths(UUID uuid) {
-        Collection activePathNames = this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((storage) -> {
-            return storage.getActivePaths(uuid);
-        }).orElse(new ArrayList());
+        Collection<String> activePathNames = (Collection)this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((storage) -> storage.getActivePaths(uuid)).orElse(new ArrayList());
         List<Path> activePaths = new ArrayList();
-        Iterator var4 = activePathNames.iterator();
 
-        while(var4.hasNext()) {
-            String activePathName = (String)var4.next();
+        for(String activePathName : activePathNames) {
             Path activePath = this.findPathByInternalName(activePathName, false);
             if (activePath != null) {
                 activePaths.add(activePath);
@@ -97,9 +96,7 @@ public class PathManager {
     }
 
     public void resetProgressOnActivePaths(UUID uuid) {
-        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> {
-            s.setActivePaths(uuid, new ArrayList());
-        });
+        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> s.setActivePaths(uuid, new ArrayList()));
     }
 
     public void resetProgressOfPath(Path path, UUID uuid) {
@@ -110,28 +107,18 @@ public class PathManager {
     }
 
     public void resetActivePaths(UUID uuid) {
-        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> {
-            s.getActivePaths(uuid).forEach((name) -> {
-                s.removeActivePath(uuid, name);
-            });
-        });
+        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> s.getActivePaths(uuid).forEach((name) -> s.removeActivePath(uuid, name)));
     }
 
     public void resetAllProgress(UUID uuid) {
-        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> {
-            s.resetProgressOfAllPaths(uuid);
-        });
+        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> s.resetProgressOfAllPaths(uuid));
     }
 
     public List<Path> getCompletedPaths(UUID uuid) {
-        Collection completedPathsNames = this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((s) -> {
-            return s.getCompletedPaths(uuid);
-        }).orElse(new ArrayList());
+        Collection<String> completedPathsNames = (Collection)this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((s) -> s.getCompletedPaths(uuid)).orElse(new ArrayList());
         List<Path> completedPaths = new ArrayList();
-        Iterator var4 = completedPathsNames.iterator();
 
-        while(var4.hasNext()) {
-            String completedPathName = (String)var4.next();
+        for(String completedPathName : completedPathsNames) {
             Path completedPath = this.findPathByInternalName(completedPathName, false);
             if (completedPath != null) {
                 completedPaths.add(completedPath);
@@ -142,23 +129,15 @@ public class PathManager {
     }
 
     public void resetCompletedPaths(UUID uuid) {
-        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> {
-            s.getCompletedPaths(uuid).forEach((name) -> {
-                s.removeCompletedPath(uuid, name);
-            });
-        });
+        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> s.getCompletedPaths(uuid).forEach((name) -> s.removeCompletedPath(uuid, name)));
     }
 
     public void addCompletedRequirement(UUID uuid, Path path, int reqId) {
-        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> {
-            s.addCompletedRequirement(uuid, path.getInternalName(), reqId);
-        });
+        this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> s.addCompletedRequirement(uuid, path.getInternalName(), reqId));
     }
 
     public boolean hasCompletedRequirement(UUID uuid, Path path, int reqId) {
-        return this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((s) -> {
-            return s.hasCompletedRequirement(uuid, path.getInternalName(), reqId);
-        }).orElse(false);
+        return this.plugin.getPlayerDataManager().getPrimaryDataStorage().map((s) -> s.hasCompletedRequirement(uuid, path.getInternalName(), reqId)).orElse(false);
     }
 
     public List<Path> getAllPaths() {
@@ -167,10 +146,8 @@ public class PathManager {
 
     public List<Path> getEligiblePaths(UUID uuid) {
         List<Path> possibilities = new ArrayList();
-        Iterator var3 = this.getAllPaths().iterator();
 
-        while(var3.hasNext()) {
-            Path path = (Path)var3.next();
+        for(Path path : this.getAllPaths()) {
             if (path.isEligible(uuid)) {
                 possibilities.add(path);
             }
@@ -184,23 +161,18 @@ public class PathManager {
         List<Path> temp = this.builder.initialisePaths();
         if (temp != null && !temp.isEmpty()) {
             this.paths = temp;
-            Iterator var2 = this.debugPaths().iterator();
 
-            while(var2.hasNext()) {
-                String message = (String)var2.next();
+            for(String message : this.debugPaths()) {
                 this.plugin.debugMessage(message);
             }
-
         } else {
             this.plugin.getLogger().warning("The paths file was not configured correctly! See your log file for more info.");
         }
+
     }
 
     public Path findPathByDisplayName(String displayName, boolean isCaseSensitive) {
-        Iterator var3 = this.getAllPaths().iterator();
-
-        while(var3.hasNext()) {
-            Path path = (Path)var3.next();
+        for(Path path : this.getAllPaths()) {
             if (isCaseSensitive) {
                 if (path.getDisplayName().equals(displayName)) {
                     return path;
@@ -214,10 +186,7 @@ public class PathManager {
     }
 
     public Path findPathByInternalName(String internalName, boolean isCaseSensitive) {
-        Iterator var3 = this.getAllPaths().iterator();
-
-        while(var3.hasNext()) {
-            Path path = (Path)var3.next();
+        for(Path path : this.getAllPaths()) {
             if (isCaseSensitive) {
                 if (path.getInternalName().equals(internalName)) {
                     return path;
@@ -249,8 +218,8 @@ public class PathManager {
                 } else {
                     path.performResultsUponChoosing(offlinePlayer.getPlayer());
                 }
-
             }
+
         }
     }
 
@@ -260,20 +229,17 @@ public class PathManager {
                 this.plugin.getPathManager().resetProgressOfPath(path, uuid);
             }
 
-            this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> {
-                s.removeActivePath(uuid, path.getInternalName());
-            });
+            this.plugin.getPlayerDataManager().getPrimaryDataStorage().ifPresent((s) -> s.removeActivePath(uuid, path.getInternalName()));
         }
+
     }
 
     public List<Path> autoAssignPaths(UUID uuid) {
         var mm = MiniMessage.miniMessage();
         this.plugin.debugMessage("Trying to assign paths to " + uuid);
         List<Path> assignedPaths = new ArrayList();
-        Iterator var3 = this.getAllPaths().iterator();
 
-        while(var3.hasNext()) {
-            Path path = (Path)var3.next();
+        for(Path path : this.getAllPaths()) {
             this.plugin.debugMessage("Trying to assign path " + path.getDisplayName() + " to " + uuid);
             if (!path.isAutomaticallyAssigned()) {
                 this.plugin.debugMessage(String.format("Path %s is not automatically assigned", path.getDisplayName()));
@@ -305,9 +271,7 @@ public class PathManager {
             return false;
         } else {
             storage.get().addCompletedPath(uuid, path.getInternalName());
-            this.plugin.getPlayerDataManager().getDataStorage(PlayerDataManager.PlayerDataStorageType.GLOBAL).ifPresent((s) -> {
-                s.addCompletedPath(uuid, path.getInternalName());
-            });
+            this.plugin.getPlayerDataManager().getDataStorage(PlayerDataStorageType.GLOBAL).ifPresent((s) -> s.addCompletedPath(uuid, path.getInternalName()));
             storage.get().removeActivePath(uuid, path.getInternalName());
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
             Player player = offlinePlayer.getPlayer();

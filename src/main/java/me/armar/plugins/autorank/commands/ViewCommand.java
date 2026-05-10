@@ -1,5 +1,7 @@
 package me.armar.plugins.autorank.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.commands.manager.AutorankCommand;
 import me.armar.plugins.autorank.language.Lang;
@@ -7,15 +9,11 @@ import me.armar.plugins.autorank.pathbuilder.Path;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
 import me.armar.plugins.autorank.pathbuilder.result.AbstractResult;
 import me.armar.plugins.autorank.util.AutorankTools;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class ViewCommand extends AutorankCommand {
     private final Autorank plugin;
@@ -25,48 +23,38 @@ public class ViewCommand extends AutorankCommand {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        var mm = MiniMessage.miniMessage();
-        if (!(sender instanceof Player)){
+        MiniMessage mm = MiniMessage.miniMessage();
+        if (!(sender instanceof Player)) {
             AutorankTools.consoleDeserialize(Lang.YOU_ARE_A_ROBOT.getConfigValue());
             return true;
-        }
-        if (!this.hasPermission("autorank.view", sender)) {
+        } else if (!this.hasPermission(this.getPermission(), sender)) {
             return true;
         } else if (args.length < 2) {
             AutorankTools.sendDeserialize(sender, Lang.INVALID_FORMAT.getConfigValue("/ar view <path name> or /ar view list"));
             return true;
         } else {
-            boolean isPlayer = sender instanceof Player;
-
             String pathName = AutorankCommand.getStringFromArgs(args, 1);
             if (pathName.equals("list")) {
                 List<Path> paths = new ArrayList();
-                Iterator var15 = this.plugin.getPathManager().getAllPaths().iterator();
 
-                while(true) {
-                    Path path;
-                    do {
-                        if (!var15.hasNext()) {
-                            if (paths.isEmpty()) {
-                                AutorankTools.sendDeserialize(sender, Lang.NO_PATHS_TO_CHOOSE.getConfigValue());
-                                return true;
-                            }
-                            Component the_following_paths = mm.deserialize(Lang.THE_FOLLOWING_PATHS.getConfigValue())
-                                    .append(mm.deserialize(AutorankTools.createStringFromList(paths)));
-                            plugin.adventure().player((Player) sender).sendMessage(the_following_paths);
-                            return true;
-                        }
+                for(Path path : this.plugin.getPathManager().getAllPaths()) {
+                    if (!path.onlyShowIfPrerequisitesMet() || !path.meetsPrerequisites(((Player)sender).getUniqueId())) {
+                        paths.add(path);
+                    }
+                }
 
-                        path = (Path)var15.next();
-                    } while(isPlayer && path.onlyShowIfPrerequisitesMet() && path.meetsPrerequisites(((Player)sender).getUniqueId()));
-
-                    paths.add(path);
+                if (paths.isEmpty()) {
+                    AutorankTools.sendDeserialize(sender, Lang.NO_PATHS_TO_CHOOSE.getConfigValue());
+                    return true;
+                } else {
+                    Component the_following_paths = mm.deserialize(Lang.THE_FOLLOWING_PATHS.getConfigValue()).append(mm.deserialize(AutorankTools.createStringFromList(paths)));
+                    this.plugin.adventure().player((Player)sender).sendMessage(the_following_paths);
+                    return true;
                 }
             } else {
                 Path targetPath = this.plugin.getPathManager().findPathByDisplayName(pathName, false);
                 if (targetPath == null) {
                     AutorankTools.sendDeserialize(sender, Lang.NO_PATH_FOUND_WITH_THAT_NAME.getConfigValue());
-                    return true;
                 } else {
                     List<CompositeRequirement> prerequisites = targetPath.getPrerequisites();
                     List<String> messages = this.plugin.getPlayerChecker().formatRequirementsToList(prerequisites, new ArrayList());
@@ -74,11 +62,8 @@ public class ViewCommand extends AutorankCommand {
                     if (messages.isEmpty()) {
                         AutorankTools.sendDeserialize(sender, Lang.NONE.getConfigValue());
                     } else {
-                        Iterator var10 = messages.iterator();
-
-                        while(var10.hasNext()) {
-                            String message = (String)var10.next();
-                            AutorankTools.sendDeserialize(sender, message);
+                        for(Object message : messages) {
+                            AutorankTools.sendDeserialize(sender, message.toString());
                         }
                     }
 
@@ -88,11 +73,8 @@ public class ViewCommand extends AutorankCommand {
                     if (messages.isEmpty()) {
                         AutorankTools.sendDeserialize(sender, Lang.NONE.getConfigValue());
                     } else {
-                        Iterator var19 = messages.iterator();
-
-                        while(var19.hasNext()) {
-                            String message = (String)var19.next();
-                            AutorankTools.sendDeserialize(sender, message);
+                        for(String o : messages) {
+                            AutorankTools.sendDeserialize(sender, o);
                         }
                     }
 
@@ -102,43 +84,32 @@ public class ViewCommand extends AutorankCommand {
                     if (messages.isEmpty()) {
                         AutorankTools.sendDeserialize(sender, Lang.NONE.getConfigValue());
                     } else {
-                        Iterator var21 = messages.iterator();
-
-                        while(var21.hasNext()) {
-                            String message = (String)var21.next();
-                            AutorankTools.sendDeserialize(sender, message);
+                        for(String o : messages) {
+                            AutorankTools.sendDeserialize(sender, o);
                         }
                     }
-
-                    return true;
                 }
+
+                return true;
             }
         }
     }
 
     public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
         List<String> possibilities = new ArrayList();
-        Iterator var6;
-        Path path;
         if (args.length <= 1) {
-            var6 = this.plugin.getPathManager().getAllPaths().iterator();
-
-            while(var6.hasNext()) {
-                path = (Path)var6.next();
+            for(Path path : this.plugin.getPathManager().getAllPaths()) {
                 possibilities.add(path.getDisplayName());
             }
 
             possibilities.add("list");
         } else {
-            var6 = this.plugin.getPathManager().getAllPaths().iterator();
-
-            while(var6.hasNext()) {
-                path = (Path)var6.next();
+            for(Path path : this.plugin.getPathManager().getAllPaths()) {
                 if (path.getDisplayName().toLowerCase().startsWith(args[1].toLowerCase())) {
                     possibilities.add(path.getDisplayName());
                 }
 
-                if (args[1].trim().equals("")) {
+                if (args[1].trim().isEmpty()) {
                     possibilities.add("list");
                 }
             }

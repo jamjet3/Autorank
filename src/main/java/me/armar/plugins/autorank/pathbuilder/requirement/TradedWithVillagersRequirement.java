@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class TradedWithVillagersRequirement extends AbstractRequirement {
     int tradedWithVillagers = -1;
@@ -20,7 +19,8 @@ public class TradedWithVillagersRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.getStatisticsManager().getTimesTradedWithVillagers(uuid) + "/" + this.tradedWithVillagers;
+        int var10000 = this.getStatisticsManager().getTimesTradedWithVillagers(uuid);
+        return var10000 + "/" + this.tradedWithVillagers;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -44,6 +44,6 @@ public class TradedWithVillagersRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.getStatisticsManager().getTimesTradedWithVillagers(uuid) / (double)this.tradedWithVillagers;
+        return (double)this.getStatisticsManager().getTimesTradedWithVillagers(uuid) / (double)this.tradedWithVillagers;
     }
 }

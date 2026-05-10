@@ -1,5 +1,8 @@
 package me.armar.plugins.autorank.commands.conversations;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import me.armar.plugins.autorank.Autorank;
 import me.armar.plugins.autorank.language.Lang;
 import org.bukkit.Bukkit;
@@ -9,10 +12,6 @@ import org.bukkit.conversations.Conversable;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class AutorankConversation {
     public static String CONVERSATION_SUCCESSFUL_IDENTIFIER = "success";
@@ -63,11 +62,13 @@ public class AutorankConversation {
 
     public void startConversation(Conversable conversable) {
         if (conversable.isConversing()) {
-            conversable.sendRawMessage(ChatColor.RED + Lang.NCC_YOUR_ARE_ALREADY_IN.getConfigValue());
+            ChatColor var10001 = ChatColor.RED;
+            conversable.sendRawMessage(var10001 + Lang.NCC_YOUR_ARE_ALREADY_IN.getConfigValue(new Object[0]));
         } else {
             if (conversable instanceof Player) {
                 if (isInConversation(((Player)conversable).getUniqueId())) {
-                    conversable.sendRawMessage(ChatColor.RED + Lang.NCC_YOUR_ARE_ALREADY_IN.getConfigValue());
+                    ChatColor var2 = ChatColor.RED;
+                    conversable.sendRawMessage(var2 + Lang.NCC_YOUR_ARE_ALREADY_IN.getConfigValue(new Object[0]));
                     return;
                 }
 
@@ -78,6 +79,7 @@ public class AutorankConversation {
             this.setStarted(true);
             this.factory.buildConversation(conversable).begin();
         }
+
     }
 
     public void startConversationAsSender(CommandSender sender) {

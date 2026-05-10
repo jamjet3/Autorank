@@ -1,12 +1,11 @@
 package me.armar.plugins.autorank.statsmanager.handlers.vanilla;
 
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class VanillaDataLoader {
     public VanillaDataLoader() {
@@ -18,11 +17,7 @@ public class VanillaDataLoader {
         if (player == null) {
             return count;
         } else {
-            Material[] var4 = Material.values();
-            int var5 = var4.length;
-
-            for(int var6 = 0; var6 < var5; ++var6) {
-                Material mat = var4[var6];
+            for(Material mat : Material.values()) {
                 count += player.getStatistic(Statistic.MINE_BLOCK, mat);
             }
 
@@ -41,11 +36,7 @@ public class VanillaDataLoader {
         if (player == null) {
             return count;
         } else {
-            Material[] var4 = Material.values();
-            int var5 = var4.length;
-
-            for(int var6 = 0; var6 < var5; ++var6) {
-                Material mat = var4[var6];
+            for(Material mat : Material.values()) {
                 if (mat.isBlock()) {
                     count += player.getStatistic(Statistic.USE_ITEM, mat);
                 }
@@ -62,7 +53,7 @@ public class VanillaDataLoader {
 
     public double getDistanceWalked(UUID uuid) {
         Player player = Bukkit.getServer().getPlayer(uuid);
-        return player == null ? 0.0D : (double)player.getStatistic(Statistic.WALK_ONE_CM) / 100.0D;
+        return player == null ? (double)0.0F : (double)player.getStatistic(Statistic.WALK_ONE_CM) / (double)100.0F;
     }
 
     public int getDamageTaken(UUID uuid) {
@@ -81,11 +72,7 @@ public class VanillaDataLoader {
         if (player == null) {
             return count;
         } else {
-            Material[] var4 = Material.values();
-            int var5 = var4.length;
-
-            for(int var6 = 0; var6 < var5; ++var6) {
-                Material mat = var4[var6];
+            for(Material mat : Material.values()) {
                 if (mat.isEdible()) {
                     count += player.getStatistic(Statistic.USE_ITEM, mat);
                 }
@@ -106,11 +93,7 @@ public class VanillaDataLoader {
         if (player == null) {
             return count;
         } else {
-            Material[] var4 = Material.values();
-            int var5 = var4.length;
-
-            for(int var6 = 0; var6 < var5; ++var6) {
-                Material mat = var4[var6];
+            for(Material mat : Material.values()) {
                 count += player.getStatistic(Statistic.CRAFT_ITEM, mat);
             }
 
@@ -140,7 +123,7 @@ public class VanillaDataLoader {
 
     public int getTimePlayed(UUID uuid) {
         Player player = Bukkit.getServer().getPlayer(uuid);
-        return player == null ? 0 : (int)((double)player.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20.0D / 60.0D);
+        return player == null ? 0 : (int)((double)player.getStatistic(Statistic.PLAY_ONE_MINUTE) / (double)20.0F / (double)60.0F);
     }
 
     public int getTimesShearsUsed(UUID uuid) {

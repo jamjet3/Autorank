@@ -30,8 +30,7 @@ public class RequestPlayerNamePrompt extends ValidatingPrompt {
         this(message, null);
     }
 
-    @NotNull
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
+    public @NotNull String getPromptText(@NotNull ConversationContext conversationContext) {
         return this.message;
     }
 
@@ -39,8 +38,7 @@ public class RequestPlayerNamePrompt extends ValidatingPrompt {
         return Bukkit.getOfflinePlayer(s).hasPlayedBefore();
     }
 
-    @Nullable
-    protected Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
+    protected @Nullable Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {
         conversationContext.setSessionData(this.PLAYERNAME_KEY, s);
         return this.nextPrompt;
     }

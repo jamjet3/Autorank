@@ -1,15 +1,15 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
+import java.util.UUID;
 import me.armar.plugins.autorank.language.Lang;
 import me.armar.plugins.utils.pluginlibrary.Library;
 import me.armar.plugins.utils.pluginlibrary.hooks.BentoBoxHook;
+import me.armar.plugins.utils.pluginlibrary.hooks.LibraryHook;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import java.util.UUID;
-
 public class BentoBoxLevelRequirement extends AbstractRequirement {
-    private String islandWorld = "world";
+    private String islandWorld = "askyblock";
     private int islandLevel = -1;
     private BentoBoxHook handler = null;
 
@@ -17,16 +17,17 @@ public class BentoBoxLevelRequirement extends AbstractRequirement {
     }
 
     public String getDescription() {
-        return Lang.BENTOBOX_LEVEL_REQUIREMENT.getConfigValue(this.islandLevel + "", this.islandWorld);
+        return Lang.BENTOBOX_LEVEL_REQUIREMENT.getConfigValue("" + this.islandLevel, this.islandWorld);
     }
 
     public String getProgressString(UUID uuid) {
-        World world = Bukkit.getServer().getWorld(islandWorld);
-        return this.handler.getIslandLevel(world, uuid) + "/" + this.islandLevel;
+        World world = Bukkit.getServer().getWorld(this.islandWorld);
+        Long var10000 = this.handler.getIslandLevel(world, uuid);
+        return var10000 + "/" + this.islandLevel;
     }
 
     public boolean meetsRequirement(UUID uuid) {
-        World world = Bukkit.getServer().getWorld(islandWorld);
+        World world = Bukkit.getServer().getWorld(this.islandWorld);
         return this.handler.getIslandLevel(world, uuid) >= (long)this.islandLevel;
     }
 
@@ -57,7 +58,7 @@ public class BentoBoxLevelRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        World world = Bukkit.getServer().getWorld(islandWorld);
-        return (double) this.handler.getIslandLevel(world, uuid) / (double)this.islandLevel;
+        World world = Bukkit.getServer().getWorld(this.islandWorld);
+        return (double)this.handler.getIslandLevel(world, uuid) / (double)this.islandLevel;
     }
 }

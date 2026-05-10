@@ -1,8 +1,7 @@
 package me.armar.plugins.autorank.pathbuilder.requirement;
 
-import me.armar.plugins.autorank.language.Lang;
-
 import java.util.UUID;
+import me.armar.plugins.autorank.language.Lang;
 
 public class CakeSlicesEatenRequirement extends AbstractRequirement {
     int cakeSlicesEaten = -1;
@@ -20,7 +19,8 @@ public class CakeSlicesEatenRequirement extends AbstractRequirement {
     }
 
     public String getProgressString(UUID uuid) {
-        return this.getStatisticsManager().getCakeSlicesEaten(uuid) + "/" + this.cakeSlicesEaten;
+        int var10000 = this.getStatisticsManager().getCakeSlicesEaten(uuid);
+        return var10000 + "/" + this.cakeSlicesEaten;
     }
 
     protected boolean meetsRequirement(UUID uuid) {
@@ -44,6 +44,6 @@ public class CakeSlicesEatenRequirement extends AbstractRequirement {
     }
 
     public double getProgressPercentage(UUID uuid) {
-        return (double) this.getStatisticsManager().getCakeSlicesEaten(uuid) / (double)this.cakeSlicesEaten;
+        return (double)this.getStatisticsManager().getCakeSlicesEaten(uuid) / (double)this.cakeSlicesEaten;
     }
 }
