@@ -70,10 +70,10 @@
             <id>sonatype-oss-snapshots1</id>
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
-        <!-- PlaceholderAPI -->
+        <!-- PlaceholderAPI (URL moved from repo.extendedclip.com to repo.helpch.at) -->
         <repository>
             <id>placeholderapi</id>
-            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+            <url>https://repo.helpch.at/releases/</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -84,23 +84,14 @@
             <id>essentials-releases</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
-        <repository>
-            <id>paper-repo</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
-        </repository>
-        <!-- savagelabs/FactionX -->
-        <repository>
-            <id>savagelabs</id>
-            <url>https://nexus.savagelabs.net/repository/maven-releases/</url>
-        </repository>
+        <!-- paper-repo (old URL, now 403) removed; papermc repo above uses the current URL -->
+        <!-- savagelabs (nexus.savagelabs.net) is DNS-dead; removed -->
         <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
-        <repository>
-            <id>mcmmo-repo</id>
-            <url>http://repo.mcmmo.org/</url>
-        </repository>
+        <!-- mcmmo-repo (repo.mcmmo.org) is DNS-dead; removed -->
+        <!-- mcMMO artifact is provided-scope and resolvable from spigotmc-repo / local cache -->
         <!-- Bentobox -->
         <repository>
             <id>codemc-repo</id>
