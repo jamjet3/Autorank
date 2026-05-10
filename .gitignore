@@ -1,0 +1,75 @@
+# ---------- Maven build output ----------
+target/
+dependency-reduced-pom.xml
+
+# ---------- Other build output ----------
+build/
+out/
+bin/
+
+# ---------- Compiled classes ----------
+*.class
+
+# ---------- JAR files ----------
+# No JARs are intentionally checked into this repo. Vendor JARs come from
+# Maven; locally-installed JARs (e.g. for provided-scope deps with dead
+# repos) live in local-jars/.
+*.jar
+# Paper/Spigot server JARs in local test setups
+paper*.jar
+spigot*.jar
+
+# ---------- IntelliJ IDEA ----------
+# Note: a small set of .idea/ files (compiler.xml, encodings.xml,
+# jarRepositories.xml, misc.xml, vcs.xml) is intentionally tracked by
+# upstream and remains tracked even with this rule (gitignore only
+# affects untracked files).
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ---------- VS Code ----------
+.vscode/
+
+# ---------- Eclipse ----------
+.project
+.classpath
+.settings/
+.factorypath
+
+# ---------- NetBeans ----------
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ---------- Local development scratch ----------
+# Anchored to repo root so they don't match accidentally-named subdirs.
+/local-jars/
+/test-server/
+/run/
+
+# ---------- Server runtime artifacts ----------
+# Anchored to repo root — without the leading '/' these would also match
+# directories like src/main/java/me/armar/plugins/, etc.
+/logs/
+/crash-reports/
+/plugins/
+/world/
+/world_nether/
+/world_the_end/
+
+# ---------- JVM diagnostics ----------
+hs_err_pid*.log
+replay_pid*.log
+
+# ---------- General logs ----------
+*.log
+
+# ---------- OS noise ----------
+.DS_Store
+Thumbs.db
+
+# ---------- Claude Code workspace (do not commit upstream) ----------
+.claude/
