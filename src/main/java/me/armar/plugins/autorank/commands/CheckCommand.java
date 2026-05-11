@@ -8,7 +8,8 @@ import me.armar.plugins.autorank.pathbuilder.Path;
 import me.armar.plugins.autorank.pathbuilder.holders.CompositeRequirement;
 import me.armar.plugins.autorank.storage.TimeType;
 import me.armar.plugins.autorank.util.AutorankTools;
-import me.armar.plugins.autorank.util.uuid.UUIDManager;
+
+import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.OfflinePlayer;
@@ -22,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -61,8 +61,9 @@ public class CheckCommand extends AutorankCommand {
                 message.append(Lang.BRACKET_RIGHT.getConfigValue()+Lang.PARENTHESIS_LEFT_PERCENT.getConfigValue()).append((new BigDecimal(completeRatio * 100.0D)).setScale(2, RoundingMode.HALF_UP)).append(Lang.PARENTHESIS_RIGHT_PERCENT.getConfigValue());
                 AutorankTools.sendDeserialize(sender, message.toString());
             }
-            Player player = (Player) sender;
-            new MessageSender(player, Lang.TO_VIEW_THE_PROGRESS.getConfigValue() + " MessageSender");
+            if (sender instanceof Player player) {
+                new MessageSender(player, Lang.TO_VIEW_THE_PROGRESS.getConfigValue() + " MessageSender");
+            }
             AutorankTools.sendDeserialize(sender, Lang.TO_VIEW_THE_PROGRESS.getConfigValue());
         }
     }
@@ -74,7 +75,15 @@ public class CheckCommand extends AutorankCommand {
                 .append(mm.deserialize("<NEWLINE>" + Lang.YOU_ARE_VIEWING.getConfigValue(playerName, path.getDisplayName())))
                 .append(mm.deserialize("<NEWLINE>" + Lang.SPECIFIC_PATH.getConfigValue()))
                 .append(mm.deserialize("<NEWLINE>" + Lang.REQUIREMENTS.getConfigValue()));
-        plugin.adventure().player((Player) sender).sendMessage(specificpath);
+        // Adventure's player audience is Player-only; console gets a
+        // plain-text fallback so the heading still appears in the console.
+        if (sender instanceof Player player) {
+            plugin.adventure().player(player).sendMessage(specificpath);
+        } else {
+            AutorankTools.sendDeserialize(sender,
+                    Lang.YOU_ARE_VIEWING.getConfigValue(playerName, path.getDisplayName()));
+            AutorankTools.sendDeserialize(sender, Lang.REQUIREMENTS.getConfigValue());
+        }
         List<CompositeRequirement> allRequirements = path.getRequirements();
         List<CompositeRequirement> completedRequirements = path.getCompletedRequirements(uuid);
         List<String> messages = this.plugin.getPlayerChecker().formatRequirementsToList(allRequirements, completedRequirements);
@@ -127,8 +136,16 @@ public class CheckCommand extends AutorankCommand {
             if (args.length >= 2) {
                 isPath = false;
                 boolean isPlayer = false;
-                targetPlayer = this.plugin.getServer().getOfflinePlayer(args[1].trim());
-                if (targetPlayer.hasPlayedBefore()) {
+                // Resolve via PlayerLookupService (online players + UUIDStorage
+                // cache only) instead of Bukkit.getOfflinePlayer(String), which
+                // silently returns a synthetic hash-derived UUID for unknown
+                // names. Bedrock/Floodgate players are handled correctly here
+                // because the join listener stores their prefixed name and
+                // Floodgate UUID in UUIDStorage at join time.
+                Optional<UUID> resolvedUUID =
+                        this.plugin.getPlayerLookupService().resolveOnlineOrCached(args[1]);
+                if (resolvedUUID.isPresent()) {
+                    targetPlayer = this.plugin.getServer().getOfflinePlayer(resolvedUUID.get());
                     isPlayer = true;
                 }
 
@@ -162,7 +179,14 @@ public class CheckCommand extends AutorankCommand {
                 }
             }
 
-            if (targetPlayer.getName().equalsIgnoreCase(sender.getName())) {
+            // Self-check uses UUID equality rather than name equality. The old
+            // String comparison was both NPE-prone (OfflinePlayer.getName() can
+            // be null) and unsafe for case-variant names. Console senders are
+            // never "self", so they always need autorank.checkothers.
+            boolean isSelfCheck = sender instanceof Player playerSender
+                    && targetPlayer != null
+                    && playerSender.getUniqueId().equals(targetPlayer.getUniqueId());
+            if (isSelfCheck) {
                 if (!this.hasPermission("autorank.check", sender)) {
                     return true;
                 }
@@ -183,13 +207,16 @@ public class CheckCommand extends AutorankCommand {
                 targetPlayerName = onlineTargetPlayer.getName();
                 targetUUID = onlineTargetPlayer.getUniqueId();
             } else {
-                try {
-                    targetUUID = UUIDManager.getUUID(targetPlayer.getName()).get();
-                } catch (ExecutionException | InterruptedException var16) {
-                    var16.printStackTrace();
-                }
-
+                // targetPlayer was built from a resolved UUID (or is the
+                // command sender as Player), so its UUID is authoritative.
+                // No Mojang fallback needed. getName() can still be null
+                // if the Bukkit usercache has no entry, so fall back to the
+                // typed argument for display purposes.
+                targetUUID = targetPlayer.getUniqueId();
                 targetPlayerName = targetPlayer.getName();
+                if (targetPlayerName == null) {
+                    targetPlayerName = args[1].trim();
+                }
             }
 
             String finalTargetPlayerName = targetPlayerName;

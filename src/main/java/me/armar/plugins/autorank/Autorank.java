@@ -35,6 +35,7 @@ import me.armar.plugins.autorank.storage.flatfile.FlatFileStorageProvider;
 import me.armar.plugins.autorank.storage.mysql.MySQLStorageProvider;
 import me.armar.plugins.autorank.tasks.TaskManager;
 import me.armar.plugins.autorank.updater.UpdateHandler;
+import me.armar.plugins.autorank.util.uuid.PlayerLookupService;
 import me.armar.plugins.autorank.util.uuid.UUIDStorage;
 import me.armar.plugins.autorank.validations.ValidateHandler;
 import me.armar.plugins.autorank.warningmanager.WarningManager;
@@ -78,6 +79,7 @@ public class Autorank extends JavaPlugin {
     private MigrationManager migrationManager;
     private StatisticsManager statisticsManager;
     private UUIDStorage uuidStorage;
+    private PlayerLookupService playerLookupService;
     private PlayTimeStorageManager playTimeStorageManager;
     private TaskManager taskManager;
     private ValidateHandler validateHandler;
@@ -170,6 +172,7 @@ public class Autorank extends JavaPlugin {
         this.setValidateHandler(new ValidateHandler(this));
         this.setLeaderboardManager(new LeaderboardHandler(this));
         this.setUUIDStorage(new UUIDStorage(this));
+        this.playerLookupService = new PlayerLookupService(this);
         this.setPlayTimeManager(new PlayTimeManager(this));
         this.setPlayerChecker(new PlayerChecker(this));
         this.setDebugger(new Debugger(this));
@@ -462,6 +465,10 @@ public class Autorank extends JavaPlugin {
 
     public void setUUIDStorage(UUIDStorage uuidStorage) {
         this.uuidStorage = uuidStorage;
+    }
+
+    public PlayerLookupService getPlayerLookupService() {
+        return this.playerLookupService;
     }
 
     public ValidateHandler getValidateHandler() {

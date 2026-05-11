@@ -110,16 +110,14 @@ public class UUIDStorage {
         });
     }
 
+    // Cache miss returns null. The previous fallback to
+    // Bukkit.getOfflinePlayer(String) silently produced synthetic UUIDs
+    // (UUID.nameUUIDFromBytes("OfflinePlayer:" + name)) for unknown
+    // names, which never match any real player's UUID and corrupt every
+    // downstream lookup. Callers that need a network fallback should
+    // go through PlayerLookupService.
     protected CompletableFuture<UUID> getUUID(String playerName) {
-        return CompletableFuture.supplyAsync(() -> {
-            UUID uuid = this.getStoredUUID(playerName);
-            if (uuid != null) {
-                return uuid;
-            } else {
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
-                return offlinePlayer.getName() == null ? offlinePlayer.getUniqueId() : null;
-            }
-        });
+        return CompletableFuture.supplyAsync(() -> this.getStoredUUID(playerName));
     }
 
     public UUID getStoredUUID(String playerName) {

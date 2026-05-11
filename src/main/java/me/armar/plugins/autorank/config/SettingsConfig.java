@@ -152,6 +152,22 @@ public class SettingsConfig extends AbstractConfig {
         return this.getConfig().getBoolean("automatically been assigned");
     }
 
+    public boolean isBedrockEnabled() {
+        return this.getConfig().getBoolean("bedrock.enabled", true);
+    }
+
+    public String getBedrockPrefixSetting() {
+        return this.getConfig().getString("bedrock.prefix", "auto");
+    }
+
+    public String getBedrockFloodgateMode() {
+        return this.getConfig().getString("bedrock.use-floodgate-api", "auto").toLowerCase();
+    }
+
+    public boolean skipMojangForBedrockPrefix() {
+        return this.getConfig().getBoolean("bedrock.skip-mojang-for-prefix", true);
+    }
+
     public enum MySQLSettings {
         DATABASE,
         HOSTNAME,

@@ -128,3 +128,43 @@ automatically been assigned: true
 
 show first login date: false
 # Show first login date of player when they log onto the server
+
+bedrock:
+  enabled: true
+  # Master switch for Bedrock-aware player name resolution.
+  # When false, Autorank ignores all options below and behaves exactly as
+  # it did before Bedrock support was added (Java-only behaviour).
+
+  prefix: 'auto'
+  # The Bedrock username prefix configured on this server (set in Floodgate's
+  # config.yml as "username-prefix"). Names matching this prefix are treated
+  # as Bedrock players and are NEVER sent to Mojang for lookup.
+  #
+  # 'auto'    - read the prefix from the Floodgate plugin at runtime
+  #             (recommended; falls back to '.' if Floodgate isn't installed)
+  # '.'       - default Floodgate prefix (single dot)
+  # 'BR_'     - example custom prefix
+  # '*'       - example custom prefix
+  # ''        - explicit empty string; use this only if your Floodgate is
+  #             configured with no prefix at all
+  #
+  # Note: admins must type Bedrock names with the prefix (e.g. ".Foo").
+  # Autorank does NOT silently try the prefixed form when an unprefixed
+  # name is given, because a Java player "Foo" and a Bedrock player ".Foo"
+  # could coexist on the same server and guessing would be unsafe.
+
+  use-floodgate-api: auto
+  # Whether to call the Floodgate API for help resolving Bedrock players.
+  #   auto   - use it when the Floodgate plugin is installed (recommended)
+  #   always - use it; warn loudly if Floodgate is missing
+  #   never  - ignore Floodgate even if installed
+  # Limitation: Floodgate's API can only synchronously resolve currently-
+  # online Bedrock players. Offline-by-username lookup goes through Floodgate's
+  # external XUID service asynchronously and is only attempted for explicit
+  # admin commands, not for performance-sensitive paths.
+
+  skip-mojang-for-prefix: true
+  # When true, names that start with the configured Bedrock prefix are never
+  # sent to the Mojang profile API. Mojang has no record of Bedrock players,
+  # so these lookups always fail and only waste time / hit rate limits.
+  # Leave this on unless you have a very specific reason to disable it.

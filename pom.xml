@@ -58,6 +58,11 @@
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <!-- Floodgate (GeyserMC Bedrock compatibility) - soft dependency -->
+        <repository>
+            <id>opencollab-snapshots</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+        </repository>
         <repository>
             <id>maven-snapshots</id>
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
@@ -139,6 +144,23 @@
             <artifactId>annotations</artifactId>
             <version>22.0.0</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Floodgate API (soft dependency). All Floodgate class references are
+             confined to FloodgateHook so the plugin runs on servers without
+             Floodgate installed. Cumulus (Forms API) is excluded because we
+             don't use it and the pinned 1.1.2 version is no longer on the
+             opencollab snapshots repository. -->
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.2.5-SNAPSHOT</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.geysermc.cumulus</groupId>
+                    <artifactId>cumulus</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.kyori/adventure-platform-bukkit -->
         <dependency>

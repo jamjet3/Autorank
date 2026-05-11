@@ -119,17 +119,34 @@ public class UUIDManager {
             }
 
             if (!playerNamesToSearch.isEmpty()) {
-                UUIDFetcher fetcher = new UUIDFetcher(playerNamesToSearch);
-
-                try {
-                    Map<String, UUID> response = fetcher.call();
-                    cachedData.putAll(response);
-                } catch (Exception var7) {
-                    if (var7 instanceof IOException) {
-                        Bukkit.getLogger().warning("Tried to contact Mojang page for UUID lookup but failed.");
+                // Strip out names matching the configured Bedrock prefix.
+                // Mojang has no record of Bedrock players, so these
+                // lookups always fail silently while incurring HTTP cost
+                // and rate-limit risk. Configurable via Settings.yml
+                // (bedrock.skip-mojang-for-prefix).
+                PlayerLookupService lookup =
+                        plugin != null ? plugin.getPlayerLookupService() : null;
+                List<String> mojangCandidates = new ArrayList<>(playerNamesToSearch.size());
+                for (String candidate : playerNamesToSearch) {
+                    if (lookup != null && lookup.shouldSkipMojangFor(candidate)) {
+                        continue;
                     }
+                    mojangCandidates.add(candidate);
+                }
 
-                    var7.printStackTrace();
+                if (!mojangCandidates.isEmpty()) {
+                    UUIDFetcher fetcher = new UUIDFetcher(mojangCandidates);
+
+                    try {
+                        Map<String, UUID> response = fetcher.call();
+                        cachedData.putAll(response);
+                    } catch (Exception var7) {
+                        if (var7 instanceof IOException) {
+                            Bukkit.getLogger().warning("Tried to contact Mojang page for UUID lookup but failed.");
+                        }
+
+                        var7.printStackTrace();
+                    }
                 }
             }
 

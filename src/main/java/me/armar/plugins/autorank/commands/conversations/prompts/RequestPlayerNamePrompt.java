@@ -1,5 +1,6 @@
 package me.armar.plugins.autorank.commands.conversations.prompts;
 
+import me.armar.plugins.autorank.Autorank;
 import org.bukkit.Bukkit;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -35,6 +36,14 @@ public class RequestPlayerNamePrompt extends ValidatingPrompt {
     }
 
     protected boolean isInputValid(@NotNull ConversationContext conversationContext, @NotNull String s) {
+        // Prefer PlayerLookupService so the validator recognises both Java
+        // and Bedrock-prefixed names without producing synthetic UUIDs.
+        // Fall back to Bukkit.getOfflinePlayer only if Autorank isn't fully
+        // initialised yet (e.g. very early conversation reuse).
+        Autorank autorank = (Autorank) Bukkit.getPluginManager().getPlugin("Autorank");
+        if (autorank != null && autorank.getPlayerLookupService() != null) {
+            return autorank.getPlayerLookupService().resolveOnlineOrCached(s).isPresent();
+        }
         return Bukkit.getOfflinePlayer(s).hasPlayedBefore();
     }
 

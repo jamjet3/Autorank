@@ -82,7 +82,7 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
             }
 
             if (this.rateLimiting && i != requests - 1) {
-                Bukkit.getServer().getLogger().info("[Autorank] Waiting for 10 minutes");
+                Bukkit.getServer().getLogger().info("[Autorank] Pausing 60 seconds between Mojang batch lookups (rate-limit guard)");
                 Thread.sleep(60000L);
             }
         }
