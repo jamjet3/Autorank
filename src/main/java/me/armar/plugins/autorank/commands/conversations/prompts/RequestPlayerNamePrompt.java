@@ -36,15 +36,16 @@ public class RequestPlayerNamePrompt extends ValidatingPrompt {
     }
 
     protected boolean isInputValid(@NotNull ConversationContext conversationContext, @NotNull String s) {
-        // Prefer PlayerLookupService so the validator recognises both Java
-        // and Bedrock-prefixed names without producing synthetic UUIDs.
-        // Fall back to Bukkit.getOfflinePlayer only if Autorank isn't fully
-        // initialised yet (e.g. very early conversation reuse).
+        // Use PlayerLookupService so the validator recognises both Java and
+        // Bedrock-prefixed names without producing synthetic UUIDs.
+        // If the service isn't reachable (very early load), reject the input
+        // rather than falling back to Bukkit.getOfflinePlayer(String) — that
+        // is the unsafe legacy path this whole change is replacing.
         Autorank autorank = (Autorank) Bukkit.getPluginManager().getPlugin("Autorank");
-        if (autorank != null && autorank.getPlayerLookupService() != null) {
-            return autorank.getPlayerLookupService().resolveOnlineOrCached(s).isPresent();
+        if (autorank == null || autorank.getPlayerLookupService() == null) {
+            return false;
         }
-        return Bukkit.getOfflinePlayer(s).hasPlayedBefore();
+        return autorank.getPlayerLookupService().resolveOnlineOrCached(s).isPresent();
     }
 
     protected @Nullable Prompt acceptValidatedInput(@NotNull ConversationContext conversationContext, @NotNull String s) {

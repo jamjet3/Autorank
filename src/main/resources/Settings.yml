@@ -131,9 +131,11 @@ show first login date: false
 
 bedrock:
   enabled: true
-  # Master switch for Bedrock-aware player name resolution.
-  # When false, Autorank ignores all options below and behaves exactly as
-  # it did before Bedrock support was added (Java-only behaviour).
+  # Master switch for Bedrock-specific player name resolution.
+  # When false, Autorank ignores the prefix and Floodgate options below and
+  # treats every name as a Java name. Note that the underlying UUID resolver
+  # (UUIDStorage) still avoids unsafe synthetic Bukkit UUIDs regardless of
+  # this setting — that correctness fix applies on all paths.
 
   prefix: 'auto'
   # The Bedrock username prefix configured on this server (set in Floodgate's
@@ -155,13 +157,19 @@ bedrock:
 
   use-floodgate-api: auto
   # Whether to call the Floodgate API for help resolving Bedrock players.
-  #   auto   - use it when the Floodgate plugin is installed (recommended)
-  #   always - use it; warn loudly if Floodgate is missing
+  #   auto   - use Floodgate when the plugin is installed (recommended)
+  #   always - same as 'auto' for now; reserved for future stricter behaviour
+  #            (e.g. fail loudly if Floodgate is missing). No warning is
+  #            currently emitted.
   #   never  - ignore Floodgate even if installed
-  # Limitation: Floodgate's API can only synchronously resolve currently-
-  # online Bedrock players. Offline-by-username lookup goes through Floodgate's
-  # external XUID service asynchronously and is only attempted for explicit
-  # admin commands, not for performance-sensitive paths.
+  #
+  # Phase 1 scope: only online Bedrock players and previously-seen (cached)
+  # offline Bedrock players are resolved by command-line name lookup. Unknown
+  # offline Bedrock players (no Bukkit/UUIDStorage entry) intentionally fail
+  # with a "no such player" response rather than producing a synthetic UUID.
+  # Floodgate's external XUID service for unknown gamertags is wired in
+  # (PlayerLookupService.resolveFull) but is NOT used by any command in this
+  # phase, so don't expect /ar set on a never-seen Bedrock gamertag to work.
 
   skip-mojang-for-prefix: true
   # When true, names that start with the configured Bedrock prefix are never
